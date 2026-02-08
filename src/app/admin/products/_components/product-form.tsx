@@ -71,7 +71,9 @@ export function ProductForm({ product, mode }: ProductFormProps) {
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [categoryId, setCategoryId] = useState(product?.category_id ?? "");
-  const [isPublished, setIsPublished] = useState(product?.is_published ?? false);
+  const [isPublished, setIsPublished] = useState(
+    product?.is_published ?? false,
+  );
   const [isFeatured, setIsFeatured] = useState(product?.is_featured ?? false);
   const [isNew, setIsNew] = useState(product?.is_new ?? false);
   const [isBestSelling, setIsBestSelling] = useState(
@@ -311,7 +313,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
               </CardTitle>
               <CardDescription>
                 Select colors and sizes — variants are auto-generated as you
-                pick. Or add custom variants manually.
+                pick. or add you can add custom variants manually.
               </CardDescription>
             </CardHeader>
             <CardContent>
