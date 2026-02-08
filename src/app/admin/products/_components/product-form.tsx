@@ -282,9 +282,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel
-                        disabled={deleteMutation.isPending}
-                      >
+                      <AlertDialogCancel disabled={deleteMutation.isPending}>
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction

@@ -52,8 +52,8 @@ export function DeleteColorDialog({
   const description = (
     <>
       Are you sure you want to delete{" "}
-      <span className="font-semibold text-foreground">{color?.name}</span>?
-      This action cannot be undone.
+      <span className="font-semibold text-foreground">{color?.name}</span>? This
+      action cannot be undone.
     </>
   );
 
