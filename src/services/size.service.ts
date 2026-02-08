@@ -4,6 +4,7 @@ import type {
   Size,
   CreateSizePayload,
   UpdateSizePayload,
+  ReorderSizePayload,
 } from "@/lib/type";
 
 const SIZE_URL = "/sizes";
@@ -26,6 +27,10 @@ export const sizeService = {
     data: UpdateSizePayload,
   ): Promise<ApiResponse<Size>> => {
     return api.patch(`${SIZE_URL}/${id}`, data);
+  },
+
+  reorder: async (data: ReorderSizePayload): Promise<ApiResponse<Size[]>> => {
+    return api.patch(`${SIZE_URL}/reorder`, data);
   },
 
   delete: async (id: string): Promise<ApiResponse<null>> => {

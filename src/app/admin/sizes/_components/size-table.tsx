@@ -1,8 +1,28 @@
 "use client";
 
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
-import { useUpdateSize } from "@/hooks/use-sizes";
+import { useUpdateSize, useReorderSizes } from "@/hooks/use-sizes";
 import type { Size } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,48 +44,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface SizeTableProps {
-  sizes: Size[];
-  onEdit: (size: Size) => void;
-  onDelete: (size: Size) => void;
-}
+// ── Drag Handle ───────────────────────────────────────────
 
-export function SizeTable({ sizes, onEdit, onDelete }: SizeTableProps) {
+function DragHandle({ id }: { id: string }) {
+  const { attributes, listeners } = useSortable({ id });
+
   return (
-    <div className="rounded-lg border">
-      <Table className="min-w-[640px] table-fixed">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">Name</TableHead>
-            <TableHead className="w-[130px] text-center">Sort Order</TableHead>
-            <TableHead className="w-[160px] text-center">Published</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sizes.map((size) => (
-            <SizeRow
-              key={size.id}
-              size={size}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Button
+      {...attributes}
+      {...listeners}
+      variant="ghost"
+      size="icon-xs"
+      className="text-muted-foreground cursor-grab active:cursor-grabbing hover:bg-transparent"
+    >
+      <GripVertical className="size-4" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
   );
 }
 
-// ── Size Row ──────────────────────────────────────────────
+// ── Draggable Row ─────────────────────────────────────────
 
-interface SizeRowProps {
+interface DraggableSizeRowProps {
   size: Size;
   onEdit: (size: Size) => void;
   onDelete: (size: Size) => void;
 }
 
-function SizeRow({ size, onEdit, onDelete }: SizeRowProps) {
+function DraggableSizeRow({ size, onEdit, onDelete }: DraggableSizeRowProps) {
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: size.id,
+  });
+
   const updateMutation = useUpdateSize();
 
   const handleStatusToggle = (checked: boolean) => {
@@ -76,7 +86,20 @@ function SizeRow({ size, onEdit, onDelete }: SizeRowProps) {
   };
 
   return (
-    <TableRow>
+    <TableRow
+      ref={setNodeRef}
+      data-dragging={isDragging}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      {/* Drag Handle */}
+      <TableCell className="w-10">
+        <DragHandle id={size.id} />
+      </TableCell>
+
       {/* Name */}
       <TableCell className="font-medium truncate">{size.name}</TableCell>
 
@@ -130,5 +153,93 @@ function SizeRow({ size, onEdit, onDelete }: SizeRowProps) {
         </DropdownMenu>
       </TableCell>
     </TableRow>
+  );
+}
+
+// ── Size Table ────────────────────────────────────────────
+
+interface SizeTableProps {
+  sizes: Size[];
+  onEdit: (size: Size) => void;
+  onDelete: (size: Size) => void;
+}
+
+export function SizeTable({ sizes, onEdit, onDelete }: SizeTableProps) {
+  const [localSizes, setLocalSizes] = useState(sizes);
+  const reorderMutation = useReorderSizes();
+
+  // Keep local state in sync with prop changes (e.g. after create/delete/update)
+  const [prevSizes, setPrevSizes] = useState(sizes);
+  if (sizes !== prevSizes) {
+    setPrevSizes(sizes);
+    setLocalSizes(sizes);
+  }
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {}),
+  );
+
+  const dataIds: UniqueIdentifier[] = localSizes.map((s) => s.id);
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!active || !over || active.id === over.id) return;
+
+    const oldIndex = dataIds.indexOf(active.id);
+    const newIndex = dataIds.indexOf(over.id);
+    const reordered = arrayMove(localSizes, oldIndex, newIndex);
+
+    // Optimistically update local state
+    setLocalSizes(reordered);
+
+    // Build payload with new sort_order values
+    const items = reordered.map((size, index) => ({
+      id: size.id,
+      sort_order: index,
+    }));
+
+    reorderMutation.mutate({ items });
+  }
+
+  return (
+    <div className="rounded-lg border">
+      <DndContext
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
+      >
+        <Table className="min-w-[640px] table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10" />
+              <TableHead className="w-[200px]">Name</TableHead>
+              <TableHead className="w-[130px] text-center">
+                Sort Order
+              </TableHead>
+              <TableHead className="w-[160px] text-center">Published</TableHead>
+              <TableHead className="w-12 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <SortableContext
+              items={dataIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {localSizes.map((size) => (
+                <DraggableSizeRow
+                  key={size.id}
+                  size={size}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ))}
+            </SortableContext>
+          </TableBody>
+        </Table>
+      </DndContext>
+    </div>
   );
 }

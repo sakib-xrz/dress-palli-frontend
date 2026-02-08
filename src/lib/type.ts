@@ -106,3 +106,7 @@ export type UpdateSizePayload = {
   sort_order?: number;
   is_active?: boolean;
 };
+
+export type ReorderSizePayload = {
+  items: { id: string; sort_order: number }[];
+};

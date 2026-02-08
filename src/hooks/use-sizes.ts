@@ -7,6 +7,7 @@ import type {
   ApiErrorResponse,
   CreateSizePayload,
   UpdateSizePayload,
+  ReorderSizePayload,
 } from "@/lib/type";
 
 const SIZE_QUERY_KEY = ["sizes"];
@@ -53,6 +54,21 @@ export function useUpdateSize() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateSizePayload }) =>
       sizeService.update(id, data),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: SIZE_QUERY_KEY });
+      showToast.success(response.message);
+    },
+    onError: (error: ApiErrorResponse) => {
+      showToast.error(error.message);
+    },
+  });
+}
+
+export function useReorderSizes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ReorderSizePayload) => sizeService.reorder(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: SIZE_QUERY_KEY });
       showToast.success(response.message);
