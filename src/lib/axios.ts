@@ -1,32 +1,25 @@
 import axios from "axios";
-import { API_URL } from "@/lib/constant";
 import { type ApiErrorResponse } from "@/lib/type";
 
+/**
+ * Axios instance configured to use the Next.js API proxy.
+ *
+ * All requests go through /api/proxy/... which:
+ *  1. Reads the HttpOnly auth cookie (invisible to JS)
+ *  2. Attaches it as a Bearer token to the backend request
+ *  3. Forwards the response back to the client
+ *
+ * This means the client never sees the JWT or the backend URL.
+ */
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: "/api/proxy",
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
   timeout: 10000,
 });
 
-api.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
-    const token =
-      localStorage.getItem("access_token") ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtbGNjemVzajAwMDBhdWQxYXdxcDY5NzMiLCJlbWFpbCI6InN1cGVyYWRtaW5AZHJlc3NwYWxsaS5jb20iLCJyb2xlIjoiU1VQRVJfQURNSU4iLCJpYXQiOjE3NzA1Mjc5MjcsImV4cCI6MTc3MDYxNDMyN30.ucJ-KDT_-I0h8wPYRIBMByiAt8F5mytZ4A7IMPH8iHU";
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  function (error) {
-    // Do something with request error
-    return Promise.reject(error);
-  },
-);
+// No request interceptor needed — the proxy handles auth via HttpOnly cookie
 
 api.interceptors.response.use(
   function onFulfilled(response) {
@@ -41,6 +34,14 @@ api.interceptors.response.use(
       errors: error.response?.data?.errors || [],
       timestamp: error.response?.data?.timestamp || new Date().toISOString(),
     };
+
+    // Handle 401 — token expired or invalid, redirect to login
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+
     return Promise.reject(errorResponse);
   },
 );
