@@ -6,7 +6,6 @@ import { ArrowDownUp, Filter, Plus, Search, X } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { useProducts } from "@/hooks/use-products";
-import { useCategories } from "@/hooks/use-categories";
 import type { AdminProduct } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/collapsible";
 
 import { ProductTable } from "./_components/product-table";
+import { CategoryCombobox } from "@/components/shared/category-combobox";
 import { ProductTableSkeleton } from "./_components/product-table-skeleton";
 import { ProductEmptyState } from "./_components/product-empty-state";
 import { DeleteProductDialog } from "./_components/delete-product-dialog";
@@ -86,7 +86,6 @@ export default function ProductsPage() {
   );
 
   // ── Data ──────────────────────────────────────────────
-  const { data: categoriesData } = useCategories();
   const { data: productsData, isLoading } = useProducts({
     page,
     limit,
@@ -141,14 +140,6 @@ export default function ProductsPage() {
     setSearch(null);
     setPage(1);
   }, [setSearch, setPage]);
-
-  const handleCategoryChange = useCallback(
-    (value: string) => {
-      setCategoryId(value === "all" ? null : value);
-      setPage(1);
-    },
-    [setCategoryId, setPage],
-  );
 
   const handleStatusChange = useCallback(
     (value: string) => {
@@ -273,188 +264,193 @@ export default function ProductsPage() {
       </div>
 
       {/* Filters Toolbar */}
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
-          <form
-            onSubmit={handleSearch}
-            className="relative flex-1 min-w-[200px] max-w-sm"
-          >
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search products..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-8 pr-8"
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
-            )}
-          </form>
+      <div className="rounded-lg border bg-card p-3 shadow-sm sm:p-4">
+        <div className="space-y-3">
+          {/* Row 1: Search + Clear */}
+          <div className="flex items-center gap-2">
+            <form
+              onSubmit={handleSearch}
+              className="relative flex-1 bg-background"
+            >
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search products..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pl-8 pr-8"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </form>
+          </div>
 
-          {/* Category Filter */}
-          <Select
-            value={categoryId || "all"}
-            onValueChange={handleCategoryChange}
-          >
-            <SelectTrigger className="w-44">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categoriesData?.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Row 2: Filter controls - responsive grid */}
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+            {/* Category Filter */}
+            <div className="col-span-2 sm:w-56">
+              <CategoryCombobox
+                value={categoryId}
+                onValueChange={(val) => {
+                  setCategoryId(val || null);
+                  setPage(1);
+                }}
+              />
+            </div>
 
-          {/* Status Filter */}
-          <Select value={status || "all"} onValueChange={handleStatusChange}>
-            <SelectTrigger className="w-36">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Status Filter */}
+            <Select value={status || "all"} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-full sm:w-36 bg-background">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Sort By */}
-          <Select
-            value={sortBy || "created_at"}
-            onValueChange={handleSortByChange}
-          >
-            <SelectTrigger className="w-40">
-              <div className="flex items-center gap-1.5">
-                <ArrowDownUp className="size-3.5 shrink-0" />
-                <SelectValue placeholder="Sort by" />
+            {/* Sort By */}
+            <Select
+              value={sortBy || "created_at"}
+              onValueChange={handleSortByChange}
+            >
+              <SelectTrigger className="w-full sm:w-40 bg-background">
+                <div className="flex items-center gap-1.5">
+                  <ArrowDownUp className="size-3.5 shrink-0" />
+                  <SelectValue placeholder="Sort by" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_at">Date Created</SelectItem>
+                <SelectItem value="name">Name</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Sort Order */}
+            <Select
+              value={sortOrder || "desc"}
+              onValueChange={handleSortOrderChange}
+            >
+              <SelectTrigger className="w-full sm:w-32 bg-background">
+                <SelectValue placeholder="Order" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Descending</SelectItem>
+                <SelectItem value="asc">Ascending</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* More Filters Toggle */}
+            <Collapsible
+              open={moreFiltersOpen}
+              onOpenChange={setMoreFiltersOpen}
+            >
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto h-9 font-normal"
+                >
+                  <Filter className="size-3.5" />
+                  {moreFiltersOpen ? "Hide" : "More"} Filters
+                  {hasAdvancedFilters && (
+                    <Badge variant="secondary" className="ml-1">
+                      {advancedFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
+          </div>
+
+          {/* Advanced Filters (Collapsible Content) */}
+          <Collapsible open={moreFiltersOpen} onOpenChange={setMoreFiltersOpen}>
+            <CollapsibleContent className="bg-background">
+              <div className="rounded-md border bg-muted/30 p-3 sm:p-4">
+                <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      Featured
+                    </Label>
+                    <Select
+                      value={featured || "all"}
+                      onValueChange={handleFeaturedChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="All" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="yes">Featured</SelectItem>
+                        <SelectItem value="no">Not Featured</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      New Arrival
+                    </Label>
+                    <Select
+                      value={newArrival || "all"}
+                      onValueChange={handleNewArrivalChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="All" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="yes">New Arrival</SelectItem>
+                        <SelectItem value="no">Not New</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">
+                      Best Selling
+                    </Label>
+                    <Select
+                      value={bestSelling || "all"}
+                      onValueChange={handleBestSellingChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="All" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="yes">Best Selling</SelectItem>
+                        <SelectItem value="no">Not Best Selling</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="created_at">Date Created</SelectItem>
-              <SelectItem value="name">Name</SelectItem>
-            </SelectContent>
-          </Select>
+            </CollapsibleContent>
+          </Collapsible>
 
-          {/* Sort Order */}
-          <Select
-            value={sortOrder || "desc"}
-            onValueChange={handleSortOrderChange}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Order" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="desc">Descending</SelectItem>
-              <SelectItem value="asc">Ascending</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Clear Filters */}
           {hasFilters && (
-            <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-              <X />
-              Clear
-              <Badge variant="secondary" className="ml-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="shrink-0"
+            >
+              <X className="size-3.5" />
+              <span>Clear</span>
+              <Badge variant="secondary" className="ml-0.5">
                 {activeFilterCount}
               </Badge>
             </Button>
           )}
         </div>
-
-        {/* Advanced Filters (Collapsible) */}
-        <Collapsible open={moreFiltersOpen} onOpenChange={setMoreFiltersOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Filter className="size-3.5" />
-              {moreFiltersOpen ? "Hide" : "More"} Filters
-              {hasAdvancedFilters && (
-                <Badge variant="secondary" className="ml-1">
-                  {advancedFilterCount}
-                </Badge>
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-3">
-            <div className="rounded-lg border bg-card shadow-sm">
-              <div className="grid gap-0">
-                {/* Product Tags Section */}
-                <div className="space-y-3 p-4">
-                  <h4 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Product Tags
-                  </h4>
-                  <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-3 sm:grid-cols-1 lg:grid-cols-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">
-                        Featured
-                      </Label>
-                      <Select
-                        value={featured || "all"}
-                        onValueChange={handleFeaturedChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="All" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
-                          <SelectItem value="yes">Featured</SelectItem>
-                          <SelectItem value="no">Not Featured</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">
-                        New Arrival
-                      </Label>
-                      <Select
-                        value={newArrival || "all"}
-                        onValueChange={handleNewArrivalChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="All" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
-                          <SelectItem value="yes">New Arrival</SelectItem>
-                          <SelectItem value="no">Not New</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">
-                        Best Selling
-                      </Label>
-                      <Select
-                        value={bestSelling || "all"}
-                        onValueChange={handleBestSellingChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="All" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
-                          <SelectItem value="yes">Best Selling</SelectItem>
-                          <SelectItem value="no">Not Best Selling</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
       </div>
 
       {/* Content */}
