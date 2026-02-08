@@ -1,5 +1,12 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useDeleteProduct } from "@/hooks/use-products";
+import type { AdminProduct } from "@/lib/type";
+
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +17,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteProduct } from "@/hooks/use-products";
-import type { AdminProduct } from "@/lib/type";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface DeleteProductDialogProps {
   open: boolean;
@@ -24,6 +37,7 @@ export function DeleteProductDialog({
   onOpenChange,
   product,
 }: DeleteProductDialogProps) {
+  const isMobile = useIsMobile();
   const deleteMutation = useDeleteProduct();
 
   const handleDelete = () => {
@@ -35,18 +49,52 @@ export function DeleteProductDialog({
     });
   };
 
+  const title = "Delete Product";
+  const description = (
+    <>
+      Are you sure you want to delete{" "}
+      <span className="font-semibold text-foreground">{product?.name}</span>?
+      This will unpublish the product and move it to trash.
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom" className="rounded-t-xl">
+          <SheetHeader>
+            <SheetTitle>{title}</SheetTitle>
+            <SheetDescription>{description}</SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="w-full"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={deleteMutation.isPending}
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Product</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">
-              {product?.name}
-            </span>
-            ? This will unpublish the product and move it to trash.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={deleteMutation.isPending}>
@@ -55,7 +103,7 @@ export function DeleteProductDialog({
           <AlertDialogAction
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="bg-destructive! text-destructive-foreground hover:bg-destructive/90"
+            variant="destructive"
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>

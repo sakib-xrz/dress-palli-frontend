@@ -10,6 +10,7 @@ import {
   useDeleteProduct,
   useUpdateProduct,
 } from "@/hooks/use-products";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type {
   AdminProductDetail,
   CreateProductPayload,
@@ -25,8 +26,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,9 +60,11 @@ interface ProductFormProps {
 
 export function ProductForm({ product, mode }: ProductFormProps) {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -209,42 +219,86 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         </div>
         <div className="flex items-center gap-3">
           {mode === "edit" && product && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 />
+              </Button>
+              {isMobile ? (
+                <Sheet
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
                 >
-                  <Trash2 />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Product</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete{" "}
-                    <span className="font-semibold text-foreground">
-                      {product.name}
-                    </span>
-                    ? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleteMutation.isPending}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={deleteMutation.isPending}
-                    variant="destructive"
-                  >
-                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  <SheetContent side="bottom" className="rounded-t-xl">
+                    <SheetHeader>
+                      <SheetTitle>Delete Product</SheetTitle>
+                      <SheetDescription>
+                        Are you sure you want to delete{" "}
+                        <span className="font-semibold text-foreground">
+                          {product.name}
+                        </span>
+                        ? This action cannot be undone.
+                      </SheetDescription>
+                    </SheetHeader>
+                    <SheetFooter>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDelete}
+                        disabled={deleteMutation.isPending}
+                        className="w-full"
+                      >
+                        {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setDeleteDialogOpen(false)}
+                        disabled={deleteMutation.isPending}
+                        className="w-full"
+                      >
+                        Cancel
+                      </Button>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <AlertDialog
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete{" "}
+                        <span className="font-semibold text-foreground">
+                          {product.name}
+                        </span>
+                        ? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        disabled={deleteMutation.isPending}
+                      >
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        disabled={deleteMutation.isPending}
+                        variant="destructive"
+                      >
+                        {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </>
           )}
           <Button variant="outline" type="button" asChild>
             <Link href="/admin/products">Discard</Link>
