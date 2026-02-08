@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
 import { ProductTable } from "./_components/product-table";
 import { ProductTableSkeleton } from "./_components/product-table-skeleton";
@@ -29,10 +28,7 @@ import { ProductDetailView } from "./_components/product-detail-view";
 
 export default function ProductsPage() {
   // ── URL State (Nuqs) ─────────────────────────────────
-  const [page, setPage] = useQueryState(
-    "page",
-    parseAsInteger.withDefault(1),
-  );
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(10),
@@ -165,7 +161,10 @@ export default function ProductsPage() {
       {/* Filters Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
-        <form onSubmit={handleSearch} className="relative flex-1 min-w-[200px] max-w-sm">
+        <form
+          onSubmit={handleSearch}
+          className="relative flex-1 min-w-[200px] max-w-sm"
+        >
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Search products..."

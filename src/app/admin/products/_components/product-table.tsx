@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,7 +16,6 @@ import type { AdminProduct } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
@@ -153,30 +152,36 @@ export function ProductTable({
       },
       {
         id: "stock",
-        header: "Stock",
+        header: () => (
+          <div className="flex items-center justify-center">Stock</div>
+        ),
         cell: ({ row }) => {
           const stock = row.original.total_stock;
           return (
-            <Badge
-              variant={stock > 0 ? "outline" : "destructive"}
-              className="font-mono text-xs tabular-nums"
-            >
-              {stock > 0 ? stock : "Out of stock"}
-            </Badge>
+            <div className="flex items-center justify-center">
+              <Badge
+                variant={stock > 0 ? "outline" : "destructive"}
+                className="font-mono text-xs tabular-nums"
+              >
+                {stock > 0 ? stock : "Out of stock"}
+              </Badge>
+            </div>
           );
         },
         size: 100,
       },
       {
         id: "colors",
-        header: "Colors",
+        header: () => (
+          <div className="flex items-center justify-center">Colors</div>
+        ),
         cell: ({ row }) => {
           const colors = row.original.available_colors;
           if (colors.length === 0)
             return <span className="text-muted-foreground text-xs">—</span>;
           return (
             <TooltipProvider>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 justify-center">
                 {colors.slice(0, 4).map((c) => (
                   <Tooltip key={c.id}>
                     <TooltipTrigger asChild>
@@ -203,13 +208,15 @@ export function ProductTable({
       },
       {
         id: "sizes",
-        header: "Sizes",
+        header: () => (
+          <div className="flex items-center justify-center">Sizes</div>
+        ),
         cell: ({ row }) => {
           const sizes = row.original.available_sizes;
           if (sizes.length === 0)
             return <span className="text-muted-foreground text-xs">—</span>;
           return (
-            <div className="flex items-center gap-1 flex-wrap">
+            <div className="flex items-center gap-1 flex-wrap justify-center">
               {sizes.slice(0, 3).map((s) => (
                 <Badge
                   key={s.id}
@@ -231,11 +238,13 @@ export function ProductTable({
       },
       {
         accessorKey: "is_published",
-        header: "Status",
+        header: () => (
+          <div className="flex items-center justify-center">Status</div>
+        ),
         cell: ({ row }) => {
           const product = row.original;
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <Switch
                 size="sm"
                 checked={product.is_published}
@@ -262,34 +271,36 @@ export function ProductTable({
         cell: ({ row }) => {
           const product = row.original;
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-xs">
-                  <MoreHorizontal />
-                  <span className="sr-only">Actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onViewDetails(product)}>
-                  <Eye />
-                  View Details
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={`/admin/products/${product.id}/edit`}>
-                    <Pencil />
-                    Edit
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => onDelete(product)}
-                >
-                  <Trash2 />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon-xs">
+                    <MoreHorizontal />
+                    <span className="sr-only">Actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onViewDetails(product)}>
+                    <Eye />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/products/${product.id}/edit`}>
+                      <Pencil />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onDelete(product)}
+                  >
+                    <Trash2 />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           );
         },
         size: 50,
@@ -298,6 +309,7 @@ export function ProductTable({
     [statusMutation, onDelete, onViewDetails],
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: products,
     columns,

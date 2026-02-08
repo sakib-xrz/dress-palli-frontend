@@ -56,11 +56,11 @@ const data = {
           icon: IconPackage,
           subItems: [
             {
-              title: "Add New",
-              url: "/admin/create-product",
+              title: "Create Product",
+              url: "/admin/products/new",
             },
             {
-              title: "All Products",
+              title: "Products List",
               url: "/admin/products",
             },
           ],

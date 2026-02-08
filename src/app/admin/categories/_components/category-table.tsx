@@ -68,7 +68,7 @@ export function CategoryTable({
               Sub-Categories
             </TableHead>
             <TableHead className="w-[160px] text-center">Published</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-12 text-right" />
           </TableRow>
         </TableHeader>
         <TableBody>

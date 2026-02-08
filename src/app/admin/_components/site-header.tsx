@@ -8,8 +8,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 const pageTitles: Record<string, string> = {
   "/admin/dashboard": "Dashboard",
   "/admin/categories": "Categories",
-  "/admin/create-product": "Add New Product",
-  "/admin/products": "All Products",
+  "/admin/products/new": "Create Product",
+  "/admin/products": "Products List",
   "/admin/colors": "Colors",
   "/admin/sizes": "Sizes",
   "/admin/orders": "Orders",
@@ -26,9 +26,7 @@ function getPageTitle(pathname: string): string {
   // Fallback: capitalize the last segment of the path
   const segments = pathname.split("/").filter(Boolean);
   const last = segments[segments.length - 1] ?? "";
-  return last
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return last.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function SiteHeader() {
