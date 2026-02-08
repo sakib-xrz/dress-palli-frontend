@@ -42,7 +42,7 @@ import {
 
 const sizeFormSchema = z.object({
   name: z.string().min(1, "Size name is required"),
-  sort_order: z.coerce.number().int().min(0, "Sort order must be 0 or greater"),
+  sort_order: z.number().int().min(0, "Sort order must be 0 or greater"),
   is_active: z.boolean(),
 });
 
@@ -154,6 +154,13 @@ export function SizeFormModal({
                   min={0}
                   placeholder="e.g. 0"
                   {...field}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </FormControl>
               <FormMessage />
