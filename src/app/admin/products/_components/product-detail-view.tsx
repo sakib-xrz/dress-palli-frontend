@@ -1,10 +1,21 @@
 "use client";
 
+import { useCallback, useMemo, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import type { AdminProduct } from "@/lib/type";
+import { useUpdateProduct } from "@/hooks/use-products";
+import type { AdminProduct, GroupedVariant } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import {
+  CircleDot,
+  ExternalLink,
+  Loader2,
+  RotateCcw,
+  Save,
+  SquarePen,
+  Tag,
+  X,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -25,6 +37,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -33,12 +46,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// ── Types ────────────────────────────────────────────────
 
 interface ProductDetailViewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: AdminProduct | null;
 }
+
+interface EditableVariant {
+  id: string;
+  color_id: string | null;
+  color_name: string | null;
+  color_code: string | null;
+  size_id: string | null;
+  size_name: string | null;
+  price: number;
+  stock: number;
+  is_active: boolean;
+}
+
+// ── Helpers ──────────────────────────────────────────────
+
+function flattenVariants(groups: GroupedVariant[]): EditableVariant[] {
+  return groups.flatMap((group) =>
+    group.sizes.map((s) => ({
+      id: s.id,
+      color_id: group.color?.id ?? null,
+      color_name: group.color?.name ?? null,
+      color_code: group.color?.code ?? null,
+      size_id: s.size_id,
+      size_name: s.size_name,
+      price: parseFloat(s.price) || 0,
+      stock: s.stock,
+      is_active: s.is_active,
+    })),
+  );
+}
+
+function formatCurrency(value: number) {
+  return `BDT ${value.toLocaleString("en-BD")}`;
+}
+
+// ── Main Component ───────────────────────────────────────
 
 export function ProductDetailView({
   open,
@@ -49,24 +105,35 @@ export function ProductDetailView({
 
   if (!product) return null;
 
-  const content = <DetailContent product={product} />;
+  const content = <DetailContent key={product.id} product={product} />;
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{product.name}</DialogTitle>
-            <DialogDescription>
-              {product.category?.name} &middot; {product.slug}
-            </DialogDescription>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6 pb-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-xl leading-tight">
+                  {product.name}
+                </DialogTitle>
+                <DialogDescription className="mt-1 flex items-center gap-1.5 text-sm">
+                  <Tag className="size-3" />
+                  {product.category?.name}
+                  <span className="text-muted-foreground/50">|</span>
+                  <span className="font-mono text-xs text-muted-foreground/70">
+                    {product.slug}
+                  </span>
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          {content}
-          <DialogFooter>
-            <Button variant="outline" asChild>
+          <div className="px-6 pb-6">{content}</div>
+          <DialogFooter className="border-t px-6 py-4">
+            <Button variant="outline" size="sm" asChild>
               <Link href={`/admin/products/${product.id}/edit`}>
-                <Pencil />
-                Edit Product
+                <ExternalLink className="size-3.5" />
+                Edit Full Product
               </Link>
             </Button>
           </DialogFooter>
@@ -77,19 +144,24 @@ export function ProductDetailView({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{product.name}</SheetTitle>
-          <SheetDescription>
-            {product.category?.name} &middot; {product.slug}
+      <SheetContent side="bottom" className="max-h-[92vh] overflow-y-auto p-0">
+        <SheetHeader className="px-5 pt-5 pb-0">
+          <SheetTitle className="text-lg">{product.name}</SheetTitle>
+          <SheetDescription className="flex items-center gap-1.5 text-sm">
+            <Tag className="size-3" />
+            {product.category?.name}
+            <span className="text-muted-foreground/50">|</span>
+            <span className="font-mono text-xs text-muted-foreground/70">
+              {product.slug}
+            </span>
           </SheetDescription>
         </SheetHeader>
-        <div className="px-4 pb-4">{content}</div>
-        <SheetFooter>
-          <Button variant="outline" className="w-full" asChild>
+        <div className="px-5 pb-5">{content}</div>
+        <SheetFooter className="border-t px-5 py-4">
+          <Button variant="outline" size="sm" className="w-full" asChild>
             <Link href={`/admin/products/${product.id}/edit`}>
-              <Pencil />
-              Edit Product
+              <ExternalLink className="size-3.5" />
+              Edit Full Product
             </Link>
           </Button>
         </SheetFooter>
@@ -98,94 +170,326 @@ export function ProductDetailView({
   );
 }
 
-function DetailContent({ product }: { product: AdminProduct }) {
-  return (
-    <div className="space-y-5">
-      {/* Status Badges */}
-      <div className="flex flex-wrap gap-1.5">
-        <Badge variant={product.is_published ? "default" : "outline"}>
-          {product.is_published ? "Published" : "Draft"}
-        </Badge>
-        {product.is_featured && <Badge variant="secondary">Featured</Badge>}
-        {product.is_new && <Badge variant="secondary">New Arrival</Badge>}
-        {product.is_best_selling && (
-          <Badge variant="secondary">Best Selling</Badge>
-        )}
-      </div>
+// ── Detail Content ───────────────────────────────────────
 
-      {/* Primary Image */}
-      {product.primary_image && (
-        <div className="overflow-hidden rounded-lg border bg-muted aspect-video relative">
-          <Image
-            src={product.primary_image.url}
-            alt={product.primary_image.alt_text || product.name}
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 100vw, 640px"
+function DetailContent({ product }: { product: AdminProduct }) {
+  const updateProduct = useUpdateProduct();
+
+  // ── Editing State ───────────────────────────
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedVariants, setEditedVariants] = useState<EditableVariant[]>([]);
+  const [bulkPrice, setBulkPrice] = useState("");
+  const [bulkStock, setBulkStock] = useState("");
+
+  const originalVariants = useMemo(
+    () => flattenVariants(product.variants),
+    [product.variants],
+  );
+
+  const startEditing = useCallback(() => {
+    setEditedVariants(originalVariants.map((v) => ({ ...v })));
+    setIsEditing(true);
+  }, [originalVariants]);
+
+  const cancelEditing = useCallback(() => {
+    setIsEditing(false);
+    setEditedVariants([]);
+    setBulkPrice("");
+    setBulkStock("");
+  }, []);
+
+  const isDirty = useMemo(() => {
+    if (!isEditing || editedVariants.length !== originalVariants.length)
+      return false;
+    return editedVariants.some((ev, i) => {
+      const ov = originalVariants[i];
+      return (
+        ev.price !== ov.price ||
+        ev.stock !== ov.stock ||
+        ev.is_active !== ov.is_active
+      );
+    });
+  }, [isEditing, editedVariants, originalVariants]);
+
+  const changedCount = useMemo(() => {
+    if (!isEditing) return 0;
+    return editedVariants.filter((ev, i) => {
+      const ov = originalVariants[i];
+      return (
+        ev.price !== ov.price ||
+        ev.stock !== ov.stock ||
+        ev.is_active !== ov.is_active
+      );
+    }).length;
+  }, [isEditing, editedVariants, originalVariants]);
+
+  // ── Variant Edit Handlers ───────────────────
+
+  const handleVariantChange = useCallback(
+    (index: number, field: "price" | "stock" | "is_active", value: unknown) => {
+      setEditedVariants((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], [field]: value };
+        return updated;
+      });
+    },
+    [],
+  );
+
+  const handleBulkPrice = useCallback(() => {
+    const price = parseFloat(bulkPrice);
+    if (isNaN(price) || price <= 0) return;
+    setEditedVariants((prev) => prev.map((v) => ({ ...v, price })));
+    setBulkPrice("");
+  }, [bulkPrice]);
+
+  const handleBulkStock = useCallback(() => {
+    const stock = parseInt(bulkStock);
+    if (isNaN(stock) || stock < 0) return;
+    setEditedVariants((prev) => prev.map((v) => ({ ...v, stock })));
+    setBulkStock("");
+  }, [bulkStock]);
+
+  const resetVariant = useCallback(
+    (index: number) => {
+      setEditedVariants((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...originalVariants[index] };
+        return updated;
+      });
+    },
+    [originalVariants],
+  );
+
+  // ── Save ────────────────────────────────────
+
+  const handleSave = useCallback(() => {
+    updateProduct.mutate(
+      {
+        id: product.id,
+        data: {
+          variants: editedVariants.map((v) => ({
+            id: v.id,
+            price: v.price,
+            stock: v.stock,
+            color_id: v.color_id,
+            size_id: v.size_id,
+            is_active: v.is_active,
+          })),
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setEditedVariants([]);
+        },
+      },
+    );
+  }, [product.id, editedVariants, updateProduct]);
+
+  // Which variants to render
+  const displayVariants = isEditing ? editedVariants : originalVariants;
+
+  const isFieldChanged = useCallback(
+    (index: number, field: "price" | "stock" | "is_active") => {
+      if (!isEditing || !originalVariants[index]) return false;
+      return editedVariants[index]?.[field] !== originalVariants[index][field];
+    },
+    [isEditing, editedVariants, originalVariants],
+  );
+
+  return (
+    <div className="space-y-5 pt-4">
+      {/* ── Hero Card: Image + Badges + Metrics ── */}
+      <div className="overflow-hidden rounded-xl border bg-background">
+        {product.primary_image ? (
+          <div className="relative">
+            {/* Gradient overlay for badge readability */}
+            <div className="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-black/30 to-transparent z-1 pointer-events-none" />
+            {/* Badges overlaid on image */}
+            <div className="absolute top-2.5 left-2.5 z-10 flex flex-wrap gap-1.5">
+              <StatusBadges product={product} overlay />
+            </div>
+            <div className="aspect-video relative bg-muted/10">
+              <Image
+                src={product.primary_image.url}
+                alt={product.primary_image.alt_text || product.name}
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 640px"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-1.5 p-3.5">
+            <StatusBadges product={product} />
+          </div>
+        )}
+
+        {/* Metrics strip */}
+        <div className="grid grid-cols-3 divide-x border-t">
+          <MetricCell
+            label="Price Range"
+            value={
+              product.price_range.min === product.price_range.max
+                ? formatCurrency(product.price_range.min)
+                : `${formatCurrency(product.price_range.min)} – ${formatCurrency(product.price_range.max)}`
+            }
+          />
+          <MetricCell
+            label="Total Stock"
+            value={product.total_stock.toLocaleString()}
+            alert={product.total_stock === 0}
+          />
+          <MetricCell
+            label="Variants"
+            value={originalVariants.length.toString()}
           />
         </div>
-      )}
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-3 gap-4">
-        <MetricCard
-          label="Price Range"
-          value={
-            product.price_range.min === product.price_range.max
-              ? `BDT ${product.price_range.min}`
-              : `BDT ${product.price_range.min} – BDT ${product.price_range.max}`
-          }
-        />
-        <MetricCard
-          label="Total Stock"
-          value={product.total_stock.toString()}
-        />
-        <MetricCard
-          label="Variants"
-          value={product.variants
-            .reduce((sum, g) => sum + g.sizes.length, 0)
-            .toString()}
-        />
       </div>
 
-      {/* Colors & Sizes */}
-      {product.available_colors.length > 0 && (
-        <div className="space-y-2">
-          <Label>Colors</Label>
-          <div className="flex flex-wrap gap-1.5">
-            {product.available_colors.map((c) => (
-              <Badge key={c.id} variant="outline" className="gap-1.5">
-                {c.code && (
-                  <span
-                    className="size-2.5 rounded-full border"
-                    style={{ backgroundColor: c.code }}
-                  />
-                )}
-                {c.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* ── Colors & Sizes ────────────────────── */}
+      {(product.available_colors.length > 0 ||
+        product.available_sizes.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {product.available_colors.length > 0 && (
+            <div className="space-y-1.5">
+              <SectionLabel>Colors</SectionLabel>
+              <div className="flex flex-wrap gap-1.5">
+                {product.available_colors.map((c) => (
+                  <Badge key={c.id} variant="outline" className="gap-1.5">
+                    {c.code && (
+                      <span
+                        className="size-2.5 rounded-full border"
+                        style={{ backgroundColor: c.code }}
+                      />
+                    )}
+                    {c.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {product.available_sizes.length > 0 && (
-        <div className="space-y-2">
-          <Label>Sizes</Label>
-          <div className="flex flex-wrap gap-1.5">
-            {product.available_sizes.map((s) => (
-              <Badge key={s.id} variant="outline">
-                {s.name}
-              </Badge>
-            ))}
-          </div>
+          {product.available_sizes.length > 0 && (
+            <div className="space-y-1.5">
+              <SectionLabel>Sizes</SectionLabel>
+              <div className="flex flex-wrap gap-1.5">
+                {product.available_sizes.map((s) => (
+                  <Badge key={s.id} variant="outline">
+                    {s.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       <Separator />
 
-      {/* Variants Table */}
-      <div className="space-y-2">
-        <Label>Variant Breakdown</Label>
+      {/* ── Variant Table Section ─────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <SectionLabel>Variant Breakdown</SectionLabel>
+
+          {!isEditing ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={startEditing}
+                  className="gap-1"
+                >
+                  <SquarePen className="size-3" />
+                  Quick Edit
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>Edit price, stock & status inline</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              {isDirty && (
+                <span className="mr-1 text-xs text-muted-foreground">
+                  {changedCount} changed
+                </span>
+              )}
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={cancelEditing}
+                disabled={updateProduct.isPending}
+              >
+                <X className="size-3" />
+                Cancel
+              </Button>
+              <Button
+                size="xs"
+                onClick={handleSave}
+                disabled={!isDirty || updateProduct.isPending}
+              >
+                {updateProduct.isPending ? (
+                  <Loader2 className="size-3 animate-spin" />
+                ) : (
+                  <Save className="size-3" />
+                )}
+                Save
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Bulk Fill Row (edit mode only) */}
+        {isEditing && (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              Fill all:
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Input
+                type="number"
+                placeholder="Price"
+                value={bulkPrice}
+                onChange={(e) => setBulkPrice(e.target.value)}
+                className="h-7 w-24 text-xs"
+                min={0}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="xs"
+                onClick={handleBulkPrice}
+                disabled={!bulkPrice}
+              >
+                Set Price
+              </Button>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Input
+                type="number"
+                placeholder="Stock"
+                value={bulkStock}
+                onChange={(e) => setBulkStock(e.target.value)}
+                className="h-7 w-20 text-xs"
+                min={0}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="xs"
+                onClick={handleBulkStock}
+                disabled={!bulkStock}
+              >
+                Set Stock
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Variant Table */}
         <div className="rounded-lg border overflow-auto">
           <Table>
             <TableHeader>
@@ -195,52 +499,182 @@ function DetailContent({ product }: { product: AdminProduct }) {
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead className="text-center">Status</TableHead>
+                {isEditing && <TableHead className="w-10" />}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {product.variants.flatMap((group) =>
-                group.sizes.map((s) => (
-                  <TableRow key={s.id}>
+              {displayVariants.map((variant, index) => {
+                const priceChanged = isFieldChanged(index, "price");
+                const stockChanged = isFieldChanged(index, "stock");
+                const activeChanged = isFieldChanged(index, "is_active");
+                const rowChanged =
+                  priceChanged || stockChanged || activeChanged;
+
+                return (
+                  <TableRow
+                    key={variant.id}
+                    className={
+                      rowChanged
+                        ? "bg-blue-50/50 dark:bg-blue-950/20"
+                        : undefined
+                    }
+                  >
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        {group.color?.code && (
+                        {variant.color_code && (
                           <span
                             className="size-3 rounded-full border shrink-0"
-                            style={{ backgroundColor: group.color.code }}
+                            style={{ backgroundColor: variant.color_code }}
                           />
                         )}
                         <span className="text-sm">
-                          {group.color?.name ?? "—"}
+                          {variant.color_name ?? "—"}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {s.size_name ?? "—"}
+                      {variant.size_name ?? "—"}
                     </TableCell>
-                    <TableCell className="text-sm font-medium">
-                      BDT {s.price}
+
+                    {/* Price */}
+                    <TableCell>
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={variant.price || ""}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              index,
+                              "price",
+                              parseFloat(e.target.value) || 0,
+                            )
+                          }
+                          placeholder="0"
+                          className={`h-8 w-28 text-xs ${
+                            priceChanged
+                              ? "border-blue-400 ring-1 ring-blue-200 dark:border-blue-600 dark:ring-blue-900"
+                              : ""
+                          }`}
+                        />
+                      ) : (
+                        <span className="text-sm font-medium">
+                          {formatCurrency(variant.price)}
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell className="text-sm">{s.stock}</TableCell>
+
+                    {/* Stock */}
+                    <TableCell>
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          min={0}
+                          step="1"
+                          value={variant.stock || ""}
+                          onChange={(e) =>
+                            handleVariantChange(
+                              index,
+                              "stock",
+                              parseInt(e.target.value) || 0,
+                            )
+                          }
+                          placeholder="0"
+                          className={`h-8 w-20 text-xs ${
+                            stockChanged
+                              ? "border-blue-400 ring-1 ring-blue-200 dark:border-blue-600 dark:ring-blue-900"
+                              : ""
+                          }`}
+                        />
+                      ) : (
+                        <span
+                          className={`text-sm ${
+                            variant.stock === 0
+                              ? "font-medium text-destructive"
+                              : variant.stock <= 5
+                                ? "text-amber-600 dark:text-amber-400"
+                                : ""
+                          }`}
+                        >
+                          {variant.stock}
+                          {variant.stock === 0 && (
+                            <span className="ml-1 text-[10px]">
+                              (out of stock)
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </TableCell>
+
+                    {/* Status */}
                     <TableCell className="text-center">
-                      <Badge
-                        variant={s.is_active ? "default" : "outline"}
-                        className="text-[10px]"
-                      >
-                        {s.is_active ? "Active" : "Inactive"}
-                      </Badge>
+                      {isEditing ? (
+                        <div className="flex items-center justify-center">
+                          <Switch
+                            size="sm"
+                            checked={variant.is_active}
+                            onCheckedChange={(checked) =>
+                              handleVariantChange(index, "is_active", checked)
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <Badge
+                          variant={variant.is_active ? "default" : "outline"}
+                          className="text-[10px]"
+                        >
+                          {variant.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      )}
                     </TableCell>
+
+                    {/* Reset single row */}
+                    {isEditing && (
+                      <TableCell>
+                        {rowChanged && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => resetVariant(index)}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                <RotateCcw className="size-3" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              <p>Reset to original</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
-                )),
+                );
+              })}
+
+              {displayVariants.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={isEditing ? 6 : 5}
+                    className="py-8 text-center text-sm text-muted-foreground"
+                  >
+                    No variants found.
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
       </div>
 
-      {/* Created / Updated */}
-      <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+      {/* ── Timestamps ────────────────────────── */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground pt-1">
         <span>
-          Created:{" "}
+          Created{" "}
           {new Date(product.created_at).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -248,7 +682,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
           })}
         </span>
         <span>
-          Updated:{" "}
+          Updated{" "}
           {new Date(product.updated_at).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -260,19 +694,76 @@ function DetailContent({ product }: { product: AdminProduct }) {
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+// ── Sub-components ───────────────────────────────────────
+
+function StatusBadges({
+  product,
+  overlay,
+}: {
+  product: AdminProduct;
+  overlay?: boolean;
+}) {
+  const shadowCls = overlay ? "shadow-sm" : "";
   return (
-    <div className="rounded-lg border bg-muted/30 p-3 text-center">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold mt-0.5">{value}</p>
+    <>
+      <Badge
+        variant={product.is_published ? "default" : "secondary"}
+        className={`gap-1 ${shadowCls}`}
+      >
+        <CircleDot className="size-3" />
+        {product.is_published ? "Published" : "Draft"}
+      </Badge>
+      {product.is_featured && (
+        <Badge
+          variant="outline"
+          className={`gap-1 border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-400 ${shadowCls}`}
+        >
+          Featured
+        </Badge>
+      )}
+      {product.is_new && (
+        <Badge
+          variant="outline"
+          className={`gap-1 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-400 ${shadowCls}`}
+        >
+          New Arrival
+        </Badge>
+      )}
+      {product.is_best_selling && (
+        <Badge
+          variant="outline"
+          className={`gap-1 border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950/30 dark:text-green-400 ${shadowCls}`}
+        >
+          Best Selling
+        </Badge>
+      )}
+    </>
+  );
+}
+
+function MetricCell({
+  label,
+  value,
+  alert,
+}: {
+  label: string;
+  value: string;
+  alert?: boolean;
+}) {
+  return (
+    <div className={`px-3 py-3 text-center ${alert ? "bg-destructive/5" : ""}`}>
+      <p className="text-[11px] text-muted-foreground leading-none">{label}</p>
+      <p
+        className={`text-sm font-semibold mt-1.5 leading-tight ${
+          alert ? "text-destructive" : ""
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
 
-function Label({ children, ...props }: React.ComponentProps<"p">) {
-  return (
-    <p className="text-sm font-medium" {...props}>
-      {children}
-    </p>
-  );
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <p className="text-sm font-medium text-foreground">{children}</p>;
 }
