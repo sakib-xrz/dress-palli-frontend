@@ -42,8 +42,7 @@ import {
 
 const sizeFormSchema = z.object({
   name: z.string().min(1, "Size name is required"),
-  sort_order: z.number().int().min(0, "Sort order must be 0 or greater"),
-  is_active: z.boolean(),
+  is_published: z.boolean(),
 });
 
 type SizeFormValues = z.infer<typeof sizeFormSchema>;
@@ -75,8 +74,7 @@ export function SizeFormModal({
     resolver: zodResolver(sizeFormSchema),
     defaultValues: {
       name: "",
-      sort_order: 0,
-      is_active: true,
+      is_published: true,
     },
   });
 
@@ -86,14 +84,12 @@ export function SizeFormModal({
       if (size) {
         form.reset({
           name: size.name,
-          sort_order: size.sort_order,
-          is_active: size.is_active,
+          is_published: size.is_published,
         });
       } else {
         form.reset({
           name: "",
-          sort_order: 0,
-          is_active: true,
+          is_published: true,
         });
       }
     }
@@ -106,15 +102,21 @@ export function SizeFormModal({
           id: size.id,
           data: {
             name: values.name,
-            sort_order: values.sort_order,
+            is_published: values.is_published,
           },
         },
         { onSuccess: () => onOpenChange(false) },
       );
     } else {
-      await createMutation.mutateAsync(values, {
-        onSuccess: () => onOpenChange(false),
-      });
+      await createMutation.mutateAsync(
+        {
+          name: values.name,
+          is_published: values.is_published,
+        },
+        {
+          onSuccess: () => onOpenChange(false),
+        },
+      );
     }
   };
 
@@ -141,51 +143,22 @@ export function SizeFormModal({
           )}
         />
 
-        {/* Sort Order Field */}
+        {/* Published Field */}
         <FormField
           control={form.control}
-          name="sort_order"
+          name="is_published"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sort Order</FormLabel>
+            <FormItem className="flex items-center justify-between rounded-lg border p-3">
+              <FormLabel className="cursor-pointer w-16">Published</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="e.g. 0"
-                  {...field}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === ""
-                        ? undefined
-                        : Number(e.target.value),
-                    )
-                  }
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
-
-        {/* Status Field (only on create) */}
-        {!isEditing && (
-          <FormField
-            control={form.control}
-            name="is_active"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                <FormLabel className="cursor-pointer w-16">Published</FormLabel>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        )}
 
         {/* Footer */}
         {isMobile ? (

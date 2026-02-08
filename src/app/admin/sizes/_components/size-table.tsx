@@ -81,7 +81,7 @@ function DraggableSizeRow({ size, onEdit, onDelete }: DraggableSizeRowProps) {
   const handleStatusToggle = (checked: boolean) => {
     updateMutation.mutate({
       id: size.id,
-      data: { is_active: checked },
+      data: { is_published: checked },
     });
   };
 
@@ -115,14 +115,14 @@ function DraggableSizeRow({ size, onEdit, onDelete }: DraggableSizeRowProps) {
         <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-32">
           <Switch
             size="sm"
-            checked={size.is_active}
+            checked={size.is_published}
             onCheckedChange={handleStatusToggle}
             disabled={updateMutation.isPending}
             aria-label={`Toggle ${size.name} status`}
             className="cursor-pointer"
           />
           <span className="text-xs text-muted-foreground w-16">
-            {size.is_active ? "Published" : "Unpublished"}
+            {size.is_published ? "Published" : "Unpublished"}
           </span>
         </div>
       </TableCell>

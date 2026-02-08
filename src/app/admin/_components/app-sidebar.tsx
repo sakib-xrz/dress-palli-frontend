@@ -5,7 +5,6 @@ import {
   IconCategory,
   IconDashboard,
   IconPackage,
-  IconPalette,
   IconPolaroid,
   IconRuler,
   IconSettings,
@@ -59,11 +58,6 @@ const navGroups = [
             url: "/admin/products",
           },
         ],
-      },
-      {
-        title: "Colors",
-        url: "/admin/colors",
-        icon: IconPalette,
       },
       {
         title: "Sizes",

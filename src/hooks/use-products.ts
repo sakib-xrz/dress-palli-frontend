@@ -11,7 +11,6 @@ import type {
   UpdateProductPayload,
   UpdateProductStatusPayload,
   UploadProductImageOptions,
-  UploadVariantImageOptions,
 } from "@/lib/type";
 
 const PRODUCT_QUERY_KEY = ["products"];
@@ -134,29 +133,6 @@ export function useUploadProductImages() {
       queryClient.invalidateQueries({
         queryKey: [...PRODUCT_QUERY_KEY, variables.productId, "images"],
       });
-      queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY });
-      showToast.success(response.message);
-    },
-    onError: (error: ApiErrorResponse) => {
-      showToast.error(error.message);
-    },
-  });
-}
-
-export function useUploadVariantImages() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      variantId,
-      files,
-      options,
-    }: {
-      variantId: string;
-      files: File[];
-      options?: UploadVariantImageOptions;
-    }) => productService.uploadVariantImages(variantId, files, options),
-    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY });
       showToast.success(response.message);
     },

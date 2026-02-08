@@ -6,13 +6,11 @@ import type {
   CreateProductPayload,
   PaginatedResponse,
   ProductImage,
-  ProductImageWithVariant,
   ProductQueryParams,
   UpdateImagePayload,
   UpdateProductPayload,
   UpdateProductStatusPayload,
   UploadProductImageOptions,
-  UploadVariantImageOptions,
 } from "@/lib/type";
 
 const PRODUCT_URL = "/products";
@@ -61,7 +59,7 @@ export const productService = {
 
   getImages: async (
     productId: string,
-  ): Promise<ApiResponse<ProductImageWithVariant[]>> => {
+  ): Promise<ApiResponse<ProductImage[]>> => {
     return api.get(`${PRODUCT_IMAGE_URL}/product/${productId}`);
   },
 
@@ -74,23 +72,7 @@ export const productService = {
     files.forEach((file) => formData.append("images", file));
     if (options?.alt_text) formData.append("alt_text", options.alt_text);
     if (options?.is_primary) formData.append("is_primary", "true");
-    if (options?.variant_id) formData.append("variant_id", options.variant_id);
     return api.post(`${PRODUCT_IMAGE_URL}/product/${productId}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: 60000,
-    });
-  },
-
-  uploadVariantImages: async (
-    variantId: string,
-    files: File[],
-    options?: UploadVariantImageOptions,
-  ): Promise<ApiResponse<ProductImage[]>> => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("images", file));
-    if (options?.alt_text) formData.append("alt_text", options.alt_text);
-    if (options?.is_primary) formData.append("is_primary", "true");
-    return api.post(`${PRODUCT_IMAGE_URL}/variant/${variantId}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
       timeout: 60000,
     });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -23,7 +23,7 @@ import {
 } from "@/hooks/use-products";
 import { productService } from "@/services/product.service";
 import { showToast } from "@/lib/toast";
-import type { AdminProduct, ProductImageWithVariant } from "@/lib/type";
+import type { AdminProduct, ProductImage as ProductImageType } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,13 +31,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -71,15 +64,8 @@ interface StagedFile {
   id: string;
   file: File;
   previewUrl: string;
-  uploadTarget: string;
   altText: string;
   isPrimary: boolean;
-}
-
-interface VariantOption {
-  id: string;
-  label: string;
-  colorCode: string | null;
 }
 
 // ── Helpers ────────────────────────────────────────────
@@ -157,19 +143,6 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
   const setPrimaryMutation = useSetPrimaryImage();
   const updateMutation = useUpdateImage();
 
-  // Flatten variants into selectable options
-  const variantOptions = useMemo<VariantOption[]>(() => {
-    return product.variants.flatMap((group) =>
-      group.sizes.map((size) => ({
-        id: size.id,
-        label:
-          [group.color?.name, size.size_name].filter(Boolean).join(" / ") ||
-          "Default Variant",
-        colorCode: group.color?.code ?? null,
-      })),
-    );
-  }, [product.variants]);
-
   // ── File handling ──────────────────────────────────
 
   const handleFiles = useCallback((files: FileList | File[]) => {
@@ -182,7 +155,6 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
       id: `staged-${++fileIdCounter}`,
       file,
       previewUrl: URL.createObjectURL(file),
-      uploadTarget: "product",
       altText: "",
       isPrimary: false,
     }));
@@ -244,15 +216,7 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
           is_primary: item.isPrimary || undefined,
         };
 
-        if (item.uploadTarget === "product") {
-          await productService.uploadImages(product.id, [item.file], options);
-        } else {
-          await productService.uploadVariantImages(
-            item.uploadTarget,
-            [item.file],
-            options,
-          );
-        }
+        await productService.uploadImages(product.id, [item.file], options);
         successCount++;
       } catch {
         errorCount++;
@@ -295,43 +259,6 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
     },
     [editAltText, updateMutation],
   );
-
-  // ── Group images for display ───────────────────────
-
-  const productLevelImages = useMemo(
-    () => images?.filter((img) => !img.variant_id) ?? [],
-    [images],
-  );
-
-  const variantImageGroups = useMemo(() => {
-    if (!images) return [];
-    const variantImgs = images.filter((img) => img.variant_id);
-    const groups = new Map<
-      string,
-      {
-        label: string;
-        colorCode: string | null;
-        images: ProductImageWithVariant[];
-      }
-    >();
-
-    for (const img of variantImgs) {
-      const vid = img.variant_id!;
-      if (!groups.has(vid)) {
-        const label =
-          [img.variant?.color?.name, img.variant?.size?.name]
-            .filter(Boolean)
-            .join(" / ") || "Variant";
-        groups.set(vid, {
-          label,
-          colorCode: img.variant?.color?.code ?? null,
-          images: [],
-        });
-      }
-      groups.get(vid)!.images.push(img);
-    }
-    return Array.from(groups.values());
-  }, [images]);
 
   const totalImages = images?.length ?? 0;
 
@@ -414,7 +341,6 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
                 <StagedFileCard
                   key={staged.id}
                   staged={staged}
-                  variantOptions={variantOptions}
                   onUpdate={updateStagedFile}
                   onRemove={removeStagedFile}
                   disabled={isUploading}
@@ -452,7 +378,7 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
       {/* ── Existing Images ────────────────────────────── */}
       <div className="space-y-4">
         <h4 className="text-sm font-medium">
-          All Images
+          Product Images
           {totalImages > 0 && (
             <span className="text-muted-foreground ml-1.5 font-normal">
               ({totalImages})
@@ -470,61 +396,26 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
             ))}
           </div>
         ) : totalImages > 0 ? (
-          <div className="space-y-5">
-            {/* Product-level images */}
-            {productLevelImages.length > 0 && (
-              <ImageSection
-                label="Product Images"
-                count={productLevelImages.length}
-                images={productLevelImages}
-                editingImageId={editingImageId}
-                editAltText={editAltText}
-                onEditStart={(id, alt) => {
-                  setEditingImageId(id);
-                  setEditAltText(alt || "");
-                }}
-                onEditEnd={() => {
-                  setEditingImageId(null);
-                  setEditAltText("");
-                }}
-                onEditAltTextChange={setEditAltText}
-                onSaveAltText={handleSaveAltText}
-                onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
-                onDelete={(id) => deleteMutation.mutate(id)}
-                isSetPrimaryPending={setPrimaryMutation.isPending}
-                isDeletePending={deleteMutation.isPending}
-                isSavePending={updateMutation.isPending}
-              />
-            )}
-
-            {/* Variant image groups */}
-            {variantImageGroups.map((group) => (
-              <ImageSection
-                key={group.label}
-                label={group.label}
-                count={group.images.length}
-                colorCode={group.colorCode}
-                images={group.images}
-                editingImageId={editingImageId}
-                editAltText={editAltText}
-                onEditStart={(id, alt) => {
-                  setEditingImageId(id);
-                  setEditAltText(alt || "");
-                }}
-                onEditEnd={() => {
-                  setEditingImageId(null);
-                  setEditAltText("");
-                }}
-                onEditAltTextChange={setEditAltText}
-                onSaveAltText={handleSaveAltText}
-                onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
-                onDelete={(id) => deleteMutation.mutate(id)}
-                isSetPrimaryPending={setPrimaryMutation.isPending}
-                isDeletePending={deleteMutation.isPending}
-                isSavePending={updateMutation.isPending}
-              />
-            ))}
-          </div>
+          <ImageGrid
+            images={images ?? []}
+            editingImageId={editingImageId}
+            editAltText={editAltText}
+            onEditStart={(id, alt) => {
+              setEditingImageId(id);
+              setEditAltText(alt || "");
+            }}
+            onEditEnd={() => {
+              setEditingImageId(null);
+              setEditAltText("");
+            }}
+            onEditAltTextChange={setEditAltText}
+            onSaveAltText={handleSaveAltText}
+            onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
+            onDelete={(id) => deleteMutation.mutate(id)}
+            isSetPrimaryPending={setPrimaryMutation.isPending}
+            isDeletePending={deleteMutation.isPending}
+            isSavePending={updateMutation.isPending}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed p-10 text-center">
             <div className="rounded-full bg-muted p-3">
@@ -545,13 +436,11 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
 
 function StagedFileCard({
   staged,
-  variantOptions,
   onUpdate,
   onRemove,
   disabled,
 }: {
   staged: StagedFile;
-  variantOptions: VariantOption[];
   onUpdate: (id: string, updates: Partial<StagedFile>) => void;
   onRemove: (id: string) => void;
   disabled: boolean;
@@ -590,50 +479,16 @@ function StagedFileCard({
           </Button>
         </div>
 
-        {/* Upload target + Alt text */}
-        <div className="grid gap-2 sm:grid-cols-2">
-          <div className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">
-              Upload to
-            </Label>
-            <Select
-              value={staged.uploadTarget}
-              onValueChange={(v) => onUpdate(staged.id, { uploadTarget: v })}
-              disabled={disabled}
-            >
-              <SelectTrigger className="h-8 text-xs bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="product">Product (General)</SelectItem>
-                {variantOptions.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    <div className="flex items-center gap-1.5">
-                      {v.colorCode && (
-                        <span
-                          className="size-2.5 rounded-full border shrink-0"
-                          style={{ backgroundColor: v.colorCode }}
-                        />
-                      )}
-                      {v.label}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">
-              Alt text
-            </Label>
-            <Input
-              value={staged.altText}
-              onChange={(e) => onUpdate(staged.id, { altText: e.target.value })}
-              placeholder="Describe the image..."
-              className="h-8 text-xs bg-background"
-              disabled={disabled}
-            />
-          </div>
+        {/* Alt text */}
+        <div className="space-y-1">
+          <Label className="text-[11px] text-muted-foreground">Alt text</Label>
+          <Input
+            value={staged.altText}
+            onChange={(e) => onUpdate(staged.id, { altText: e.target.value })}
+            placeholder="Describe the image..."
+            className="h-8 text-xs bg-background"
+            disabled={disabled}
+          />
         </div>
 
         {/* Primary toggle */}
@@ -659,56 +514,10 @@ function StagedFileCard({
   );
 }
 
-// ── Image Section ──────────────────────────────────────
-
-interface ImageSectionProps {
-  label: string;
-  count: number;
-  colorCode?: string | null;
-  images: ProductImageWithVariant[];
-  editingImageId: string | null;
-  editAltText: string;
-  onEditStart: (imageId: string, currentAlt: string | null) => void;
-  onEditEnd: () => void;
-  onEditAltTextChange: (value: string) => void;
-  onSaveAltText: (imageId: string) => void;
-  onSetPrimary: (imageId: string) => void;
-  onDelete: (imageId: string) => void;
-  isSetPrimaryPending: boolean;
-  isDeletePending: boolean;
-  isSavePending: boolean;
-}
-
-function ImageSection({
-  label,
-  count,
-  colorCode,
-  images,
-  ...gridProps
-}: ImageSectionProps) {
-  return (
-    <div className="space-y-2.5">
-      <div className="flex items-center gap-2">
-        {colorCode && (
-          <span
-            className="size-3 rounded-full border shrink-0"
-            style={{ backgroundColor: colorCode }}
-          />
-        )}
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          {label}
-          <span className="ml-1 font-normal">({count})</span>
-        </p>
-      </div>
-      <ImageGrid images={images} {...gridProps} />
-    </div>
-  );
-}
-
 // ── Image Grid ─────────────────────────────────────────
 
 interface ImageGridProps {
-  images: ProductImageWithVariant[];
+  images: ProductImageType[];
   editingImageId: string | null;
   editAltText: string;
   onEditStart: (imageId: string, currentAlt: string | null) => void;

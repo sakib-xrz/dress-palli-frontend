@@ -61,50 +61,27 @@ export type UpdateCategoryStatusPayload = {
   is_active: boolean;
 };
 
-// ── Color ──────────────────────────────────────────────────
-
-export type Color = {
-  id: string;
-  name: string;
-  code: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
-export type CreateColorPayload = {
-  name: string;
-  code?: string | null;
-  is_active?: boolean;
-};
-
-export type UpdateColorPayload = {
-  name?: string;
-  code?: string | null;
-  is_active?: boolean;
-};
-
 // ── Size ───────────────────────────────────────────────────
 
 export type Size = {
   id: string;
   name: string;
   sort_order: number;
-  is_active: boolean;
+  is_deleted: boolean;
+  is_published: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type CreateSizePayload = {
   name: string;
-  sort_order?: number;
-  is_active?: boolean;
+  is_published?: boolean;
 };
 
 export type UpdateSizePayload = {
   name?: string;
-  sort_order?: number;
-  is_active?: boolean;
+  is_published?: boolean;
+  is_deleted?: boolean;
 };
 
 export type ReorderSizePayload = {
@@ -119,24 +96,9 @@ export type ProductImage = {
   alt_text: string | null;
   is_primary: boolean;
   sort_order: number;
-  variant_id: string | null;
-};
-
-export type ProductImageWithVariant = ProductImage & {
-  variant: {
-    id: string;
-    color: { id: string; name: string; code: string | null } | null;
-    size: { id: string; name: string; sort_order: number } | null;
-  } | null;
 };
 
 export type UploadProductImageOptions = {
-  alt_text?: string;
-  is_primary?: boolean;
-  variant_id?: string;
-};
-
-export type UploadVariantImageOptions = {
   alt_text?: string;
   is_primary?: boolean;
 };
@@ -149,14 +111,11 @@ export type UpdateImagePayload = {
 
 export type ProductVariant = {
   id: string;
-  price: string;
   stock: number;
-  color_id: string | null;
   size_id: string | null;
-  color: { id: string; name: string; code: string | null } | null;
   size: { id: string; name: string; sort_order: number } | null;
   attributes: Record<string, unknown> | null;
-  is_active: boolean;
+  is_deleted: boolean;
 };
 
 export type ProductCategory = {
@@ -173,6 +132,11 @@ export type AdminProductDetail = {
   description: string | null;
   category_id: string;
   info: Record<string, string> | null;
+  buy_price: number;
+  cost_price: number;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FLAT";
   is_published: boolean;
   is_featured: boolean;
   is_new: boolean;
@@ -186,20 +150,6 @@ export type AdminProductDetail = {
   images: ProductImage[];
 };
 
-/** Grouped variant for formatted response */
-export type GroupedVariant = {
-  color: { id: string; name: string; code: string | null } | null;
-  sizes: {
-    id: string;
-    size_id: string | null;
-    price: string;
-    stock: number;
-    size_name: string | null;
-    attributes: Record<string, unknown> | null;
-    is_active: boolean;
-  }[];
-};
-
 /** Admin product list item (formatted from /products/admin) */
 export type AdminProduct = {
   id: string;
@@ -208,6 +158,12 @@ export type AdminProduct = {
   description: string | null;
   category_id: string;
   info: Record<string, string> | null;
+  buy_price: number;
+  cost_price: number;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FLAT";
+  effective_price: number;
   is_published: boolean;
   is_featured: boolean;
   is_new: boolean;
@@ -219,12 +175,16 @@ export type AdminProduct = {
   category: ProductCategory;
   primary_image: ProductImage | null;
   images: ProductImage[];
-  price_range: { min: number; max: number };
   total_stock: number;
   in_stock: boolean;
-  available_colors: { id: string; name: string; code: string | null }[];
   available_sizes: { id: string; name: string }[];
-  variants: GroupedVariant[];
+  variants: {
+    id: string;
+    size_id: string | null;
+    size_name: string | null;
+    stock: number;
+    attributes: Record<string, unknown> | null;
+  }[];
 };
 
 export type PaginatedResponse<T> = {
@@ -246,12 +206,15 @@ export type CreateProductPayload = {
   description?: string | null;
   category_id: string;
   info?: Record<string, string> | null;
+  buy_price: number;
+  cost_price: number;
+  sell_price: number;
+  discount?: number;
+  discount_type?: "PERCENTAGE" | "FLAT";
   variants: {
-    price: number;
     stock?: number;
-    color_id?: string | null;
     size_id?: string | null;
-    is_active?: boolean;
+    attributes?: Record<string, unknown> | null;
   }[];
   is_published?: boolean;
   is_featured?: boolean;
@@ -264,17 +227,20 @@ export type UpdateProductPayload = {
   description?: string | null;
   category_id?: string;
   info?: Record<string, string> | null;
+  buy_price?: number;
+  cost_price?: number;
+  sell_price?: number;
+  discount?: number;
+  discount_type?: "PERCENTAGE" | "FLAT";
   is_published?: boolean;
   is_featured?: boolean;
   is_new?: boolean;
   is_best_selling?: boolean;
   variants?: {
     id?: string;
-    price: number;
     stock?: number;
-    color_id?: string | null;
     size_id?: string | null;
-    is_active?: boolean;
+    attributes?: Record<string, unknown> | null;
   }[];
 };
 

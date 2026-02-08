@@ -11,7 +11,7 @@ const SIZE_URL = "/sizes";
 
 export const sizeService = {
   getAll: async (): Promise<ApiResponse<Size[]>> => {
-    return api.get(`${SIZE_URL}?include_inactive=true`);
+    return api.get(`${SIZE_URL}?include_all=true`);
   },
 
   getById: async (id: string): Promise<ApiResponse<Size>> => {

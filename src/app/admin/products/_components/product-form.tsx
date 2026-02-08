@@ -45,6 +45,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 
@@ -81,6 +88,13 @@ export function ProductForm({ product, mode }: ProductFormProps) {
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [categoryId, setCategoryId] = useState(product?.category_id ?? "");
+  const [buyPrice, setBuyPrice] = useState(product?.buy_price ?? 0);
+  const [costPrice, setCostPrice] = useState(product?.cost_price ?? 0);
+  const [sellPrice, setSellPrice] = useState(product?.sell_price ?? 0);
+  const [discount, setDiscount] = useState(product?.discount ?? 0);
+  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FLAT">(
+    product?.discount_type ?? "PERCENTAGE",
+  );
   const [isPublished, setIsPublished] = useState(
     product?.is_published ?? false,
   );
@@ -102,13 +116,9 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     if (product?.variants) {
       return product.variants.map((v) => ({
         id: v.id,
-        color_id: v.color_id,
         size_id: v.size_id,
-        color_name: v.color?.name ?? "—",
         size_name: v.size?.name ?? "—",
-        price: Number(v.price),
         stock: v.stock,
-        is_active: v.is_active,
       }));
     }
     return [];
@@ -121,18 +131,19 @@ export function ProductForm({ product, mode }: ProductFormProps) {
 
     if (!name.trim()) newErrors.name = "Product name is required";
     if (!categoryId) newErrors.category_id = "Category is required";
+    if (!buyPrice || buyPrice <= 0)
+      newErrors.buy_price = "Buy price must be greater than 0";
+    if (!costPrice || costPrice <= 0)
+      newErrors.cost_price = "Cost price must be greater than 0";
+    if (!sellPrice || sellPrice <= 0)
+      newErrors.sell_price = "Sell price must be greater than 0";
     if (variants.length === 0) {
       newErrors.variants = "At least one variant is required";
-    } else {
-      const invalidVariants = variants.filter((v) => !v.price || v.price <= 0);
-      if (invalidVariants.length > 0) {
-        newErrors.variants = "All variants must have a price greater than 0";
-      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [name, categoryId, variants]);
+  }, [name, categoryId, buyPrice, costPrice, sellPrice, variants]);
 
   // ── Convert info fields to object ─────────────────────
   const getInfoObject = useCallback((): Record<string, string> | null => {
@@ -145,6 +156,14 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     );
   }, [infoFields]);
 
+  // ── Compute effective price ───────────────────────────
+  const effectivePrice =
+    discount > 0
+      ? discountType === "PERCENTAGE"
+        ? Math.max(0, sellPrice - (sellPrice * discount) / 100)
+        : Math.max(0, sellPrice - discount)
+      : sellPrice;
+
   // ── Submit ────────────────────────────────────────────
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,16 +175,18 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         description: description.trim() || null,
         category_id: categoryId,
         info: getInfoObject(),
+        buy_price: buyPrice,
+        cost_price: costPrice,
+        sell_price: sellPrice,
+        discount,
+        discount_type: discountType,
         is_published: isPublished,
         is_featured: isFeatured,
         is_new: isNew,
         is_best_selling: isBestSelling,
         variants: variants.map((v) => ({
-          price: v.price,
           stock: v.stock,
-          color_id: v.color_id,
           size_id: v.size_id,
-          is_active: v.is_active,
         })),
       };
 
@@ -180,17 +201,19 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         description: description.trim() || null,
         category_id: categoryId,
         info: getInfoObject(),
+        buy_price: buyPrice,
+        cost_price: costPrice,
+        sell_price: sellPrice,
+        discount,
+        discount_type: discountType,
         is_published: isPublished,
         is_featured: isFeatured,
         is_new: isNew,
         is_best_selling: isBestSelling,
         variants: variants.map((v) => ({
           id: v.id,
-          price: v.price,
           stock: v.stock,
-          color_id: v.color_id,
           size_id: v.size_id,
-          is_active: v.is_active,
         })),
       };
 
@@ -357,46 +380,212 @@ export function ProductForm({ product, mode }: ProductFormProps) {
             </CardContent>
           </Card>
 
-          {/* Variants */}
+          {/* Pricing */}
           <Card>
             <CardHeader>
-              <CardTitle>
-                Variants <span className="text-destructive">*</span>
-              </CardTitle>
+              <CardTitle>Pricing</CardTitle>
               <CardDescription>
-                Select colors and sizes — variants are auto-generated as you
-                pick. or add you can add custom variants manually.
+                Set buy, cost, and sell prices. Optionally add a discount.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <VariantSection
-                variants={variants}
-                onChange={(v) => {
-                  setVariants(v);
-                  if (errors.variants)
-                    setErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.variants;
-                      return next;
-                    });
-                }}
-                error={errors.variants}
-              />
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="buy_price">
+                    Buy Price (BDT) <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="buy_price"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="0"
+                    value={buyPrice === 0 ? "" : buyPrice}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      setBuyPrice(isNaN(v) ? 0 : v);
+                      if (errors.buy_price)
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.buy_price;
+                          return next;
+                        });
+                    }}
+                    aria-invalid={!!errors.buy_price}
+                    className="bg-background"
+                  />
+                  {errors.buy_price && (
+                    <p className="text-sm text-destructive">
+                      {errors.buy_price}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cost_price">
+                    Cost Price (BDT) <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="cost_price"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="0"
+                    value={costPrice === 0 ? "" : costPrice}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      setCostPrice(isNaN(v) ? 0 : v);
+                      if (errors.cost_price)
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.cost_price;
+                          return next;
+                        });
+                    }}
+                    aria-invalid={!!errors.cost_price}
+                    className="bg-background"
+                  />
+                  {errors.cost_price && (
+                    <p className="text-sm text-destructive">
+                      {errors.cost_price}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sell_price">
+                    Sell Price (BDT) <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="sell_price"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="0"
+                    value={sellPrice || ""}
+                    onChange={(e) => {
+                      setSellPrice(parseFloat(e.target.value) || 0);
+                      if (errors.sell_price)
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.sell_price;
+                          return next;
+                        });
+                    }}
+                    aria-invalid={!!errors.sell_price}
+                    className="bg-background"
+                  />
+                  {errors.sell_price && (
+                    <p className="text-sm text-destructive">
+                      {errors.sell_price}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="discount">Discount</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="0"
+                    value={discount || ""}
+                    onChange={(e) =>
+                      setDiscount(parseFloat(e.target.value) || 0)
+                    }
+                    className="bg-background"
+                  />
+                </div>
+                <div className="space-y-2 w-full">
+                  <Label>Discount Type</Label>
+                  <Select
+                    value={discountType}
+                    onValueChange={(val) =>
+                      setDiscountType(val as "PERCENTAGE" | "FLAT")
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
+                      <SelectItem value="FLAT">Flat (BDT)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Effective Price</Label>
+                  <div className="flex h-9 items-center rounded-md border bg-muted/50 px-3 text-sm font-medium cursor-not-allowed">
+                    BDT {effectivePrice.toFixed(2)}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Additional Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
-              <CardDescription>
-                Custom attributes like Material, Fabric, Care Instructions, etc.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <InfoFields fields={infoFields} onChange={setInfoFields} />
-            </CardContent>
-          </Card>
+          {/* Variants & Additional Info - side by side */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Variants */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <CardTitle>
+                      Variants <span className="text-destructive">*</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Select sizes to create stock variants.
+                    </CardDescription>
+                  </div>
+                  {variants.length > 0 && (
+                    <span className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2.5 py-0.5">
+                      {variants.length}
+                    </span>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <VariantSection
+                  variants={variants}
+                  onChange={(v) => {
+                    setVariants(v);
+                    if (errors.variants)
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.variants;
+                        return next;
+                      });
+                  }}
+                  error={errors.variants}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Additional Info */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <CardTitle>Additional Information</CardTitle>
+                    <CardDescription>
+                      Custom details to help customers.
+                    </CardDescription>
+                  </div>
+                  {infoFields.length > 0 && (
+                    <span className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2.5 py-0.5">
+                      {infoFields.length}
+                    </span>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <InfoFields fields={infoFields} onChange={setInfoFields} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* ── Sidebar (Right) ────────────────────────── */}

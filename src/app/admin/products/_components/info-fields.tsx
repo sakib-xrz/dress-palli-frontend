@@ -1,10 +1,11 @@
 "use client";
 
+import { useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export interface InfoField {
   key: string;
@@ -16,74 +17,116 @@ interface InfoFieldsProps {
   onChange: (fields: InfoField[]) => void;
 }
 
+const PRESET_SUGGESTIONS = [
+  "Material",
+  "Fabric",
+  "Care Instructions",
+  "Fit",
+  "Style",
+  "Pattern",
+  "Sleeve",
+  "Occasion",
+] as const;
+
 export function InfoFields({ fields, onChange }: InfoFieldsProps) {
-  const handleAdd = () => {
-    onChange([...fields, { key: "", value: "" }]);
-  };
+  const handleAdd = useCallback(
+    (presetKey?: string) => {
+      onChange([...fields, { key: presetKey ?? "", value: "" }]);
+    },
+    [fields, onChange],
+  );
 
-  const handleRemove = (index: number) => {
-    onChange(fields.filter((_, i) => i !== index));
-  };
+  const handleRemove = useCallback(
+    (index: number) => {
+      onChange(fields.filter((_, i) => i !== index));
+    },
+    [fields, onChange],
+  );
 
-  const handleChange = (
-    index: number,
-    field: "key" | "value",
-    value: string,
-  ) => {
-    const updated = [...fields];
-    updated[index] = { ...updated[index], [field]: value };
-    onChange(updated);
-  };
+  const handleChange = useCallback(
+    (index: number, field: "key" | "value", value: string) => {
+      const updated = [...fields];
+      updated[index] = { ...updated[index], [field]: value };
+      onChange(updated);
+    },
+    [fields, onChange],
+  );
+
+  const availablePresets = PRESET_SUGGESTIONS.filter(
+    (preset) =>
+      !fields.some((f) => f.key.toLowerCase() === preset.toLowerCase()),
+  );
 
   return (
     <div className="space-y-3">
-      {fields.length > 0 && (
-        <div className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-          <Label className="text-xs text-muted-foreground">Attribute</Label>
-          <Label className="text-xs text-muted-foreground">Value</Label>
-          <div className="w-8" />
+      {/* Preset chips */}
+      {availablePresets.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {availablePresets.map((preset) => (
+            <Badge
+              key={preset}
+              variant="outline"
+              className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+              onClick={() => handleAdd(preset)}
+            >
+              <Plus className="size-3" />
+              {preset}
+            </Badge>
+          ))}
         </div>
       )}
 
-      {fields.map((field, index) => (
-        <div
-          key={index}
-          className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center"
-        >
-          <Input
-            placeholder="e.g. Material"
-            value={field.key}
-            onChange={(e) => handleChange(index, "key", e.target.value)}
-            className="bg-background"
-          />
-          <Input
-            placeholder="e.g. Cotton"
-            value={field.value}
-            onChange={(e) => handleChange(index, "value", e.target.value)}
-            className="bg-background"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => handleRemove(index)}
-            className="text-muted-foreground hover:text-destructive cursor-pointer"
-          >
-            <Trash2 />
-          </Button>
+      {/* Rows */}
+      {fields.length > 0 && (
+        <div className="space-y-1.5">
+          {fields.map((field, index) => (
+            <div
+              key={index}
+              className="group flex items-center gap-2 rounded-md border px-2.5 py-1.5"
+            >
+              <Input
+                placeholder="Attribute"
+                value={field.key}
+                onChange={(e) => handleChange(index, "key", e.target.value)}
+                className="bg-transparent border-0 shadow-none focus-visible:ring-1 h-7 text-xs"
+              />
+              <Input
+                placeholder="Value"
+                value={field.value}
+                onChange={(e) => handleChange(index, "value", e.target.value)}
+                className="bg-transparent border-0 shadow-none focus-visible:ring-1 h-7 text-xs"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => handleRemove(index)}
+                className="shrink-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                <Trash2 />
+              </Button>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={handleAdd}
-        className="w-full"
-      >
-        <Plus />
-        Add Attribute
-      </Button>
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => handleAdd()}
+        >
+          <Plus className="size-3.5" />
+          Add Attribute
+        </Button>
+        {fields.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            {fields.length} attribute{fields.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
