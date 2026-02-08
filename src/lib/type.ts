@@ -269,6 +269,8 @@ export type ProductQueryParams = {
   is_featured?: string;
   is_new?: string;
   is_best_selling?: string;
+  min_price?: number;
+  max_price?: number;
   sort_by?: string;
   sort_order?: string;
 };
