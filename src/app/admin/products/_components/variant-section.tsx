@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Check, ChevronsUpDown, Plus, Trash2, X } from "lucide-react";
+import { Check, ChevronsUpDown, Layers, Plus, Trash2 } from "lucide-react";
 
 import { useSizes } from "@/hooks/use-sizes";
 import { cn } from "@/lib/utils";
@@ -165,14 +165,8 @@ export function VariantSection({
           {Array.from(selectedSizeIds).map((id) => {
             const size = activeSizes.find((s) => s.id === id);
             return (
-              <Badge
-                key={id}
-                variant="secondary"
-                className="gap-1 pr-1 cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
-                onClick={() => toggleSizeAndGenerate(id)}
-              >
+              <Badge key={id} variant="secondary">
                 {size?.name}
-                <X className="size-3" />
               </Badge>
             );
           })}
@@ -183,9 +177,10 @@ export function VariantSection({
       {variants.length > 0 && (
         <div className="space-y-1.5">
           {/* Bulk fill */}
-          <div className="flex items-center gap-2 rounded-md bg-muted/60 px-2.5 py-1.5">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              Bulk stock:
+          <div className="group flex items-center gap-2 rounded-md border border-dashed bg-muted/40 px-2.5 py-1.5">
+            <Layers className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground shrink-0">
+              Set all stock to
             </span>
             <Input
               type="number"
@@ -198,7 +193,8 @@ export function VariantSection({
             <Button
               type="button"
               variant="secondary"
-              size="xs"
+              size="sm"
+              className="h-7 text-xs"
               onClick={handleBulkStock}
               disabled={!bulkStock}
             >
@@ -235,7 +231,7 @@ export function VariantSection({
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => handleRemoveVariant(index)}
-                className="shrink-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                className="shrink-0 text-muted-foreground hover:text-destructive"
               >
                 <Trash2 />
               </Button>

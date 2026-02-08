@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Suspense, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowDownUp, Filter, Plus, Search, X } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -33,7 +33,7 @@ import { DeleteProductDialog } from "./_components/delete-product-dialog";
 import { ProductDetailView } from "./_components/product-detail-view";
 import { ManageImagesModal } from "./_components/manage-images-modal";
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   // ── URL State (Nuqs) ─────────────────────────────────
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limit, setLimit] = useQueryState(
@@ -258,7 +258,7 @@ export default function ProductsPage() {
         <Button asChild>
           <Link href="/admin/products/new">
             <Plus />
-            Add Product
+            Create Product
           </Link>
         </Button>
       </div>
@@ -493,5 +493,13 @@ export default function ProductsPage() {
         product={selectedProduct}
       />
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<ProductTableSkeleton />}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

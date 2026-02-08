@@ -217,7 +217,14 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         })),
       };
 
-      updateMutation.mutate({ id: product.id, data: payload });
+      updateMutation.mutate(
+        { id: product.id, data: payload },
+        {
+          onSuccess: () => {
+            router.push("/admin/products");
+          },
+        },
+      );
     }
   };
 
@@ -233,7 +240,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {mode === "create" ? "Add Product" : "Edit Product"}
+              {mode === "create" ? "Create Product" : "Edit Product"}
             </h1>
             {mode === "edit" && product && (
               <p className="text-sm text-muted-foreground">{product.name}</p>
@@ -529,7 +536,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
           {/* Variants & Additional Info - side by side */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Variants */}
-            <Card>
+            <Card className="h-fit">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -565,7 +572,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
             </Card>
 
             {/* Additional Info */}
-            <Card>
+            <Card className="h-fit">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">

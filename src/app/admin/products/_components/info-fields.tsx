@@ -18,14 +18,16 @@ interface InfoFieldsProps {
 }
 
 const PRESET_SUGGESTIONS = [
-  "Material",
   "Fabric",
   "Care Instructions",
-  "Fit",
-  "Style",
-  "Pattern",
-  "Sleeve",
   "Occasion",
+  "Border",
+  "Pallu",
+  "Blouse Type",
+  "Salwar Type",
+  "Dupatta",
+  "Weave",
+  "Embroidery",
 ] as const;
 
 export function InfoFields({ fields, onChange }: InfoFieldsProps) {

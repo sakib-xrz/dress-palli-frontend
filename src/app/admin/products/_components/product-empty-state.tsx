@@ -18,7 +18,7 @@ export function ProductEmptyState() {
       <Button asChild className="mt-6">
         <Link href="/admin/products/new">
           <Plus className="size-4" />
-          Add Product
+          Create Product
         </Link>
       </Button>
     </div>

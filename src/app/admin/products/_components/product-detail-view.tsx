@@ -9,8 +9,8 @@ import Link from "next/link";
 import {
   CircleDot,
   ExternalLink,
+  Layers,
   Loader2,
-  RotateCcw,
   Save,
   SquarePen,
   Tag,
@@ -45,11 +45,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -117,7 +113,7 @@ export function ProductDetailView({
               </div>
             </div>
           </DialogHeader>
-          <div className="px-6 pb-6">{content}</div>
+          <div className="px-6">{content}</div>
           <DialogFooter className="border-t px-6 py-4">
             <Button variant="outline" size="sm" asChild>
               <Link href={`/admin/products/${product.id}/edit`}>
@@ -204,16 +200,13 @@ function DetailContent({ product }: { product: AdminProduct }) {
 
   // ── Variant Edit Handlers ───────────────────
 
-  const handleVariantChange = useCallback(
-    (index: number, value: number) => {
-      setEditedVariants((prev) => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], stock: value };
-        return updated;
-      });
-    },
-    [],
-  );
+  const handleVariantChange = useCallback((index: number, value: number) => {
+    setEditedVariants((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], stock: value };
+      return updated;
+    });
+  }, []);
 
   const handleBulkStock = useCallback(() => {
     const stock = parseInt(bulkStock);
@@ -221,17 +214,6 @@ function DetailContent({ product }: { product: AdminProduct }) {
     setEditedVariants((prev) => prev.map((v) => ({ ...v, stock })));
     setBulkStock("");
   }, [bulkStock]);
-
-  const resetVariant = useCallback(
-    (index: number) => {
-      setEditedVariants((prev) => {
-        const updated = [...prev];
-        updated[index] = { ...originalVariants[index] };
-        return updated;
-      });
-    },
-    [originalVariants],
-  );
 
   // ── Save ────────────────────────────────────
 
@@ -333,197 +315,193 @@ function DetailContent({ product }: { product: AdminProduct }) {
 
       <Separator />
 
-      {/* ── Variant Table Section ─────────────── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <SectionLabel>Stock by Size</SectionLabel>
-
-          {!isEditing ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={startEditing}
-                  className="gap-1"
-                >
-                  <SquarePen className="size-3" />
-                  Quick Edit
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Edit stock inline</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              {isDirty && (
-                <span className="mr-1 text-xs text-muted-foreground">
-                  {changedCount} changed
-                </span>
-              )}
+      {/* ── Variant / Stock by Size Section ──── */}
+      <Card className="gap-0">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+                <Layers className="size-4 text-muted-foreground" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Stock by Size</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  View and quick-edit inventory per size
+                </p>
+              </div>
+            </div>
+            {!isEditing ? (
               <Button
                 variant="outline"
-                size="xs"
-                onClick={cancelEditing}
-                disabled={updateProduct.isPending}
+                size="sm"
+                onClick={startEditing}
+                className="gap-1.5 shrink-0"
               >
-                <X className="size-3" />
-                Cancel
+                <SquarePen className="size-3.5" />
+                Quick Edit
               </Button>
-              <Button
-                size="xs"
-                onClick={handleSave}
-                disabled={!isDirty || updateProduct.isPending}
-              >
-                {updateProduct.isPending ? (
-                  <Loader2 className="size-3 animate-spin" />
-                ) : (
-                  <Save className="size-3" />
+            ) : (
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {isDirty && (
+                  <span className="text-xs text-muted-foreground">
+                    {changedCount} changed
+                  </span>
                 )}
-                Save
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={cancelEditing}
+                  disabled={updateProduct.isPending}
+                  className="gap-1.5"
+                >
+                  <X className="size-3.5" />
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={!isDirty || updateProduct.isPending}
+                  className="gap-1.5"
+                >
+                  {updateProduct.isPending ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Save className="size-3.5" />
+                  )}
+                  Save
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Bulk Fill (edit mode only) */}
+          {isEditing && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed bg-muted/40 px-3 py-2.5 mt-1">
+              <span className="text-xs font-medium text-muted-foreground">
+                Set all sizes to:
+              </span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  value={bulkStock}
+                  onChange={(e) => setBulkStock(e.target.value)}
+                  className="h-8 w-24 text-sm"
+                  min={0}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleBulkStock}
+                  disabled={!bulkStock}
+                >
+                  Apply
+                </Button>
+              </div>
             </div>
           )}
-        </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="rounded-lg border overflow-hidden">
+            <Table className="bg-background">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-medium">Size</TableHead>
+                  <TableHead className="font-medium text-right w-28">
+                    Stock
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {displayVariants.map((variant, index) => {
+                  const stockChanged = isFieldChanged(index);
 
-        {/* Bulk Fill Row (edit mode only) */}
-        {isEditing && (
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed bg-muted/30 px-3 py-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Fill all:
-            </span>
-            <div className="flex items-center gap-1.5">
-              <Input
-                type="number"
-                placeholder="Stock"
-                value={bulkStock}
-                onChange={(e) => setBulkStock(e.target.value)}
-                className="h-7 w-20 text-xs"
-                min={0}
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="xs"
-                onClick={handleBulkStock}
-                disabled={!bulkStock}
-              >
-                Set Stock
-              </Button>
-            </div>
-          </div>
-        )}
+                  return (
+                    <TableRow
+                      key={variant.id}
+                      className={
+                        stockChanged
+                          ? "bg-primary/5 dark:bg-primary/10"
+                          : undefined
+                      }
+                    >
+                      <TableCell className="font-medium">
+                        {variant.size_name ?? "—"}
+                      </TableCell>
 
-        {/* Variant Table */}
-        <div className="rounded-lg border overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Size</TableHead>
-                <TableHead>Stock</TableHead>
-                {isEditing && <TableHead className="w-10" />}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {displayVariants.map((variant, index) => {
-                const stockChanged = isFieldChanged(index);
-
-                return (
-                  <TableRow
-                    key={variant.id}
-                    className={
-                      stockChanged
-                        ? "bg-blue-50/50 dark:bg-blue-950/20"
-                        : undefined
-                    }
-                  >
-                    <TableCell className="text-sm">
-                      {variant.size_name ?? "—"}
-                    </TableCell>
-
-                    {/* Stock */}
-                    <TableCell>
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          min={0}
-                          step="1"
-                          value={variant.stock || ""}
-                          onChange={(e) =>
-                            handleVariantChange(
-                              index,
-                              parseInt(e.target.value) || 0,
-                            )
-                          }
-                          placeholder="0"
-                          className={`h-8 w-20 text-xs ${
-                            stockChanged
-                              ? "border-blue-400 ring-1 ring-blue-200 dark:border-blue-600 dark:ring-blue-900"
-                              : ""
-                          }`}
-                        />
-                      ) : (
-                        <span
-                          className={`text-sm ${
-                            variant.stock === 0
-                              ? "font-medium text-destructive"
-                              : variant.stock <= 5
-                                ? "text-amber-600 dark:text-amber-400"
+                      <TableCell className="text-right">
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            min={0}
+                            step="1"
+                            value={variant.stock ?? ""}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                index,
+                                parseInt(e.target.value, 10) || 0,
+                              )
+                            }
+                            placeholder="0"
+                            className={`h-8 w-20 text-sm text-right ml-auto ${
+                              stockChanged
+                                ? "border-primary ring-1 ring-primary/20"
                                 : ""
-                          }`}
-                        >
-                          {variant.stock}
-                          {variant.stock === 0 && (
-                            <span className="ml-1 text-[10px]">
-                              (out of stock)
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </TableCell>
-
-                    {/* Reset single row */}
-                    {isEditing && (
-                      <TableCell>
-                        {stockChanged && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => resetVariant(index)}
-                                className="text-muted-foreground hover:text-foreground"
-                              >
-                                <RotateCcw className="size-3" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="left">
-                              <p>Reset to original</p>
-                            </TooltipContent>
-                          </Tooltip>
+                            }`}
+                          />
+                        ) : (
+                          <span
+                            className={`inline-flex items-center justify-end text-sm ${
+                              variant.stock === 0
+                                ? "font-medium text-destructive"
+                                : variant.stock <= 5
+                                  ? "text-amber-600 dark:text-amber-400 font-medium"
+                                  : ""
+                            }`}
+                          >
+                            {variant.stock.toLocaleString()}
+                            {variant.stock === 0 && (
+                              <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">
+                                (out of stock)
+                              </span>
+                            )}
+                          </span>
                         )}
                       </TableCell>
-                    )}
-                  </TableRow>
-                );
-              })}
+                    </TableRow>
+                  );
+                })}
 
-              {displayVariants.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={isEditing ? 3 : 2}
-                    className="py-8 text-center text-sm text-muted-foreground"
-                  >
-                    No variants found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+                {displayVariants.length > 0 && (
+                  <TableRow className="bg-muted/50 font-medium hover:bg-muted/50">
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right">
+                      {displayVariants
+                        .reduce((sum, v) => sum + (v.stock ?? 0), 0)
+                        .toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                )}
+
+                {displayVariants.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={2} className="py-10 text-center">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Layers className="size-8 opacity-50" />
+                        <p className="text-sm font-medium">No variants yet</p>
+                        <p className="text-xs max-w-[220px]">
+                          Add sizes and stock from the full product edit page.
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ── Timestamps ────────────────────────── */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground pt-1">
