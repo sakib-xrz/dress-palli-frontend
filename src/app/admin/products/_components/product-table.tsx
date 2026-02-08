@@ -178,7 +178,11 @@ export function ProductTable({
         cell: ({ row }) => {
           const colors = row.original.available_colors;
           if (colors.length === 0)
-            return <span className="text-muted-foreground text-xs">—</span>;
+            return (
+              <span className="text-muted-foreground text-xs flex items-center justify-center">
+                —
+              </span>
+            );
           return (
             <TooltipProvider>
               <div className="flex items-center gap-1 justify-center">
@@ -214,7 +218,11 @@ export function ProductTable({
         cell: ({ row }) => {
           const sizes = row.original.available_sizes;
           if (sizes.length === 0)
-            return <span className="text-muted-foreground text-xs">—</span>;
+            return (
+              <span className="text-muted-foreground text-xs flex items-center justify-center">
+                —
+              </span>
+            );
           return (
             <div className="flex items-center gap-1 flex-wrap justify-center">
               {sizes.slice(0, 3).map((s) => (
