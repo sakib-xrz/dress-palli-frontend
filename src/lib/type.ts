@@ -122,6 +122,31 @@ export type ProductImage = {
   variant_id: string | null;
 };
 
+export type ProductImageWithVariant = ProductImage & {
+  variant: {
+    id: string;
+    color: { id: string; name: string; code: string | null } | null;
+    size: { id: string; name: string; sort_order: number } | null;
+  } | null;
+};
+
+export type UploadProductImageOptions = {
+  alt_text?: string;
+  is_primary?: boolean;
+  variant_id?: string;
+};
+
+export type UploadVariantImageOptions = {
+  alt_text?: string;
+  is_primary?: boolean;
+};
+
+export type UpdateImagePayload = {
+  alt_text?: string | null;
+  is_primary?: boolean;
+  sort_order?: number;
+};
+
 export type ProductVariant = {
   id: string;
   price: string;

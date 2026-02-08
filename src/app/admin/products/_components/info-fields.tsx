@@ -46,23 +46,28 @@ export function InfoFields({ fields, onChange }: InfoFieldsProps) {
       )}
 
       {fields.map((field, index) => (
-        <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+        <div
+          key={index}
+          className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center"
+        >
           <Input
             placeholder="e.g. Material"
             value={field.key}
             onChange={(e) => handleChange(index, "key", e.target.value)}
+            className="bg-background"
           />
           <Input
             placeholder="e.g. Cotton"
             value={field.value}
             onChange={(e) => handleChange(index, "value", e.target.value)}
+            className="bg-background"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon-xs"
             onClick={() => handleRemove(index)}
-            className="text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive cursor-pointer"
           >
             <Trash2 />
           </Button>

@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { useProduct } from "@/hooks/use-products";
 
 import { ProductForm } from "../../_components/product-form";
-import { ImageManager } from "../../_components/image-manager";
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;
@@ -39,12 +38,6 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   return (
     <div className="space-y-6">
       <ProductForm product={product} mode="edit" />
-
-      {/* Image Manager - only on edit page */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
-        <ImageManager productId={product.id} />
-        <div /> {/* Spacer for sidebar alignment */}
-      </div>
     </div>
   );
 }

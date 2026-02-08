@@ -378,7 +378,7 @@ export function VariantSection({
       {/* Variants Table */}
       {variants.length > 0 && (
         <div className="rounded-lg border overflow-auto">
-          <Table>
+          <Table className="bg-background">
             <TableHeader>
               <TableRow>
                 <TableHead>Color</TableHead>

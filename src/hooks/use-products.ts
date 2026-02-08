@@ -7,8 +7,11 @@ import type {
   ApiErrorResponse,
   CreateProductPayload,
   ProductQueryParams,
+  UpdateImagePayload,
   UpdateProductPayload,
   UpdateProductStatusPayload,
+  UploadProductImageOptions,
+  UploadVariantImageOptions,
 } from "@/lib/type";
 
 const PRODUCT_QUERY_KEY = ["products"];
@@ -118,12 +121,63 @@ export function useUploadProductImages() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, files }: { productId: string; files: File[] }) =>
-      productService.uploadImages(productId, files),
+    mutationFn: ({
+      productId,
+      files,
+      options,
+    }: {
+      productId: string;
+      files: File[];
+      options?: UploadProductImageOptions;
+    }) => productService.uploadImages(productId, files, options),
     onSuccess: (response, variables) => {
       queryClient.invalidateQueries({
         queryKey: [...PRODUCT_QUERY_KEY, variables.productId, "images"],
       });
+      queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY });
+      showToast.success(response.message);
+    },
+    onError: (error: ApiErrorResponse) => {
+      showToast.error(error.message);
+    },
+  });
+}
+
+export function useUploadVariantImages() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      variantId,
+      files,
+      options,
+    }: {
+      variantId: string;
+      files: File[];
+      options?: UploadVariantImageOptions;
+    }) => productService.uploadVariantImages(variantId, files, options),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY });
+      showToast.success(response.message);
+    },
+    onError: (error: ApiErrorResponse) => {
+      showToast.error(error.message);
+    },
+  });
+}
+
+export function useUpdateImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      imageId,
+      data,
+    }: {
+      imageId: string;
+      data: UpdateImagePayload;
+    }) => productService.updateImage(imageId, data),
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY });
       showToast.success(response.message);
     },

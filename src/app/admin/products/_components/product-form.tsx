@@ -158,8 +158,8 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       };
 
       createMutation.mutate(payload, {
-        onSuccess: (response) => {
-          router.push(`/admin/products/${response.data.id}/edit`);
+        onSuccess: () => {
+          router.push("/admin/products");
         },
       });
     } else if (product) {

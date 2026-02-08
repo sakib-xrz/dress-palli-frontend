@@ -9,7 +9,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Eye, Images, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { useUpdateProductStatus } from "@/hooks/use-products";
 import type { AdminProduct } from "@/lib/type";
@@ -49,6 +49,7 @@ interface ProductTableProps {
   onPageSizeChange: (size: number) => void;
   onDelete: (product: AdminProduct) => void;
   onViewDetails: (product: AdminProduct) => void;
+  onManageImages: (product: AdminProduct) => void;
 }
 
 export function ProductTable({
@@ -60,6 +61,7 @@ export function ProductTable({
   onPageSizeChange,
   onDelete,
   onViewDetails,
+  onManageImages,
 }: ProductTableProps) {
   const statusMutation = useUpdateProductStatus();
 
@@ -298,6 +300,10 @@ export function ProductTable({
                       Edit
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onManageImages(product)}>
+                    <Images />
+                    Manage Images
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
@@ -314,7 +320,7 @@ export function ProductTable({
         size: 50,
       },
     ],
-    [statusMutation, onDelete, onViewDetails],
+    [statusMutation, onDelete, onViewDetails, onManageImages],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library

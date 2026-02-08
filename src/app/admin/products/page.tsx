@@ -31,6 +31,7 @@ import { ProductTableSkeleton } from "./_components/product-table-skeleton";
 import { ProductEmptyState } from "./_components/product-empty-state";
 import { DeleteProductDialog } from "./_components/delete-product-dialog";
 import { ProductDetailView } from "./_components/product-detail-view";
+import { ManageImagesModal } from "./_components/manage-images-modal";
 
 export default function ProductsPage() {
   // ── URL State (Nuqs) ─────────────────────────────────
@@ -75,6 +76,7 @@ export default function ProductsPage() {
   // ── Local State ───────────────────────────────────────
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
+  const [manageImagesOpen, setManageImagesOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<AdminProduct | null>(
     null,
   );
@@ -227,6 +229,11 @@ export default function ProductsPage() {
   const handleViewDetails = (product: AdminProduct) => {
     setSelectedProduct(product);
     setDetailViewOpen(true);
+  };
+
+  const handleManageImages = (product: AdminProduct) => {
+    setSelectedProduct(product);
+    setManageImagesOpen(true);
   };
 
   const handlePageChange = useCallback(
@@ -465,6 +472,7 @@ export default function ProductsPage() {
           onPageSizeChange={handlePageSizeChange}
           onDelete={handleDelete}
           onViewDetails={handleViewDetails}
+          onManageImages={handleManageImages}
         />
       )}
 
@@ -479,6 +487,13 @@ export default function ProductsPage() {
       <ProductDetailView
         open={detailViewOpen}
         onOpenChange={setDetailViewOpen}
+        product={selectedProduct}
+      />
+
+      {/* Manage Images Modal/Sheet */}
+      <ManageImagesModal
+        open={manageImagesOpen}
+        onOpenChange={setManageImagesOpen}
         product={selectedProduct}
       />
     </div>
