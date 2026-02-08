@@ -4,7 +4,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import type { AdminProduct } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
-import { Pencil, ExternalLink } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -132,8 +132,8 @@ function DetailContent({ product }: { product: AdminProduct }) {
           label="Price Range"
           value={
             product.price_range.min === product.price_range.max
-              ? `BDT${product.price_range.min}`
-              : `BDT${product.price_range.min} – BDT${product.price_range.max}`
+              ? `BDT ${product.price_range.min}`
+              : `BDT ${product.price_range.min} – BDT ${product.price_range.max}`
           }
         />
         <MetricCard
@@ -218,7 +218,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                       {s.size_name ?? "—"}
                     </TableCell>
                     <TableCell className="text-sm font-medium">
-                      BDT{s.price}
+                      BDT {s.price}
                     </TableCell>
                     <TableCell className="text-sm">{s.stock}</TableCell>
                     <TableCell className="text-center">
