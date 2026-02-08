@@ -60,3 +60,49 @@ export type UpdateCategoryPayload = {
 export type UpdateCategoryStatusPayload = {
   is_active: boolean;
 };
+
+// ── Color ──────────────────────────────────────────────────
+
+export type Color = {
+  id: string;
+  name: string;
+  code: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateColorPayload = {
+  name: string;
+  code?: string | null;
+  is_active?: boolean;
+};
+
+export type UpdateColorPayload = {
+  name?: string;
+  code?: string | null;
+  is_active?: boolean;
+};
+
+// ── Size ───────────────────────────────────────────────────
+
+export type Size = {
+  id: string;
+  name: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateSizePayload = {
+  name: string;
+  sort_order?: number;
+  is_active?: boolean;
+};
+
+export type UpdateSizePayload = {
+  name?: string;
+  sort_order?: number;
+  is_active?: boolean;
+};
