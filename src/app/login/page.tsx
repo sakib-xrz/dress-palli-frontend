@@ -59,19 +59,9 @@ export default function LoginPage() {
       <div className="bg-primary/5 pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-transparent to-transparent" />
 
       <div className="relative w-full max-w-md">
-        {/* Brand */}
-        <div className="mb-8 text-center">
-          <h1 className="text-foreground text-2xl font-bold tracking-tight">
-            Dress Palli
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Admin Panel
-          </p>
-        </div>
-
         {/* Login card */}
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1 pb-4">
+          <CardHeader className="space-y-1">
             <CardTitle className="text-xl">Sign in</CardTitle>
             <CardDescription>
               Enter your credentials to access the admin panel
@@ -126,11 +116,7 @@ export default function LoginPage() {
               </div>
 
               {/* Submit */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <IconLoader2 className="mr-2 size-4 animate-spin" />
