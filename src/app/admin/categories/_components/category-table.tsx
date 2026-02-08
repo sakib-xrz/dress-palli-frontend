@@ -61,7 +61,7 @@ export function CategoryTable({
       <Table className="min-w-[640px] table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-10" />
+            <TableHead className="w-4" />
             <TableHead className="w-[200px]">Name</TableHead>
             <TableHead className="w-[180px]">Slug</TableHead>
             <TableHead className="w-[130px] text-center">
@@ -166,7 +166,7 @@ function ParentRow({
   return (
     <TableRow>
       {/* Expand/Collapse */}
-      <TableCell>
+      <TableCell className="w-4">
         {hasChildren ? (
           <Button
             variant="ghost"

@@ -297,7 +297,7 @@ export function ProductTable({
                   <DropdownMenuItem asChild>
                     <Link href={`/admin/products/${product.id}/edit`}>
                       <Pencil />
-                      Edit
+                      Edit Product
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onManageImages(product)}>

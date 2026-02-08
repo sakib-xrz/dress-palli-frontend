@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   ImagePlus,
@@ -16,12 +17,12 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
   useProductImages,
-  useUploadProductImages,
-  useUploadVariantImages,
   useDeleteProductImage,
   useSetPrimaryImage,
   useUpdateImage,
 } from "@/hooks/use-products";
+import { productService } from "@/services/product.service";
+import { showToast } from "@/lib/toast";
 import type { AdminProduct, ProductImageWithVariant } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
@@ -66,10 +67,29 @@ interface ManageImagesModalProps {
   product: AdminProduct | null;
 }
 
+interface StagedFile {
+  id: string;
+  file: File;
+  previewUrl: string;
+  uploadTarget: string;
+  altText: string;
+  isPrimary: boolean;
+}
+
 interface VariantOption {
   id: string;
   label: string;
   colorCode: string | null;
+}
+
+// ── Helpers ────────────────────────────────────────────
+
+let fileIdCounter = 0;
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // ── Main Modal/Sheet ───────────────────────────────────
@@ -90,7 +110,7 @@ export function ManageImagesModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Manage Images</DialogTitle>
+            <DialogTitle className="text-lg">Manage Images</DialogTitle>
             <DialogDescription>{product.name}</DialogDescription>
           </DialogHeader>
           {content}
@@ -115,11 +135,15 @@ export function ManageImagesModal({
 // ── Content ────────────────────────────────────────────
 
 function ManageImagesContent({ product }: { product: AdminProduct }) {
+  const queryClient = useQueryClient();
+
   // Upload state
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploadTarget, setUploadTarget] = useState<string>("product");
-  const [altText, setAltText] = useState("");
-  const [isPrimary, setIsPrimary] = useState(false);
+  const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 0,
+  });
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -129,14 +153,9 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
 
   // Queries & Mutations
   const { data: images, isLoading } = useProductImages(product.id);
-  const uploadProductMutation = useUploadProductImages();
-  const uploadVariantMutation = useUploadVariantImages();
   const deleteMutation = useDeleteProductImage();
   const setPrimaryMutation = useSetPrimaryImage();
   const updateMutation = useUpdateImage();
-
-  const isUploading =
-    uploadProductMutation.isPending || uploadVariantMutation.isPending;
 
   // Flatten variants into selectable options
   const variantOptions = useMemo<VariantOption[]>(() => {
@@ -153,20 +172,47 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
 
   // ── File handling ──────────────────────────────────
 
-  const handleFiles = useCallback(
-    (files: FileList | File[]) => {
-      const fileArray = Array.from(files).filter((f) =>
-        f.type.startsWith("image/"),
+  const handleFiles = useCallback((files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (fileArray.length === 0) return;
+
+    const newStaged: StagedFile[] = fileArray.map((file) => ({
+      id: `staged-${++fileIdCounter}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      uploadTarget: "product",
+      altText: "",
+      isPrimary: false,
+    }));
+
+    setStagedFiles((prev) => [...prev, ...newStaged].slice(0, 10));
+  }, []);
+
+  const removeStagedFile = useCallback((id: string) => {
+    setStagedFiles((prev) => {
+      const file = prev.find((f) => f.id === id);
+      if (file) URL.revokeObjectURL(file.previewUrl);
+      return prev.filter((f) => f.id !== id);
+    });
+  }, []);
+
+  const updateStagedFile = useCallback(
+    (id: string, updates: Partial<StagedFile>) => {
+      setStagedFiles((prev) =>
+        prev.map((f) => {
+          if (f.id !== id) {
+            // When setting one as primary, uncheck others
+            if (updates.isPrimary) return { ...f, isPrimary: false };
+            return f;
+          }
+          return { ...f, ...updates };
+        }),
       );
-      if (fileArray.length === 0) return;
-      setSelectedFiles((prev) => [...prev, ...fileArray].slice(0, 10));
     },
     [],
   );
-
-  const removeFile = useCallback((index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -177,43 +223,61 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
     [handleFiles],
   );
 
-  // ── Upload ─────────────────────────────────────────
+  // ── Upload all staged files ────────────────────────
 
-  const handleUpload = useCallback(() => {
-    if (selectedFiles.length === 0) return;
+  const handleUploadAll = useCallback(async () => {
+    if (stagedFiles.length === 0) return;
 
-    const options = {
-      alt_text: altText || undefined,
-      is_primary: isPrimary || undefined,
-    };
+    setIsUploading(true);
+    setUploadProgress({ current: 0, total: stagedFiles.length });
 
-    const onSuccess = () => {
-      setSelectedFiles([]);
-      setAltText("");
-      setIsPrimary(false);
-      setUploadTarget("product");
-    };
+    let successCount = 0;
+    let errorCount = 0;
 
-    if (uploadTarget === "product") {
-      uploadProductMutation.mutate(
-        { productId: product.id, files: selectedFiles, options },
-        { onSuccess },
-      );
-    } else {
-      uploadVariantMutation.mutate(
-        { variantId: uploadTarget, files: selectedFiles, options },
-        { onSuccess },
-      );
+    for (let i = 0; i < stagedFiles.length; i++) {
+      const item = stagedFiles[i];
+      setUploadProgress({ current: i + 1, total: stagedFiles.length });
+
+      try {
+        const options = {
+          alt_text: item.altText || undefined,
+          is_primary: item.isPrimary || undefined,
+        };
+
+        if (item.uploadTarget === "product") {
+          await productService.uploadImages(product.id, [item.file], options);
+        } else {
+          await productService.uploadVariantImages(
+            item.uploadTarget,
+            [item.file],
+            options,
+          );
+        }
+        successCount++;
+      } catch {
+        errorCount++;
+      }
     }
-  }, [
-    selectedFiles,
-    altText,
-    isPrimary,
-    uploadTarget,
-    product.id,
-    uploadProductMutation,
-    uploadVariantMutation,
-  ]);
+
+    // Cleanup preview URLs
+    stagedFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+    setStagedFiles([]);
+    setIsUploading(false);
+    setUploadProgress({ current: 0, total: 0 });
+
+    // Refresh data
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+
+    if (successCount > 0 && errorCount === 0) {
+      showToast.success(
+        `${successCount} image${successCount > 1 ? "s" : ""} uploaded successfully`,
+      );
+    } else if (successCount > 0) {
+      showToast.error(`${successCount} uploaded, ${errorCount} failed`);
+    } else {
+      showToast.error("Failed to upload images");
+    }
+  }, [stagedFiles, product.id, queryClient]);
 
   // ── Edit alt text ──────────────────────────────────
 
@@ -244,7 +308,11 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
     const variantImgs = images.filter((img) => img.variant_id);
     const groups = new Map<
       string,
-      { label: string; colorCode: string | null; images: ProductImageWithVariant[] }
+      {
+        label: string;
+        colorCode: string | null;
+        images: ProductImageWithVariant[];
+      }
     >();
 
     for (const img of variantImgs) {
@@ -270,7 +338,7 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
   return (
     <div className="space-y-6">
       {/* ── Upload Section ─────────────────────────────── */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Drop zone */}
         <div
           onDrop={handleDrop}
@@ -282,22 +350,24 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
             e.preventDefault();
             setDragActive(false);
           }}
-          onClick={() => fileInputRef.current?.click()}
-          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+          onClick={() => !isUploading && fileInputRef.current?.click()}
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all ${
             dragActive
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-primary/50"
-          }`}
+              ? "border-primary bg-primary/5 scale-[1.01]"
+              : "border-muted-foreground/20 hover:border-primary/40 hover:bg-muted/30"
+          } ${isUploading ? "pointer-events-none opacity-60" : ""}`}
         >
-          {isUploading ? (
-            <Loader2 className="size-7 animate-spin text-muted-foreground" />
-          ) : (
-            <Upload className="size-7 text-muted-foreground" />
-          )}
-          <p className="mt-2 text-sm font-medium">
-            {isUploading
-              ? "Uploading..."
-              : "Click or drag images to upload"}
+          <div
+            className={`rounded-full p-3 ${dragActive ? "bg-primary/10" : "bg-muted"}`}
+          >
+            {isUploading ? (
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            ) : (
+              <Upload className="size-5 text-muted-foreground" />
+            )}
+          </div>
+          <p className="mt-3 text-sm font-medium">
+            {isUploading ? "Uploading..." : "Click or drag images to upload"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             JPEG, PNG, WebP up to 30MB &middot; Max 10 at once
@@ -317,112 +387,58 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
           />
         </div>
 
-        {/* File previews & upload options */}
-        {selectedFiles.length > 0 && (
-          <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
-            {/* Preview thumbnails */}
-            <div className="flex gap-2 flex-wrap">
-              {selectedFiles.map((file, i) => (
-                <div
-                  key={`${file.name}-${i}`}
-                  className="group relative size-16 overflow-hidden rounded-md border bg-muted shrink-0"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    className="size-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFile(i);
-                    }}
-                    className="absolute -top-0.5 -right-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </div>
+        {/* Staged files with individual settings */}
+        {stagedFiles.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-muted-foreground">
+                {stagedFiles.length} image
+                {stagedFiles.length > 1 ? "s" : ""} selected
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  stagedFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+                  setStagedFiles([]);
+                }}
+                disabled={isUploading}
+                className="text-xs h-7 text-muted-foreground"
+              >
+                Clear all
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {stagedFiles.map((staged) => (
+                <StagedFileCard
+                  key={staged.id}
+                  staged={staged}
+                  variantOptions={variantOptions}
+                  onUpdate={updateStagedFile}
+                  onRemove={removeStagedFile}
+                  disabled={isUploading}
+                />
               ))}
             </div>
 
-            {/* Upload options */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">
-                  Upload to
-                </Label>
-                <Select value={uploadTarget} onValueChange={setUploadTarget}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="product">
-                      Product (General)
-                    </SelectItem>
-                    {variantOptions.map((v) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        <div className="flex items-center gap-2">
-                          {v.colorCode && (
-                            <span
-                              className="size-3 rounded-full border shrink-0"
-                              style={{ backgroundColor: v.colorCode }}
-                            />
-                          )}
-                          {v.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">
-                  Alt text
-                </Label>
-                <Input
-                  placeholder="Describe the image..."
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Primary + Upload button */}
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="is-primary-upload"
-                  checked={isPrimary}
-                  onCheckedChange={(checked) =>
-                    setIsPrimary(checked === true)
-                  }
-                />
-                <Label
-                  htmlFor="is-primary-upload"
-                  className="text-sm cursor-pointer"
-                >
-                  Set as primary image
-                </Label>
-              </div>
+            <div className="flex justify-end pt-1">
               <Button
-                onClick={handleUpload}
+                onClick={handleUploadAll}
                 disabled={isUploading}
                 size="sm"
               >
                 {isUploading ? (
                   <>
                     <Loader2 className="animate-spin" />
-                    Uploading...
+                    Uploading {uploadProgress.current} of {uploadProgress.total}
+                    ...
                   </>
                 ) : (
                   <>
                     <Upload />
-                    Upload{" "}
-                    {selectedFiles.length === 1
-                      ? "1 image"
-                      : `${selectedFiles.length} images`}
+                    Upload {stagedFiles.length} image
+                    {stagedFiles.length > 1 ? "s" : ""}
                   </>
                 )}
               </Button>
@@ -435,23 +451,21 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
 
       {/* ── Existing Images ────────────────────────────── */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium">
-            All Images
-            {totalImages > 0 && (
-              <span className="text-muted-foreground ml-1.5 font-normal">
-                ({totalImages})
-              </span>
-            )}
-          </h4>
-        </div>
+        <h4 className="text-sm font-medium">
+          All Images
+          {totalImages > 0 && (
+            <span className="text-muted-foreground ml-1.5 font-normal">
+              ({totalImages})
+            </span>
+          )}
+        </h4>
 
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-square animate-pulse rounded-lg bg-muted"
+                className="aspect-square animate-pulse rounded-xl bg-muted"
               />
             ))}
           </div>
@@ -459,82 +473,234 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
           <div className="space-y-5">
             {/* Product-level images */}
             {productLevelImages.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Product Images ({productLevelImages.length})
-                </p>
-                <ImageGrid
-                  images={productLevelImages}
-                  editingImageId={editingImageId}
-                  editAltText={editAltText}
-                  onEditStart={(id, alt) => {
-                    setEditingImageId(id);
-                    setEditAltText(alt || "");
-                  }}
-                  onEditEnd={() => {
-                    setEditingImageId(null);
-                    setEditAltText("");
-                  }}
-                  onEditAltTextChange={setEditAltText}
-                  onSaveAltText={handleSaveAltText}
-                  onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
-                  onDelete={(id) => deleteMutation.mutate(id)}
-                  isSetPrimaryPending={setPrimaryMutation.isPending}
-                  isDeletePending={deleteMutation.isPending}
-                  isSavePending={updateMutation.isPending}
-                />
-              </div>
+              <ImageSection
+                label="Product Images"
+                count={productLevelImages.length}
+                images={productLevelImages}
+                editingImageId={editingImageId}
+                editAltText={editAltText}
+                onEditStart={(id, alt) => {
+                  setEditingImageId(id);
+                  setEditAltText(alt || "");
+                }}
+                onEditEnd={() => {
+                  setEditingImageId(null);
+                  setEditAltText("");
+                }}
+                onEditAltTextChange={setEditAltText}
+                onSaveAltText={handleSaveAltText}
+                onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
+                onDelete={(id) => deleteMutation.mutate(id)}
+                isSetPrimaryPending={setPrimaryMutation.isPending}
+                isDeletePending={deleteMutation.isPending}
+                isSavePending={updateMutation.isPending}
+              />
             )}
 
             {/* Variant image groups */}
             {variantImageGroups.map((group) => (
-              <div key={group.label} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {group.colorCode && (
-                    <span
-                      className="size-3 rounded-full border shrink-0"
-                      style={{ backgroundColor: group.colorCode }}
-                    />
-                  )}
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {group.label} ({group.images.length})
-                  </p>
-                </div>
-                <ImageGrid
-                  images={group.images}
-                  editingImageId={editingImageId}
-                  editAltText={editAltText}
-                  onEditStart={(id, alt) => {
-                    setEditingImageId(id);
-                    setEditAltText(alt || "");
-                  }}
-                  onEditEnd={() => {
-                    setEditingImageId(null);
-                    setEditAltText("");
-                  }}
-                  onEditAltTextChange={setEditAltText}
-                  onSaveAltText={handleSaveAltText}
-                  onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
-                  onDelete={(id) => deleteMutation.mutate(id)}
-                  isSetPrimaryPending={setPrimaryMutation.isPending}
-                  isDeletePending={deleteMutation.isPending}
-                  isSavePending={updateMutation.isPending}
-                />
-              </div>
+              <ImageSection
+                key={group.label}
+                label={group.label}
+                count={group.images.length}
+                colorCode={group.colorCode}
+                images={group.images}
+                editingImageId={editingImageId}
+                editAltText={editAltText}
+                onEditStart={(id, alt) => {
+                  setEditingImageId(id);
+                  setEditAltText(alt || "");
+                }}
+                onEditEnd={() => {
+                  setEditingImageId(null);
+                  setEditAltText("");
+                }}
+                onEditAltTextChange={setEditAltText}
+                onSaveAltText={handleSaveAltText}
+                onSetPrimary={(id) => setPrimaryMutation.mutate(id)}
+                onDelete={(id) => deleteMutation.mutate(id)}
+                isSetPrimaryPending={setPrimaryMutation.isPending}
+                isDeletePending={deleteMutation.isPending}
+                isSavePending={updateMutation.isPending}
+              />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-            <ImagePlus className="size-8 text-muted-foreground" />
-            <p className="mt-2 text-sm font-medium text-muted-foreground">
-              No images yet
-            </p>
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed p-10 text-center">
+            <div className="rounded-full bg-muted p-3">
+              <ImagePlus className="size-6 text-muted-foreground" />
+            </div>
+            <p className="mt-3 text-sm font-medium">No images yet</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Upload images above to showcase this product.
             </p>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── Staged File Card ───────────────────────────────────
+
+function StagedFileCard({
+  staged,
+  variantOptions,
+  onUpdate,
+  onRemove,
+  disabled,
+}: {
+  staged: StagedFile;
+  variantOptions: VariantOption[];
+  onUpdate: (id: string, updates: Partial<StagedFile>) => void;
+  onRemove: (id: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="flex gap-3 rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
+      {/* Thumbnail */}
+      <div className="size-20 shrink-0 overflow-hidden rounded-lg border bg-muted">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={staged.previewUrl}
+          alt={staged.file.name}
+          className="size-full object-cover"
+        />
+      </div>
+
+      {/* Settings */}
+      <div className="flex-1 min-w-0 space-y-2">
+        {/* File info + remove */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{staged.file.name}</p>
+            <p className="text-[11px] text-muted-foreground">
+              {formatFileSize(staged.file.size)}
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => onRemove(staged.id)}
+            disabled={disabled}
+            className="shrink-0 -mt-0.5 -mr-0.5 text-muted-foreground hover:text-destructive"
+          >
+            <X className="size-3.5" />
+          </Button>
+        </div>
+
+        {/* Upload target + Alt text */}
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="space-y-1">
+            <Label className="text-[11px] text-muted-foreground">
+              Upload to
+            </Label>
+            <Select
+              value={staged.uploadTarget}
+              onValueChange={(v) => onUpdate(staged.id, { uploadTarget: v })}
+              disabled={disabled}
+            >
+              <SelectTrigger className="h-8 text-xs bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="product">Product (General)</SelectItem>
+                {variantOptions.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    <div className="flex items-center gap-1.5">
+                      {v.colorCode && (
+                        <span
+                          className="size-2.5 rounded-full border shrink-0"
+                          style={{ backgroundColor: v.colorCode }}
+                        />
+                      )}
+                      {v.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[11px] text-muted-foreground">
+              Alt text
+            </Label>
+            <Input
+              value={staged.altText}
+              onChange={(e) => onUpdate(staged.id, { altText: e.target.value })}
+              placeholder="Describe the image..."
+              className="h-8 text-xs bg-background"
+              disabled={disabled}
+            />
+          </div>
+        </div>
+
+        {/* Primary toggle */}
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id={`primary-${staged.id}`}
+            checked={staged.isPrimary}
+            onCheckedChange={(checked) =>
+              onUpdate(staged.id, { isPrimary: checked === true })
+            }
+            disabled={disabled}
+            className="bg-background"
+          />
+          <Label
+            htmlFor={`primary-${staged.id}`}
+            className="text-[11px] cursor-pointer text-muted-foreground"
+          >
+            Set as primary image
+          </Label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Image Section ──────────────────────────────────────
+
+interface ImageSectionProps {
+  label: string;
+  count: number;
+  colorCode?: string | null;
+  images: ProductImageWithVariant[];
+  editingImageId: string | null;
+  editAltText: string;
+  onEditStart: (imageId: string, currentAlt: string | null) => void;
+  onEditEnd: () => void;
+  onEditAltTextChange: (value: string) => void;
+  onSaveAltText: (imageId: string) => void;
+  onSetPrimary: (imageId: string) => void;
+  onDelete: (imageId: string) => void;
+  isSetPrimaryPending: boolean;
+  isDeletePending: boolean;
+  isSavePending: boolean;
+}
+
+function ImageSection({
+  label,
+  count,
+  colorCode,
+  images,
+  ...gridProps
+}: ImageSectionProps) {
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center gap-2">
+        {colorCode && (
+          <span
+            className="size-3 rounded-full border shrink-0"
+            style={{ backgroundColor: colorCode }}
+          />
+        )}
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          {label}
+          <span className="ml-1 font-normal">({count})</span>
+        </p>
+      </div>
+      <ImageGrid images={images} {...gridProps} />
     </div>
   );
 }
@@ -579,28 +745,28 @@ function ImageGrid({
           return (
             <div
               key={image.id}
-              className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+              className="group relative aspect-square overflow-hidden rounded-xl border bg-muted shadow-sm"
             >
               <Image
                 src={image.url}
                 alt={image.alt_text || "Product image"}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
 
               {/* Primary badge */}
               {image.is_primary && (
-                <Badge className="absolute top-1.5 left-1.5 text-[10px] gap-1 pointer-events-none">
+                <Badge className="absolute top-2 left-2 text-[10px] gap-1 pointer-events-none shadow-sm">
                   <Star className="size-2.5 fill-current" />
                   Primary
                 </Badge>
               )}
 
-              {/* Alt text badge */}
+              {/* Alt text on hover */}
               {image.alt_text && !isEditing && (
-                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/60 to-transparent px-2 pb-1.5 pt-4 opacity-0 transition-opacity group-hover:opacity-100">
-                  <p className="text-[10px] text-white/90 line-clamp-1">
+                <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 via-black/30 to-transparent px-2.5 pb-2 pt-6 opacity-0 transition-opacity group-hover:opacity-100">
+                  <p className="text-[11px] text-white/90 line-clamp-2 leading-tight">
                     {image.alt_text}
                   </p>
                 </div>
@@ -608,7 +774,7 @@ function ImageGrid({
 
               {/* Edit alt text overlay */}
               {isEditing && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/60 p-2">
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2.5 bg-black/60 p-3 backdrop-blur-xs">
                   <Input
                     value={editAltText}
                     onChange={(e) => onEditAltTextChange(e.target.value)}
@@ -649,8 +815,8 @@ function ImageGrid({
 
               {/* Hover action buttons */}
               {!isEditing && (
-                <div className="absolute inset-0 flex items-end justify-center gap-1.5 bg-black/0 p-2 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
-                  <div className="flex gap-1">
+                <div className="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/40 group-hover:opacity-100">
+                  <div className="flex gap-1.5">
                     {!image.is_primary && (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -660,8 +826,9 @@ function ImageGrid({
                             variant="secondary"
                             onClick={() => onSetPrimary(image.id)}
                             disabled={isSetPrimaryPending}
+                            className="shadow-sm"
                           >
-                            <Star className="size-3" />
+                            <Star className="size-3.5" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="top">
@@ -675,11 +842,10 @@ function ImageGrid({
                           type="button"
                           size="xs"
                           variant="secondary"
-                          onClick={() =>
-                            onEditStart(image.id, image.alt_text)
-                          }
+                          onClick={() => onEditStart(image.id, image.alt_text)}
+                          className="shadow-sm"
                         >
-                          <Pencil className="size-3" />
+                          <Pencil className="size-3.5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="top">Edit alt text</TooltipContent>
@@ -692,8 +858,9 @@ function ImageGrid({
                           variant="destructive"
                           onClick={() => onDelete(image.id)}
                           disabled={isDeletePending}
+                          className="shadow-sm"
                         >
-                          <Trash2 className="size-3" />
+                          <Trash2 className="size-3.5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="top">Delete</TooltipContent>
