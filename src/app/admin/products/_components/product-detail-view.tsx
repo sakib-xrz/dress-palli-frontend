@@ -417,8 +417,10 @@ function DetailContent({ product }: { product: AdminProduct }) {
             <Table className="bg-background">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="font-medium">Size</TableHead>
-                  <TableHead className="font-medium text-right w-28">
+                  <TableHead className="font-medium text-center w-1/2">
+                    Size
+                  </TableHead>
+                  <TableHead className="font-medium text-center w-1/2">
                     Stock
                   </TableHead>
                 </TableRow>
@@ -436,11 +438,11 @@ function DetailContent({ product }: { product: AdminProduct }) {
                           : undefined
                       }
                     >
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-center">
                         {variant.size_name ?? "—"}
                       </TableCell>
 
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {isEditing ? (
                           <Input
                             type="number"
@@ -454,7 +456,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                               )
                             }
                             placeholder="0"
-                            className={`h-8 w-20 text-sm text-right ml-auto ${
+                            className={`h-8 w-20 text-sm text-center ml-auto ${
                               stockChanged
                                 ? "border-primary ring-1 ring-primary/20"
                                 : ""
@@ -462,7 +464,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                           />
                         ) : (
                           <span
-                            className={`inline-flex items-center justify-end text-sm ${
+                            className={`inline-flex items-center justify-center text-sm ${
                               variant.stock === 0
                                 ? "font-medium text-destructive"
                                 : variant.stock <= 5
@@ -485,8 +487,8 @@ function DetailContent({ product }: { product: AdminProduct }) {
 
                 {displayVariants.length > 0 && (
                   <TableRow className="bg-muted/50 font-medium hover:bg-muted/50">
-                    <TableCell>Total</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">Total</TableCell>
+                    <TableCell className="text-center">
                       {displayVariants
                         .reduce((sum, v) => sum + (v.stock ?? 0), 0)
                         .toLocaleString()}
