@@ -61,6 +61,34 @@ export type UpdateCategoryStatusPayload = {
   is_active: boolean;
 };
 
+// ── Banner ─────────────────────────────────────────────────
+
+export type Banner = {
+  id: string;
+  image_url: string;
+  link_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateBannerPayload = {
+  image: File;
+  link_url?: string | null;
+  is_active?: boolean;
+};
+
+export type UpdateBannerPayload = {
+  image?: File;
+  link_url?: string | null;
+  is_active?: boolean;
+};
+
+export type ReorderBannerPayload = {
+  items: { id: string; sort_order: number }[];
+};
+
 // ── Size ───────────────────────────────────────────────────
 
 export type Size = {
