@@ -300,18 +300,28 @@ function DetailContent({ product }: { product: AdminProduct }) {
       </div>
 
       {/* ── Sizes ────────────────────────────── */}
-      {product.available_sizes.length > 0 && (
-        <div className="space-y-1.5">
-          <SectionLabel>Available Sizes</SectionLabel>
-          <div className="flex flex-wrap gap-1.5">
-            {product.available_sizes.map((s) => (
-              <Badge key={s.id} variant="outline">
-                {s.name}
-              </Badge>
-            ))}
+      {(() => {
+        const availableSizes = product.variants
+          .filter((v) => v.size_id && v.size_name)
+          .reduce<{ id: string; name: string }[]>((acc, v) => {
+            if (!acc.some((s) => s.id === v.size_id)) {
+              acc.push({ id: v.size_id!, name: v.size_name! });
+            }
+            return acc;
+          }, []);
+        return availableSizes.length > 0 ? (
+          <div className="space-y-1.5">
+            <SectionLabel>Available Sizes</SectionLabel>
+            <div className="flex flex-wrap gap-1.5">
+              {availableSizes.map((s) => (
+                <Badge key={s.id} variant="outline">
+                  {s.name}
+                </Badge>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        ) : null;
+      })()}
 
       <Separator />
 

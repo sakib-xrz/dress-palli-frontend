@@ -16,7 +16,7 @@ export function getAuthCookieOptions(maxAge: number): Partial<ResponseCookie> {
 
 // ── Backend API URL (Server-only — never exposed to client) ─
 export const BACKEND_API_URL =
-  process.env.BACKEND_API_URL || "http://192.168.0.53:8000/api/v1";
+  process.env.BACKEND_API_URL || "http://localhost:8000/api/v1";
 
 // ── JWT Helpers ─────────────────────────────────────────────
 
@@ -24,7 +24,9 @@ export const BACKEND_API_URL =
  * Decode JWT payload without verifying signature.
  * Used only to read expiry claim — actual verification is done by the backend.
  */
-export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+export function decodeJwtPayload(
+  token: string,
+): Record<string, unknown> | null {
   try {
     const base64Payload = token.split(".")[1];
     if (!base64Payload) return null;

@@ -109,13 +109,12 @@ export type UpdateImagePayload = {
   sort_order?: number;
 };
 
-export type ProductVariant = {
+/** Formatted variant as returned by the backend (flat size_name) */
+export type FormattedVariant = {
   id: string;
-  stock: number;
   size_id: string | null;
-  size: { id: string; name: string; sort_order: number } | null;
-  attributes: Record<string, unknown> | null;
-  is_deleted: boolean;
+  size_name: string | null;
+  stock: number;
 };
 
 export type ProductCategory = {
@@ -124,40 +123,22 @@ export type ProductCategory = {
   slug: string;
 };
 
-/** Admin product (raw from /products/admin/:id) with flat variants */
+/** Image shape returned within product responses (no sort_order) */
+export type ProductResponseImage = {
+  id: string;
+  url: string;
+  alt_text: string | null;
+  is_primary: boolean;
+};
+
+/** Admin product detail (from /products/admin/:id via formatProduct) */
 export type AdminProductDetail = {
   id: string;
   name: string;
   slug: string;
   description: string | null;
   category_id: string;
-  info: Record<string, string> | null;
-  buy_price: number;
-  cost_price: number;
-  sell_price: number;
-  discount: number;
-  discount_type: "PERCENTAGE" | "FLAT";
-  is_published: boolean;
-  is_featured: boolean;
-  is_new: boolean;
-  is_best_selling: boolean;
-  is_deleted: boolean;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-  category: ProductCategory;
-  variants: ProductVariant[];
-  images: ProductImage[];
-};
-
-/** Admin product list item (formatted from /products/admin) */
-export type AdminProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  category_id: string;
-  info: Record<string, string> | null;
+  attributes: Record<string, string> | null;
   buy_price: number;
   cost_price: number;
   sell_price: number;
@@ -168,23 +149,42 @@ export type AdminProduct = {
   is_featured: boolean;
   is_new: boolean;
   is_best_selling: boolean;
-  is_deleted: boolean;
   published_at: string | null;
   created_at: string;
   updated_at: string;
   category: ProductCategory;
-  primary_image: ProductImage | null;
-  images: ProductImage[];
+  primary_image: ProductResponseImage | null;
   total_stock: number;
-  in_stock: boolean;
-  available_sizes: { id: string; name: string }[];
-  variants: {
-    id: string;
-    size_id: string | null;
-    size_name: string | null;
-    stock: number;
-    attributes: Record<string, unknown> | null;
-  }[];
+  variants: FormattedVariant[];
+  images: ProductResponseImage[];
+};
+
+/** Admin product list item (formatted from /products/admin via formatProduct) */
+export type AdminProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  category_id: string;
+  attributes: Record<string, string> | null;
+  buy_price: number;
+  cost_price: number;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FLAT";
+  effective_price: number;
+  is_published: boolean;
+  is_featured: boolean;
+  is_new: boolean;
+  is_best_selling: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  category: ProductCategory;
+  primary_image: ProductResponseImage | null;
+  images: ProductResponseImage[];
+  total_stock: number;
+  variants: FormattedVariant[];
 };
 
 export type PaginatedResponse<T> = {
@@ -205,7 +205,7 @@ export type CreateProductPayload = {
   name: string;
   description?: string | null;
   category_id: string;
-  info?: Record<string, string> | null;
+  attributes?: Record<string, string> | null;
   buy_price: number;
   cost_price: number;
   sell_price: number;
@@ -214,7 +214,6 @@ export type CreateProductPayload = {
   variants: {
     stock?: number;
     size_id?: string | null;
-    attributes?: Record<string, unknown> | null;
   }[];
   is_published?: boolean;
   is_featured?: boolean;
@@ -226,7 +225,7 @@ export type UpdateProductPayload = {
   name?: string;
   description?: string | null;
   category_id?: string;
-  info?: Record<string, string> | null;
+  attributes?: Record<string, string> | null;
   buy_price?: number;
   cost_price?: number;
   sell_price?: number;
@@ -240,7 +239,6 @@ export type UpdateProductPayload = {
     id?: string;
     stock?: number;
     size_id?: string | null;
-    attributes?: Record<string, unknown> | null;
   }[];
 };
 

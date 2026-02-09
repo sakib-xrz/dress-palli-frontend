@@ -104,8 +104,8 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     product?.is_best_selling ?? false,
   );
   const [infoFields, setInfoFields] = useState<InfoField[]>(() => {
-    if (product?.info && typeof product.info === "object") {
-      return Object.entries(product.info).map(([key, value]) => ({
+    if (product?.attributes && typeof product.attributes === "object") {
+      return Object.entries(product.attributes).map(([key, value]) => ({
         key,
         value: String(value),
       }));
@@ -117,7 +117,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
       return product.variants.map((v) => ({
         id: v.id,
         size_id: v.size_id,
-        size_name: v.size?.name ?? "—",
+        size_name: v.size_name ?? "—",
         stock: v.stock,
       }));
     }
@@ -174,7 +174,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         name: name.trim(),
         description: description.trim() || null,
         category_id: categoryId,
-        info: getInfoObject(),
+        attributes: getInfoObject(),
         buy_price: buyPrice,
         cost_price: costPrice,
         sell_price: sellPrice,
@@ -200,7 +200,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         name: name.trim(),
         description: description.trim() || null,
         category_id: categoryId,
-        info: getInfoObject(),
+        attributes: getInfoObject(),
         buy_price: buyPrice,
         cost_price: costPrice,
         sell_price: sellPrice,
