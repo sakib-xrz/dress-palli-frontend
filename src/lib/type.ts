@@ -291,3 +291,94 @@ export type ProductQueryParams = {
   sort_by?: string;
   sort_order?: string;
 };
+
+// ── Order ───────────────────────────────────────────────
+
+export type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "RETURNED";
+
+export type PaymentStatus = "PENDING" | "COLLECTED" | "REFUNDED";
+
+export type OrderCustomer = {
+  id: string;
+  name: string;
+  phone: string;
+};
+
+export type OrderItem = {
+  id: string;
+  order_id: string;
+  variant_id: string;
+  quantity: number;
+  price_at_purchase: number;
+  name_snapshot: string;
+  variant?: {
+    id: string;
+    size_id: string | null;
+    stock: number;
+    size: {
+      id: string;
+      name: string;
+    } | null;
+    product: {
+      id: string;
+      name: string;
+      slug: string;
+      images: {
+        url: string;
+        alt_text: string | null;
+      }[];
+    };
+  };
+};
+
+export type Order = {
+  id: string;
+  order_id: string;
+  customer_id: string;
+  customer_name: string;
+  customer_phone: string;
+  is_inside_dhaka: boolean;
+  shipping_address: {
+    address: string;
+    area?: string;
+    city?: string;
+    note?: string;
+  };
+  subtotal_amount: number;
+  delivery_fee: number;
+  total_amount: number;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  created_at: string;
+  updated_at: string;
+  customer?: OrderCustomer;
+  _count?: {
+    items: number;
+  };
+  items?: OrderItem[];
+};
+
+export type OrderQueryParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: OrderStatus;
+  payment_status?: PaymentStatus;
+  sort_by?: string;
+  sort_order?: string;
+};
+
+export type UpdateOrderStatusPayload = {
+  status: OrderStatus;
+};
+
+export type UpdatePaymentStatusPayload = {
+  payment_status: PaymentStatus;
+};
