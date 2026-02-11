@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Force light theme only - dark variant never matches */
+@custom-variant dark (&&:not(*));
+
 @theme inline {
   --font-sans: Inter, system-ui, sans-serif;
 

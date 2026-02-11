@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useOrder } from "@/hooks/use-orders";
+import { useOrder, useOrderHistory } from "@/hooks/use-orders";
 import {
   useUpdateOrderStatus,
   useUpdatePaymentStatus,
@@ -19,6 +19,8 @@ import {
   ArrowLeft,
   Calendar,
   ShoppingBag,
+  History,
+  ArrowRight,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +104,7 @@ export default function OrderDetailPage() {
   const orderId = params.id as string;
 
   const { data: order, isLoading } = useOrder(orderId);
+  const { data: history } = useOrderHistory(orderId);
   const orderStatusMutation = useUpdateOrderStatus();
   const paymentStatusMutation = useUpdatePaymentStatus();
 
@@ -191,7 +194,14 @@ export default function OrderDetailPage() {
                 <SelectItem value="SHIPPED">Shipped</SelectItem>
                 <SelectItem value="DELIVERED">Delivered</SelectItem>
                 <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem value="RETURNED">Returned</SelectItem>
+                <SelectItem
+                  value="RETURNED"
+                  disabled={
+                    order.status !== "DELIVERED" && order.status !== "RETURNED"
+                  }
+                >
+                  Returned
+                </SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
@@ -381,6 +391,78 @@ export default function OrderDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Order History */}
+          {history && history.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
+                    <History className="size-4 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">Order History</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {history.length} change{history.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {history.map((item, index) => (
+                    <div key={item.id} className="relative">
+                      {index !== history.length - 1 && (
+                        <div className="absolute left-4 top-5 bottom-0 w-0.5 bg-border h-full" />
+                      )}
+                      <div className="flex gap-4">
+                        <div className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-background border-2 border-primary">
+                          <Package className="size-3.5 text-primary" />
+                        </div>
+                        <div className="flex-1 not-last:pb-6">
+                          <div className="flex items-start justify-between gap-4 flex-wrap">
+                            <div className="space-y-1 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="text-xs">
+                                  {item.from_order_status}
+                                </Badge>
+                                <ArrowRight className="size-3 text-muted-foreground" />
+                                <Badge variant="outline" className="text-xs">
+                                  {item.to_order_status}
+                                </Badge>
+                              </div>
+                              {item.admin_name && (
+                                <p className="text-sm text-muted-foreground">
+                                  Changed by{" "}
+                                  <span className="font-medium text-foreground">
+                                    {item.admin_name}
+                                  </span>
+                                  {item.admin_email && (
+                                    <span className="text-xs">
+                                      {" "}
+                                      ({item.admin_email})
+                                    </span>
+                                  )}
+                                </p>
+                              )}
+                              {item.note && (
+                                <p className="text-xs text-muted-foreground italic">
+                                  {item.note}
+                                </p>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground whitespace-nowrap">
+                              {formatDate(item.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column - Customer & Shipping */}

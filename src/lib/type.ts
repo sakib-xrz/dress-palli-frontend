@@ -382,3 +382,18 @@ export type UpdateOrderStatusPayload = {
 export type UpdatePaymentStatusPayload = {
   payment_status: PaymentStatus;
 };
+
+export type OrderHistory = {
+  id: string;
+  order_id: string;
+  admin_id: string | null;
+  admin_name: string | null;
+  admin_email: string | null;
+  change_type: "ORDER_STATUS" | "PAYMENT_STATUS";
+  from_order_status: OrderStatus | null;
+  to_order_status: OrderStatus | null;
+  from_payment_status: PaymentStatus | null;
+  to_payment_status: PaymentStatus | null;
+  note: string | null;
+  created_at: string;
+};

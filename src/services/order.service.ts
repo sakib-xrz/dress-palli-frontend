@@ -2,6 +2,7 @@ import api from "@/lib/axios";
 import type {
   ApiResponse,
   Order,
+  OrderHistory,
   OrderQueryParams,
   PaginatedResponse,
   UpdateOrderStatusPayload,
@@ -35,5 +36,9 @@ export const orderService = {
     data: UpdatePaymentStatusPayload,
   ): Promise<ApiResponse<Order>> => {
     return api.patch(`${ORDER_URL}/${id}/payment-status`, data);
+  },
+
+  getHistory: async (id: string): Promise<ApiResponse<OrderHistory[]>> => {
+    return api.get(`${ORDER_URL}/${id}/history`);
   },
 };

@@ -34,6 +34,17 @@ export function useOrder(id: string) {
   });
 }
 
+export function useOrderHistory(id: string) {
+  return useQuery({
+    queryKey: [...ORDER_QUERY_KEY, id, "history"],
+    queryFn: async () => {
+      const response = await orderService.getHistory(id);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+}
+
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
 
