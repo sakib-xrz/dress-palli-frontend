@@ -5,7 +5,7 @@ import { ArrowDownUp, Filter, Search, X } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { useOrders } from "@/hooks/use-orders";
-import type { Order, OrderStatus, PaymentStatus } from "@/lib/type";
+import type { OrderStatus, PaymentStatus } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,6 @@ import {
 import { OrderTable } from "./_components/order-table";
 import { OrderTableSkeleton } from "./_components/order-table-skeleton";
 import { OrderEmptyState } from "./_components/order-empty-state";
-import { DeleteOrderDialog } from "./_components/delete-order-dialog";
-import { OrderDetailView } from "./_components/order-detail-view";
 
 function OrdersPageContent() {
   // ── URL State (Nuqs) ─────────────────────────────────
@@ -60,9 +58,6 @@ function OrdersPageContent() {
   );
 
   // ── Local State ───────────────────────────────────────
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchInput, setSearchInput] = useState(search);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(!!paymentStatus);
 
@@ -159,16 +154,6 @@ function OrdersPageContent() {
     setSortOrder,
     setPage,
   ]);
-
-  const handleDelete = (order: Order) => {
-    setSelectedOrder(order);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setDetailViewOpen(true);
-  };
 
   const handlePageChange = useCallback(
     (newPageIndex: number) => setPage(newPageIndex + 1),
@@ -359,24 +344,8 @@ function OrdersPageContent() {
           pageSize={limit}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          onDelete={handleDelete}
-          onViewDetails={handleViewDetails}
         />
       )}
-
-      {/* Delete Dialog */}
-      <DeleteOrderDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        order={selectedOrder}
-      />
-
-      {/* View Details Modal/Sheet */}
-      <OrderDetailView
-        open={detailViewOpen}
-        onOpenChange={setDetailViewOpen}
-        order={selectedOrder}
-      />
     </div>
   );
 }

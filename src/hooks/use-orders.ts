@@ -75,18 +75,3 @@ export function useUpdatePaymentStatus() {
     },
   });
 }
-
-export function useDeleteOrder() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => orderService.delete(id),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-      showToast.success(response.message);
-    },
-    onError: (error: ApiErrorResponse) => {
-      showToast.error(error.message);
-    },
-  });
-}

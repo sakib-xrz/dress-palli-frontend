@@ -24,8 +24,8 @@ export function OrderTableSkeleton() {
                   <TableHead className="bg-muted/50 sticky top-0 z-10 font-semibold">
                     Customer
                   </TableHead>
-                  <TableHead className="bg-muted/50 sticky top-0 z-10 font-semibold text-center">
-                    Items
+                  <TableHead className="bg-muted/50 sticky top-0 z-10 font-semibold">
+                    Delivery Address
                   </TableHead>
                   <TableHead className="bg-muted/50 sticky top-0 z-10 font-semibold text-right">
                     Amount
@@ -55,8 +55,9 @@ export function OrderTableSkeleton() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-center">
-                        <Skeleton className="h-5 w-8" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-3 w-36" />
                       </div>
                     </TableCell>
                     <TableCell>

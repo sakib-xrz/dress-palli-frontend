@@ -36,8 +36,4 @@ export const orderService = {
   ): Promise<ApiResponse<Order>> => {
     return api.patch(`${ORDER_URL}/${id}/payment-status`, data);
   },
-
-  delete: async (id: string): Promise<ApiResponse<null>> => {
-    return api.delete(`${ORDER_URL}/${id}`);
-  },
 };

@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { Phone } from "lucide-react";
 
 import {
   useUpdateOrderStatus,
@@ -15,18 +16,8 @@ import {
 } from "@/hooks/use-orders";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/type";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -51,31 +42,7 @@ interface OrderTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
-  onDelete: (order: Order) => void;
-  onViewDetails: (order: Order) => void;
 }
-
-const ORDER_STATUS_COLORS: Record<
-  OrderStatus,
-  { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }
-> = {
-  PENDING: { variant: "secondary" },
-  CONFIRMED: { variant: "default", className: "bg-blue-600 hover:bg-blue-700" },
-  PROCESSING: { variant: "default", className: "bg-purple-600 hover:bg-purple-700" },
-  SHIPPED: { variant: "default", className: "bg-indigo-600 hover:bg-indigo-700" },
-  DELIVERED: { variant: "default", className: "bg-green-600 hover:bg-green-700" },
-  CANCELLED: { variant: "destructive" },
-  RETURNED: { variant: "outline", className: "border-amber-600 text-amber-600" },
-};
-
-const PAYMENT_STATUS_COLORS: Record<
-  PaymentStatus,
-  { variant: "default" | "secondary" | "destructive"; className?: string }
-> = {
-  PENDING: { variant: "secondary" },
-  COLLECTED: { variant: "default", className: "bg-green-600 hover:bg-green-700" },
-  REFUNDED: { variant: "destructive" },
-};
 
 export function OrderTable({
   orders,
@@ -84,8 +51,6 @@ export function OrderTable({
   pageSize,
   onPageChange,
   onPageSizeChange,
-  onDelete,
-  onViewDetails,
 }: OrderTableProps) {
   const orderStatusMutation = useUpdateOrderStatus();
   const paymentStatusMutation = useUpdatePaymentStatus();
@@ -126,8 +91,15 @@ export function OrderTable({
               <div className="font-medium text-sm line-clamp-1">
                 {order.customer_name}
               </div>
-              <div className="text-xs text-muted-foreground font-mono">
-                {order.customer_phone}
+              <div className="flex items-center gap-2">
+                <a
+                  href={`tel:${order.customer_phone}`}
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 text-xs"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Phone className="size-3" />
+                  {order.customer_phone}
+                </a>
               </div>
             </div>
           );
@@ -135,22 +107,23 @@ export function OrderTable({
         size: 180,
       },
       {
-        id: "items",
-        header: () => (
-          <div className="flex items-center justify-center">Items</div>
-        ),
+        id: "shipping_address",
+        header: "Delivery Address",
         cell: ({ row }) => {
           const order = row.original;
-          const itemCount = order._count?.items ?? 0;
+          const address = order.shipping_address;
           return (
-            <div className="text-center">
-              <Badge variant="secondary" className="font-mono tabular-nums">
-                {itemCount}
-              </Badge>
+            <div className="min-w-0 space-y-1">
+              <div className="text-sm line-clamp-1">{address.address}</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                {address.area && <span>{address.area}</span>}
+                {address.area && address.city && <span>•</span>}
+                {address.city && <span>{address.city}</span>}
+              </div>
             </div>
           );
         },
-        size: 80,
+        size: 220,
       },
       {
         id: "amount",
@@ -165,7 +138,7 @@ export function OrderTable({
                 BDT {order.total_amount.toLocaleString("en-BD")}
               </div>
               <div className="text-xs text-muted-foreground">
-                Subtotal: {order.subtotal_amount.toLocaleString("en-BD")} + 
+                Subtotal: {order.subtotal_amount.toLocaleString("en-BD")} +
                 Delivery: {order.delivery_fee.toLocaleString("en-BD")}
               </div>
             </div>
@@ -180,7 +153,6 @@ export function OrderTable({
         ),
         cell: ({ row }) => {
           const order = row.original;
-          const statusConfig = ORDER_STATUS_COLORS[order.status];
           return (
             <div className="flex items-center justify-center">
               <Select
@@ -221,7 +193,6 @@ export function OrderTable({
         ),
         cell: ({ row }) => {
           const order = row.original;
-          const statusConfig = PAYMENT_STATUS_COLORS[order.payment_status];
           return (
             <div className="flex items-center justify-center">
               <Select
@@ -256,44 +227,17 @@ export function OrderTable({
         cell: ({ row }) => {
           const order = row.original;
           return (
-            <div className="flex items-center justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-xs">
-                    <MoreHorizontal className="size-4" />
-                    <span className="sr-only">Actions</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => onViewDetails(order)}>
-                      <Eye className="size-4" />
-                      View Details
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  {order.status === "PENDING" && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => onDelete(order)}
-                      >
-                        <Trash2 className="size-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/admin/orders/${order.id}`}>View</Link>
+              </Button>
             </div>
           );
         },
         size: 50,
       },
     ],
-    [orderStatusMutation, paymentStatusMutation, onDelete, onViewDetails],
+    [orderStatusMutation, paymentStatusMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library
