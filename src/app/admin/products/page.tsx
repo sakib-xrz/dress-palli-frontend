@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ArrowDownUp, Filter, Plus, Search, X } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -35,11 +35,12 @@ import { ManageImagesModal } from "./_components/manage-images-modal";
 
 function ProductsPageContent() {
   // ── URL State (Nuqs) ─────────────────────────────────
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [limit, setLimit] = useQueryState(
-    "limit",
-    parseAsInteger.withDefault(10),
-  );
+  const [pageParam, setPage] = useQueryState("page", parseAsInteger);
+  const [limitParam, setLimit] = useQueryState("limit", parseAsInteger);
+  
+  // Use defaults if not set in URL
+  const page = pageParam ?? 1;
+  const limit = limitParam ?? 10;
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault(""),
@@ -84,6 +85,17 @@ function ProductsPageContent() {
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(
     !!(featured || newArrival || bestSelling),
   );
+
+  // ── Initialize URL Params ─────────────────────────────
+  useEffect(() => {
+    // Ensure default page and limit are in URL on initial load or navigation
+    if (pageParam === null) {
+      setPage(1);
+    }
+    if (limitParam === null) {
+      setLimit(10);
+    }
+  }, [pageParam, limitParam, setPage, setLimit]);
 
   // ── Data ──────────────────────────────────────────────
   const { data: productsData, isLoading } = useProducts({
@@ -460,6 +472,7 @@ function ProductsPageContent() {
         <ProductEmptyState />
       ) : (
         <ProductTable
+          key={`table-limit-${limit}`}
           products={products}
           pageCount={meta?.total_pages ?? 0}
           pageIndex={(meta?.page ?? 1) - 1}

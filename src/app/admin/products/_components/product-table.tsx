@@ -35,12 +35,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { TablePagination } from "@/components/shared/table-pagination";
 
 interface ProductTableProps {
@@ -319,10 +313,10 @@ export function ProductTable({
       },
     },
     onPaginationChange: (updater) => {
+      const currentState = { pageIndex, pageSize };
       const newState =
-        typeof updater === "function"
-          ? updater({ pageIndex, pageSize })
-          : updater;
+        typeof updater === "function" ? updater(currentState) : updater;
+      
       if (newState.pageIndex !== pageIndex) {
         onPageChange(newState.pageIndex);
       }
@@ -333,71 +327,67 @@ export function ProductTable({
   });
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="space-y-4">
-        <Card className="py-0">
-          <CardContent className="p-0">
-            <div className="overflow-auto rounded-b-xl">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
+    <div className="space-y-4">
+      <Card className="py-0">
+        <CardContent className="p-0">
+          <div className="overflow-auto rounded-b-xl">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className="hover:bg-transparent"
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: header.getSize() }}
+                        className="bg-muted/50 sticky top-0 z-10 font-semibold"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
                     <TableRow
-                      key={headerGroup.id}
-                      className="hover:bg-transparent"
+                      key={row.id}
+                      data-state={row.getIsSelected() ? "selected" : undefined}
                     >
-                      {headerGroup.headers.map((header) => (
-                        <TableHead
-                          key={header.id}
-                          style={{ width: header.getSize() }}
-                          className="bg-muted/50 sticky top-0 z-10 font-semibold"
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
                       ))}
                     </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={
-                          row.getIsSelected() ? "selected" : undefined
-                        }
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-32 text-center text-muted-foreground"
-                      >
-                        No products found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-        <TablePagination table={table} />
-      </div>
-    </TooltipProvider>
+                  ))
+                ) : (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-32 text-center text-muted-foreground"
+                    >
+                      No products found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+      <TablePagination table={table} />
+    </div>
   );
 }
