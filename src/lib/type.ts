@@ -467,3 +467,60 @@ export type UpdateCustomerPayload = {
   phone?: string;
   email?: string | null;
 };
+
+// ── Setting ──────────────────────────────────────────────
+
+export type Setting = {
+  id: string;
+  logo: string;
+  favicon: string | null;
+  address: string;
+  phone: string;
+  email: string;
+  facebook: string | null;
+  instagram: string | null;
+  title: string;
+  description: string;
+  keywords: string;
+  show_featured_products: boolean;
+  show_new_arrivals: boolean;
+  show_best_selling: boolean;
+  google_analytics_id: string | null;
+  google_tag_manager_id: string | null;
+  facebook_pixel_id: string | null;
+  delivery_charge_inside_dhaka: number;
+  delivery_charge_outside_dhaka: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type InitSettingPayload = {
+  logo?: File;
+  address: string;
+  phone: string;
+  email: string;
+  title: string;
+  description: string;
+  keywords: string;
+};
+
+export type UpdateSettingPayload = {
+  logo?: File;
+  favicon?: File;
+  address?: string;
+  phone?: string;
+  email?: string;
+  facebook?: string | null;
+  instagram?: string | null;
+  title?: string;
+  description?: string;
+  keywords?: string;
+  show_featured_products?: boolean;
+  show_new_arrivals?: boolean;
+  show_best_selling?: boolean;
+  google_analytics_id?: string | null;
+  google_tag_manager_id?: string | null;
+  facebook_pixel_id?: string | null;
+  delivery_charge_inside_dhaka?: number;
+  delivery_charge_outside_dhaka?: number;
+};
