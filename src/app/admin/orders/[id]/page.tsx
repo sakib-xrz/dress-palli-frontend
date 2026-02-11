@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useOrder } from "@/hooks/use-orders";
 import {
   useUpdateOrderStatus,
@@ -16,10 +16,8 @@ import {
   Phone,
   CreditCard,
   Truck,
-  Loader2,
   ArrowLeft,
   Calendar,
-  Hash,
   ShoppingBag,
 } from "lucide-react";
 
@@ -45,28 +43,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // ── Helpers ──────────────────────────────────────────────
-
-const ORDER_STATUS_CONFIG: Record<
-  OrderStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline"; className?: string }
-> = {
-  PENDING: { label: "Pending", variant: "secondary" },
-  CONFIRMED: { label: "Confirmed", variant: "default", className: "bg-blue-600 hover:bg-blue-700" },
-  PROCESSING: { label: "Processing", variant: "default", className: "bg-purple-600 hover:bg-purple-700" },
-  SHIPPED: { label: "Shipped", variant: "default", className: "bg-indigo-600 hover:bg-indigo-700" },
-  DELIVERED: { label: "Delivered", variant: "default", className: "bg-green-600 hover:bg-green-700" },
-  CANCELLED: { label: "Cancelled", variant: "destructive" },
-  RETURNED: { label: "Returned", variant: "outline", className: "border-amber-600 text-amber-600" },
-};
-
-const PAYMENT_STATUS_CONFIG: Record<
-  PaymentStatus,
-  { label: string; variant: "default" | "secondary" | "destructive"; className?: string }
-> = {
-  PENDING: { label: "Pending", variant: "secondary" },
-  COLLECTED: { label: "Collected", variant: "default", className: "bg-green-600 hover:bg-green-700" },
-  REFUNDED: { label: "Refunded", variant: "destructive" },
-};
 
 function formatCurrency(value: number) {
   return `BDT ${value.toLocaleString("en-BD")}`;
@@ -123,7 +99,6 @@ function OrderDetailSkeleton() {
 
 export default function OrderDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const orderId = params.id as string;
 
   const { data: order, isLoading } = useOrder(orderId);
@@ -156,9 +131,6 @@ export default function OrderDetailPage() {
     );
   }
 
-  const orderStatusConfig = ORDER_STATUS_CONFIG[order.status];
-  const paymentStatusConfig = PAYMENT_STATUS_CONFIG[order.payment_status];
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -178,11 +150,6 @@ export default function OrderDetailPage() {
                 <Calendar className="size-4" />
                 <span>Placed {formatDate(order.created_at)}</span>
               </div>
-              <span>•</span>
-              <div className="flex items-center gap-1.5">
-                <Hash className="size-4" />
-                <span className="font-mono">{order.id}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -193,12 +160,14 @@ export default function OrderDetailPage() {
       {/* Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex items-center gap-2">
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                 <Package className="size-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-sm font-medium">Order Status</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Order Status
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -229,12 +198,14 @@ export default function OrderDetailPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex items-center gap-2">
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                 <CreditCard className="size-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-sm font-medium">Payment Status</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Payment Status
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -261,12 +232,14 @@ export default function OrderDetailPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader>
             <div className="flex items-center gap-2">
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                 <ShoppingBag className="size-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Amount
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent>
@@ -292,7 +265,8 @@ export default function OrderDetailPage() {
                   <div>
                     <CardTitle className="text-base">Order Items</CardTitle>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                      {order.items.length}{" "}
+                      {order.items.length === 1 ? "item" : "items"}
                     </p>
                   </div>
                 </div>
@@ -358,7 +332,10 @@ export default function OrderDetailPage() {
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
-                              <Badge variant="secondary" className="font-mono text-sm">
+                              <Badge
+                                variant="secondary"
+                                className="font-mono text-sm"
+                              >
                                 {item.quantity}
                               </Badge>
                             </TableCell>
@@ -418,7 +395,7 @@ export default function OrderDetailPage() {
         <div className="space-y-6">
           {/* Customer Information */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <div className="flex items-center gap-2">
                 <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                   <User className="size-4 text-muted-foreground" />
@@ -448,7 +425,7 @@ export default function OrderDetailPage() {
 
           {/* Shipping Address */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <div className="flex items-center gap-2">
                 <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                   <MapPin className="size-4 text-muted-foreground" />
@@ -489,33 +466,6 @@ export default function OrderDetailPage() {
                   <p className="text-sm">{order.shipping_address.note}</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Timeline / Metadata */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Order Timeline</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-start gap-3">
-                <div className="flex size-6 items-center justify-center rounded-full bg-muted shrink-0 mt-0.5">
-                  <Calendar className="size-3 text-muted-foreground" />
-                </div>
-                <div className="flex-1 space-y-0.5">
-                  <p className="text-xs text-muted-foreground">Created</p>
-                  <p className="font-medium">{formatDate(order.created_at)}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex size-6 items-center justify-center rounded-full bg-muted shrink-0 mt-0.5">
-                  <Calendar className="size-3 text-muted-foreground" />
-                </div>
-                <div className="flex-1 space-y-0.5">
-                  <p className="text-xs text-muted-foreground">Last Updated</p>
-                  <p className="font-medium">{formatDate(order.updated_at)}</p>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
