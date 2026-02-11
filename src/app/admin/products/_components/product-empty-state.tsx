@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function ProductEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center px-4">
       <div className="bg-muted flex size-14 items-center justify-center rounded-full">
         <Package className="text-muted-foreground size-7" />
       </div>

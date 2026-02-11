@@ -8,7 +8,7 @@ interface SizeEmptyStateProps {
 
 export function SizeEmptyState({ onAddSize }: SizeEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 px-4">
       <div className="flex size-12 items-center justify-center rounded-full bg-muted">
         <Ruler className="size-6 text-muted-foreground" />
       </div>

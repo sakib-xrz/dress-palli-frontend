@@ -6,11 +6,9 @@ interface CategoryEmptyStateProps {
   onAddCategory: () => void;
 }
 
-export function CategoryEmptyState({
-  onAddCategory,
-}: CategoryEmptyStateProps) {
+export function CategoryEmptyState({ onAddCategory }: CategoryEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 px-4">
       <div className="flex size-12 items-center justify-center rounded-full bg-muted">
         <FolderOpen className="size-6 text-muted-foreground" />
       </div>

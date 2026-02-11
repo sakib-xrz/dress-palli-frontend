@@ -4,7 +4,7 @@ import { Package } from "lucide-react";
 export function OrderEmptyState() {
   return (
     <Card>
-      <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+      <CardContent className="flex flex-col items-center justify-center py-16 text-center px-4">
         <div className="flex size-16 items-center justify-center rounded-full bg-muted mb-4">
           <Package className="size-8 text-muted-foreground" />
         </div>

@@ -8,10 +8,15 @@ import { Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useCreateBanner, useUpdateBanner } from "@/hooks/use-banners";
-import type { Banner } from "@/lib/type";
+import {
+  useCreateFeaturedCategory,
+  useUpdateFeaturedCategory,
+} from "@/hooks/use-featured-categories";
+import type { FeaturedCategory } from "@/lib/type";
+import { CategoryCombobox } from "@/components/shared/category-combobox";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -40,67 +45,90 @@ import {
 
 // ── Schema ──────────────────────────────────────────────
 
-const bannerFormSchema = z.object({
-  image: z.instanceof(File).optional(),
-  is_active: z.boolean(),
+const featuringFormSchema = z.object({
+  category_id: z.string().min(1, "Category is required"),
+  title: z.string().min(1, "Title is required"),
+  banner: z.instanceof(File).optional(),
+  youtube_video_link: z
+    .string()
+    .url("Invalid URL")
+    .optional()
+    .or(z.literal("")),
+  is_published: z.boolean(),
 });
 
-type BannerFormValues = z.infer<typeof bannerFormSchema>;
+type FeaturingFormValues = z.infer<typeof featuringFormSchema>;
 
 // ── Props ───────────────────────────────────────────────
 
-interface BannerFormModalProps {
+interface FeaturingFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  banner?: Banner | null;
+  featuring?: FeaturedCategory | null;
+  existingFeaturedIds?: string[];
 }
 
 // ── Component ───────────────────────────────────────────
 
-export function BannerFormModal({
+export function FeaturingFormModal({
   open,
   onOpenChange,
-  banner,
-}: BannerFormModalProps) {
+  featuring,
+  existingFeaturedIds = [],
+}: FeaturingFormModalProps) {
   const isMobile = useIsMobile();
-  const isEditing = !!banner;
+  const isEditing = !!featuring;
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const createMutation = useCreateBanner();
-  const updateMutation = useUpdateBanner();
+  const createMutation = useCreateFeaturedCategory();
+  const updateMutation = useUpdateFeaturedCategory();
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const form = useForm<BannerFormValues>({
-    resolver: zodResolver(bannerFormSchema),
+  const form = useForm<FeaturingFormValues>({
+    resolver: zodResolver(featuringFormSchema),
     defaultValues: {
-      is_active: true,
+      category_id: "",
+      title: "",
+      youtube_video_link: "",
+      is_published: true,
     },
   });
 
-  // Reset form when modal opens/closes or banner changes
+  // Reset form when modal opens or featuring changes
   useEffect(() => {
     if (open) {
-      if (banner) {
+      if (featuring) {
         form.reset({
-          is_active: banner.is_active,
+          category_id: featuring.category_id,
+          title: featuring.title,
+          youtube_video_link: featuring.youtube_video_link || "",
+          is_published: featuring.is_published,
         });
       } else {
         form.reset({
-          is_active: true,
+          category_id: "",
+          title: "",
+          youtube_video_link: "",
+          is_published: true,
         });
       }
     }
-  }, [open, banner, form]);
+  }, [open, featuring, form]);
 
-  // Update preview URL based on banner prop
-  const currentPreviewUrl = banner?.image_url || null;
+  // Clear preview when modal closes (avoids setState in effect)
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) setPreviewUrl(null);
+    onOpenChange(nextOpen);
+  };
+
+  const currentPreviewUrl = featuring?.banner_url || null;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue("image", file);
+      form.setValue("banner", file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     }
@@ -108,64 +136,122 @@ export function BannerFormModal({
 
   const displayPreviewUrl = previewUrl || currentPreviewUrl;
 
-  const onSubmit = async (values: BannerFormValues) => {
-    if (isEditing && banner) {
-      const payload: { is_active: boolean; image?: File } = {
-        is_active: values.is_active,
+  const onSubmit = async (values: FeaturingFormValues) => {
+    const youtubeLink = values.youtube_video_link?.trim() || null;
+
+    if (isEditing && featuring) {
+      const payload: {
+        title?: string;
+        banner?: File;
+        youtube_video_link?: string | null;
+        is_published?: boolean;
+      } = {
+        title: values.title,
+        youtube_video_link: youtubeLink,
+        is_published: values.is_published,
       };
-      if (values.image) {
-        payload.image = values.image;
-      }
+      if (values.banner) payload.banner = values.banner;
 
       await updateMutation.mutateAsync(
-        { id: banner.id, data: payload },
-        { onSuccess: () => onOpenChange(false) },
+        { id: featuring.id, data: payload },
+        { onSuccess: () => handleOpenChange(false) },
       );
     } else {
-      if (!values.image) {
-        form.setError("image", { message: "Banner image is required" });
-        return;
-      }
+      const payload = {
+        category_id: values.category_id,
+        title: values.title,
+        banner: values.banner,
+        youtube_video_link: youtubeLink,
+        is_published: values.is_published,
+      };
 
-      await createMutation.mutateAsync(
-        {
-          image: values.image,
-          is_active: values.is_active,
+      await createMutation.mutateAsync(payload, {
+        onSuccess: () => {
+          form.reset({
+            category_id: "",
+            title: "",
+            youtube_video_link: "",
+            is_published: true,
+          });
+          handleOpenChange(false);
         },
-        {
-          onSuccess: () => {
-            form.reset({
-              is_active: true,
-            });
-            setPreviewUrl(null);
-            onOpenChange(false);
-          },
-        },
-      );
+      });
     }
   };
 
-  const title = isEditing ? "Edit Banner" : "Add Banner";
+  const title = isEditing ? "Edit Featured" : "Add Featured";
   const description = isEditing
-    ? "Update the banner details below."
-    : "Upload a new banner image and configure its settings.";
+    ? "Update the featured category details below."
+    : "Select a category and add details to feature it on your homepage.";
 
   const formContent = (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 px-4">
-        {/* Image Upload Field */}
+        {/* Category Field (create only) */}
+        {!isEditing && (
+          <FormField
+            control={form.control}
+            name="category_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <CategoryCombobox
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    invalid={!!form.formState.errors.category_id}
+                    excludeIds={existingFeaturedIds}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {isEditing && (
+          <FormField
+            control={form.control}
+            name="category_id"
+            render={() => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input
+                    value={featuring?.category.name}
+                    disabled
+                    className="bg-muted"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Title Field */}
         <FormField
           control={form.control}
-          name="image"
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Summer Collection" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Banner Image Field */}
+        <FormField
+          control={form.control}
+          name="banner"
           render={() => (
             <FormItem>
-              <FormLabel>
-                Banner Image{" "}
-                {!isEditing && <span className="text-destructive">*</span>}
-              </FormLabel>
+              <FormLabel>Banner Image (optional)</FormLabel>
               <FormControl>
                 <div className="space-y-4">
-                  {/* Preview */}
                   {displayPreviewUrl && (
                     <div className="relative aspect-21/9 w-full overflow-hidden rounded-lg border bg-muted">
                       <Image
@@ -177,11 +263,10 @@ export function BannerFormModal({
                     </div>
                   )}
 
-                  {/* Upload Button */}
                   {!displayPreviewUrl && (
                     <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-8">
                       <label
-                        htmlFor="banner-image"
+                        htmlFor="featuring-banner"
                         className="flex cursor-pointer flex-col items-center gap-2"
                       >
                         <Upload className="h-8 w-8 text-muted-foreground" />
@@ -192,7 +277,7 @@ export function BannerFormModal({
                           Recommended: 1920×810px (21:9 ratio)
                         </span>
                         <input
-                          id="banner-image"
+                          id="featuring-banner"
                           type="file"
                           accept="image/*"
                           className="hidden"
@@ -208,7 +293,7 @@ export function BannerFormModal({
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        document.getElementById("banner-image")?.click()
+                        document.getElementById("featuring-banner")?.click()
                       }
                     >
                       <Upload className="mr-2 h-4 w-4" />
@@ -216,7 +301,7 @@ export function BannerFormModal({
                     </Button>
                   )}
                   <input
-                    id="banner-image"
+                    id="featuring-banner"
                     type="file"
                     accept="image/*"
                     className="hidden"
@@ -229,18 +314,31 @@ export function BannerFormModal({
           )}
         />
 
-        {/* Active Status Field */}
+        {/* YouTube Video Link Field */}
         <FormField
           control={form.control}
-          name="is_active"
+          name="youtube_video_link"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Active</FormLabel>
-                <div className="text-sm text-muted-foreground">
-                  Display this banner on the website
-                </div>
-              </div>
+            <FormItem>
+              <FormLabel>YouTube Video Link (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Published Field */}
+        <FormField
+          control={form.control}
+          name="is_published"
+          render={({ field }) => (
+            <FormItem className="flex items-center justify-between rounded-lg border p-3">
+              <FormLabel className="cursor-pointer w-16">Published</FormLabel>
               <FormControl>
                 <Switch
                   checked={field.value}
@@ -251,13 +349,13 @@ export function BannerFormModal({
           )}
         />
 
-        {/* Footer Buttons */}
+        {/* Footer */}
         {isMobile ? (
           <SheetFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={isPending}
             >
               Cancel
@@ -272,7 +370,7 @@ export function BannerFormModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={isPending}
             >
               Cancel
@@ -287,11 +385,14 @@ export function BannerFormModal({
     </Form>
   );
 
-  // Render appropriate modal based on screen size
+  // ── Mobile: Sheet from bottom ──
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[90vh] overflow-y-auto rounded-t-xl"
+        >
           <SheetHeader>
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription>{description}</SheetDescription>
@@ -302,8 +403,9 @@ export function BannerFormModal({
     );
   }
 
+  // ── Desktop: Dialog ──
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

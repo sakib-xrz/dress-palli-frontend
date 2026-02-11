@@ -11,7 +11,7 @@ interface BannerEmptyStateProps {
 export function BannerEmptyState({ onAddBanner }: BannerEmptyStateProps) {
   return (
     <Card>
-      <CardContent className="flex flex-col items-center justify-center py-16">
+      <CardContent className="flex flex-col items-center justify-center py-16 px-4">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
           <ImageIcon className="h-10 w-10 text-muted-foreground" />
         </div>

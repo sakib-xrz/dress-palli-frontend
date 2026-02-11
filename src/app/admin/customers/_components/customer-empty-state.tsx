@@ -4,7 +4,7 @@ import { Users } from "lucide-react";
 export function CustomerEmptyState() {
   return (
     <Card>
-      <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+      <CardContent className="flex flex-col items-center justify-center py-16 text-center px-4">
         <div className="flex size-16 items-center justify-center rounded-full bg-muted mb-4">
           <Users className="size-8 text-muted-foreground" />
         </div>

@@ -25,12 +25,14 @@ interface CategoryComboboxProps {
   value: string;
   onValueChange: (value: string) => void;
   invalid?: boolean;
+  excludeIds?: string[];
 }
 
 export function CategoryCombobox({
   value,
   onValueChange,
   invalid,
+  excludeIds = [],
 }: CategoryComboboxProps) {
   const [open, setOpen] = useState(false);
   const { data: categories } = useCategories();
@@ -38,22 +40,43 @@ export function CategoryCombobox({
   // Flatten categories with parent → child hierarchy
   const flatCategories = useMemo(() => {
     if (!categories) return [];
-    const items: { id: string; name: string; isChild: boolean }[] = [];
+    const items: {
+      id: string;
+      name: string;
+      displayName: string;
+      isChild: boolean;
+      parentName?: string;
+    }[] = [];
     for (const cat of categories) {
-      items.push({ id: cat.id, name: cat.name, isChild: false });
+      if (!excludeIds.includes(cat.id)) {
+        items.push({
+          id: cat.id,
+          name: cat.name,
+          displayName: cat.name,
+          isChild: false,
+        });
+      }
       if (cat.children) {
         for (const child of cat.children) {
-          items.push({ id: child.id, name: child.name, isChild: true });
+          if (!excludeIds.includes(child.id)) {
+            items.push({
+              id: child.id,
+              name: child.name,
+              displayName: `${cat.name} › ${child.name}`,
+              isChild: true,
+              parentName: cat.name,
+            });
+          }
         }
       }
     }
     return items;
-  }, [categories]);
+  }, [categories, excludeIds]);
 
   const selectedCategory = flatCategories.find((c) => c.id === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -66,7 +89,7 @@ export function CategoryCombobox({
           )}
         >
           {selectedCategory
-            ? selectedCategory.name
+            ? selectedCategory.displayName
             : "Search & select category..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
@@ -80,7 +103,7 @@ export function CategoryCombobox({
               {flatCategories.map((cat) => (
                 <CommandItem
                   key={cat.id}
-                  value={cat.name}
+                  value={`${cat.name} ${cat.parentName ?? ""}`.trim()}
                   onSelect={() => {
                     onValueChange(cat.id);
                     setOpen(false);
@@ -92,7 +115,7 @@ export function CategoryCombobox({
                       cat.isChild && "pl-4 font-normal",
                     )}
                   >
-                    {cat.name}
+                    {cat.displayName}
                   </span>
                   <Check
                     className={cn(

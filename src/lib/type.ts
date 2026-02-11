@@ -89,6 +89,40 @@ export type ReorderBannerPayload = {
   items: { id: string; sort_order: number }[];
 };
 
+// ── Featured Category (Featuring) ───────────────────────────
+
+export type FeaturedCategory = {
+  id: string;
+  category_id: string;
+  title: string;
+  banner_url: string | null;
+  youtube_video_link: string | null;
+  sort_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+  category: { id: string; name: string; slug: string };
+};
+
+export type CreateFeaturedCategoryPayload = {
+  category_id: string;
+  title: string;
+  banner?: File;
+  youtube_video_link?: string | null;
+  is_published?: boolean;
+};
+
+export type UpdateFeaturedCategoryPayload = {
+  title?: string;
+  banner?: File;
+  youtube_video_link?: string | null;
+  is_published?: boolean;
+};
+
+export type ReorderFeaturedCategoryPayload = {
+  items: { id: string; sort_order: number }[];
+};
+
 // ── Size ───────────────────────────────────────────────────
 
 export type Size = {
