@@ -206,7 +206,7 @@ function ParentRow({
 
       {/* Published */}
       <TableCell className="text-center justify-center items-center flex">
-        <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-32">
+        <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-30">
           <Switch
             size="sm"
             checked={category.is_active}

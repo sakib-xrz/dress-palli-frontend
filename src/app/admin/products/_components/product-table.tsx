@@ -228,30 +228,27 @@ export function ProductTable({
           const isLive = product.is_published;
           return (
             <div className="flex items-center justify-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      size="sm"
-                      checked={isLive}
-                      onCheckedChange={(checked) => {
-                        statusMutation.mutate({
-                          id: product.id,
-                          data: { is_published: checked },
-                        });
-                      }}
-                      disabled={statusMutation.isPending}
-                      aria-label={`Toggle ${product.name} status`}
-                      className="cursor-pointer"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isLive
-                    ? "Published and visible to customers"
-                    : "Draft – not visible to customers"}
-                </TooltipContent>
-              </Tooltip>
+              <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-30">
+                <Switch
+                  size="sm"
+                  checked={isLive}
+                  onCheckedChange={(checked) => {
+                    statusMutation.mutate({
+                      id: product.id,
+                      data: { is_published: checked },
+                    });
+                  }}
+                  disabled={
+                    statusMutation.isPending &&
+                    statusMutation.variables?.id === product.id
+                  }
+                  aria-label={`Toggle ${product.name} status`}
+                  className="cursor-pointer"
+                />
+                <span className="text-xs text-muted-foreground w-16">
+                  {isLive ? "Published" : "Unpublished"}
+                </span>
+              </div>
             </div>
           );
         },

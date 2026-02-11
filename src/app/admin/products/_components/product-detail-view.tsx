@@ -568,7 +568,7 @@ function StatusBadges({
       {product.is_new && (
         <Badge
           variant="outline"
-          className={`gap-1 border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-400 ${shadowCls}`}
+          className={`gap-1 border-blue-300 bg-blue-50 text-blue-700 ${shadowCls}`}
         >
           New Arrival
         </Badge>
