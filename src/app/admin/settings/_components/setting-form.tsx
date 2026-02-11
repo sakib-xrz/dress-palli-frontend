@@ -7,10 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 
-import {
-  useInitSettings,
-  useUpdateSettings,
-} from "@/hooks/use-settings";
+import { useInitSettings, useUpdateSettings } from "@/hooks/use-settings";
 import type { Setting } from "@/lib/type";
 
 import { Button } from "@/components/ui/button";
@@ -130,7 +127,10 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
         description: "",
         keywords: "",
       });
-      setLogoPreview(null);
+      queueMicrotask(() => {
+        setLogoPreview(null);
+        setFaviconPreview(null);
+      });
     } else if (setting) {
       updateForm.reset({
         address: setting.address,
@@ -147,11 +147,19 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
         google_analytics_id: setting.google_analytics_id || "",
         google_tag_manager_id: setting.google_tag_manager_id || "",
         facebook_pixel_id: setting.facebook_pixel_id || "",
-        delivery_charge_inside_dhaka: Number(setting.delivery_charge_inside_dhaka),
-        delivery_charge_outside_dhaka: Number(setting.delivery_charge_outside_dhaka),
+        delivery_charge_inside_dhaka: Number(
+          setting.delivery_charge_inside_dhaka,
+        ),
+        delivery_charge_outside_dhaka: Number(
+          setting.delivery_charge_outside_dhaka,
+        ),
       });
-      setLogoPreview(setting.logo || null);
-      setFaviconPreview(setting.favicon || null);
+      const logo = setting.logo || null;
+      const favicon = setting.favicon || null;
+      queueMicrotask(() => {
+        setLogoPreview(logo);
+        setFaviconPreview(favicon);
+      });
     }
   }, [setting, isInit, initForm, updateForm]);
 
@@ -191,10 +199,13 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
     if (values.address !== undefined) payload.address = values.address;
     if (values.phone !== undefined) payload.phone = values.phone;
     if (values.email !== undefined) payload.email = values.email;
-    if (values.facebook !== undefined) payload.facebook = values.facebook || null;
-    if (values.instagram !== undefined) payload.instagram = values.instagram || null;
+    if (values.facebook !== undefined)
+      payload.facebook = values.facebook || null;
+    if (values.instagram !== undefined)
+      payload.instagram = values.instagram || null;
     if (values.title !== undefined) payload.title = values.title;
-    if (values.description !== undefined) payload.description = values.description;
+    if (values.description !== undefined)
+      payload.description = values.description;
     if (values.keywords !== undefined) payload.keywords = values.keywords;
     if (values.show_featured_products !== undefined)
       payload.show_featured_products = values.show_featured_products;
@@ -209,9 +220,11 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
     if (values.facebook_pixel_id !== undefined)
       payload.facebook_pixel_id = values.facebook_pixel_id || null;
     if (values.delivery_charge_inside_dhaka !== undefined)
-      payload.delivery_charge_inside_dhaka = values.delivery_charge_inside_dhaka;
+      payload.delivery_charge_inside_dhaka =
+        values.delivery_charge_inside_dhaka;
     if (values.delivery_charge_outside_dhaka !== undefined)
-      payload.delivery_charge_outside_dhaka = values.delivery_charge_outside_dhaka;
+      payload.delivery_charge_outside_dhaka =
+        values.delivery_charge_outside_dhaka;
 
     await updateMutation.mutateAsync(payload);
   };
@@ -223,202 +236,206 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
           onSubmit={initForm.handleSubmit(onSubmitInit)}
           className="space-y-6"
         >
-        {/* Branding */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">Branding</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Logo and favicon for your store. Favicon supports ICO format.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={initForm.control}
-              name="logo"
-              render={() => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Logo</FormLabel>
-                  <FormControl>
-                    <div className="flex flex-wrap items-center gap-4">
-                      {logoPreview && (
-                        <div className="relative h-16 w-40 overflow-hidden rounded-lg border border-border bg-muted">
-                          <Image
-                            src={logoPreview}
-                            alt="Logo"
-                            fill
-                            className="object-contain p-4"
+          {/* Branding */}
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Branding</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Logo and favicon for your store.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={initForm.control}
+                name="logo"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Logo</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap items-center gap-4">
+                        {logoPreview && (
+                          <div className="relative h-16 w-40 overflow-hidden rounded-lg border border-border bg-muted">
+                            <Image
+                              src={logoPreview}
+                              alt="Logo"
+                              fill
+                              className="object-contain p-4"
+                            />
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-border"
+                            onClick={() =>
+                              document.getElementById("setting-logo")?.click()
+                            }
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            {logoPreview ? "Change" : "Upload"}
+                          </Button>
+                          <input
+                            id="setting-logo"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleLogoChange}
                           />
+                          <p className="text-xs text-muted-foreground">
+                            PNG, JPG, WebP. Recommended 200×200px
+                          </p>
                         </div>
-                      )}
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="border-border"
-                          onClick={() =>
-                            document.getElementById("setting-logo")?.click()
-                          }
-                        >
-                          <Upload className="mr-2 h-4 w-4" />
-                          {logoPreview ? "Change" : "Upload"}
-                        </Button>
-                        <input
-                          id="setting-logo"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleLogoChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          PNG, JPG, WebP. Recommended 200×200px
-                        </p>
                       </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-        {/* General */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">General</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Site title, description, and SEO keywords.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={initForm.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Site Title</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Store name"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={initForm.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="SEO description"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={initForm.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Keywords</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="SEO keywords"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+          {/* General */}
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">General</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Site title, description, and SEO keywords.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={initForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">
+                      Site Title
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Store name"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">
+                      Description
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SEO description"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="keywords"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Keywords</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SEO keywords"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-        {/* Contact */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">Contact</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Store address and contact information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={initForm.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Store address"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={initForm.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Phone</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Phone number"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={initForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      className="border-border bg-background"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+          {/* Contact */}
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Contact</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Store address and contact information.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={initForm.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Store address"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Phone number"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={initForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        className="border-border bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-        {/* Save */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Settings
-          </Button>
-        </div>
-      </form>
-    </Form>
+          {/* Save */}
+          <div className="flex justify-end">
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Settings
+            </Button>
+          </div>
+        </form>
+      </Form>
     );
   }
 
@@ -434,7 +451,7 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
           <CardHeader>
             <CardTitle className="text-card-foreground">Branding</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Logo and favicon for your store. Favicon supports ICO format.
+              Logo and favicon for your store.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -509,7 +526,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
                         }
                       >
                         <Upload className="mr-2 h-4 w-4" />
-                        {faviconPreview || setting?.favicon ? "Change" : "Upload"}
+                        {faviconPreview || setting?.favicon
+                          ? "Change"
+                          : "Upload"}
                       </Button>
                       <input
                         id="setting-favicon"
@@ -659,7 +678,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="facebook"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Facebook URL</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Facebook URL
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="https://facebook.com/..."
@@ -677,7 +698,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="instagram"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Instagram URL</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Instagram URL
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="https://instagram.com/..."
@@ -785,7 +808,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="delivery_charge_inside_dhaka"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Inside Dhaka (৳)</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Inside Dhaka (৳)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -811,7 +836,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="delivery_charge_outside_dhaka"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Outside Dhaka (৳)</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Outside Dhaka (৳)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -849,7 +876,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="google_analytics_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Google Analytics ID</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Google Analytics ID
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="G-XXXXXXXXXX"
@@ -867,7 +896,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="google_tag_manager_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Google Tag Manager ID</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Google Tag Manager ID
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="GTM-XXXXXXX"
@@ -885,7 +916,9 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               name="facebook_pixel_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground">Facebook Pixel ID</FormLabel>
+                  <FormLabel className="text-foreground">
+                    Facebook Pixel ID
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Pixel ID"
