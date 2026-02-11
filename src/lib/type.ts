@@ -397,3 +397,39 @@ export type OrderHistory = {
   note: string | null;
   created_at: string;
 };
+
+// ── Customer ──────────────────────────────────────────────
+
+export type Customer = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  created_at: string;
+  updated_at: string;
+  _count?: { orders: number };
+};
+
+export type CustomerWithOrders = Customer & {
+  orders: Order[];
+};
+
+export type CustomerQueryParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sort_by?: string;
+  sort_order?: string;
+};
+
+export type CreateCustomerPayload = {
+  name: string;
+  phone: string;
+  email?: string | null;
+};
+
+export type UpdateCustomerPayload = {
+  name?: string;
+  phone?: string;
+  email?: string | null;
+};
