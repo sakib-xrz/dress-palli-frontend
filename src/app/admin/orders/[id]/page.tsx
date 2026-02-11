@@ -320,14 +320,6 @@ export default function OrderDetailPage() {
                                       Size: {item.variant.size.name}
                                     </div>
                                   )}
-                                  {item.variant?.product && (
-                                    <Link
-                                      href={`/admin/products/${item.variant.product.id}/edit`}
-                                      className="text-xs text-primary hover:underline mt-0.5 inline-block"
-                                    >
-                                      View Product →
-                                    </Link>
-                                  )}
                                 </div>
                               </div>
                             </TableCell>
