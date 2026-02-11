@@ -215,7 +215,7 @@ export function ProductTable({
       {
         accessorKey: "is_published",
         header: () => (
-          <div className="flex items-center justify-center">Status</div>
+          <div className="flex items-center justify-center">Published</div>
         ),
         cell: ({ row }) => {
           const product = row.original;
@@ -316,7 +316,7 @@ export function ProductTable({
       const currentState = { pageIndex, pageSize };
       const newState =
         typeof updater === "function" ? updater(currentState) : updater;
-      
+
       if (newState.pageIndex !== pageIndex) {
         onPageChange(newState.pageIndex);
       }

@@ -128,12 +128,18 @@ function DraggableBannerRow({
 
       {/* Active Status */}
       <TableCell>
-        <div className="flex items-center justify-center">
-          <Switch
-            checked={banner.is_active}
-            onCheckedChange={handleStatusToggle}
-            disabled={updateMutation.isPending}
-          />
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-30">
+            <Switch
+              size="sm"
+              checked={banner.is_active}
+              onCheckedChange={handleStatusToggle}
+              disabled={updateMutation.isPending}
+            />
+            <span className="text-xs text-muted-foreground w-16">
+              {banner.is_active ? "Published" : "Unpublished"}
+            </span>
+          </div>
         </div>
       </TableCell>
 
@@ -219,7 +225,7 @@ export function BannerTable({ banners, onEdit, onDelete }: BannerTableProps) {
               <TableHead className="w-10" />
               <TableHead className="w-[200px]">Image</TableHead>
               <TableHead className="w-[100px] text-center">Order</TableHead>
-              <TableHead className="w-[130px] text-center">Active</TableHead>
+              <TableHead className="w-[130px] text-center">Published</TableHead>
               <TableHead className="w-12 text-right" />
             </TableRow>
           </TableHeader>
