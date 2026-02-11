@@ -108,13 +108,13 @@ function DraggableBannerRow({
 
       {/* Image */}
       <TableCell>
-        <div className="h-auto w-40 rounded-md border bg-muted">
+        <div className="rounded-md">
           <Image
             src={banner.image_url}
             alt="Banner"
             width={160}
             height={90}
-            className="object-cover"
+            className="object-contain aspect-21/8"
           />
         </div>
       </TableCell>

@@ -132,7 +132,15 @@ export function BannerFormModal({
           image: values.image,
           is_active: values.is_active,
         },
-        { onSuccess: () => onOpenChange(false) },
+        {
+          onSuccess: () => {
+            form.reset({
+              is_active: true,
+            });
+            setPreviewUrl(null);
+            onOpenChange(false);
+          },
+        },
       );
     }
   };

@@ -24,7 +24,7 @@ export function BannerTableSkeleton() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 3 }).map((_, index) => (
+          {Array.from({ length: 5 }).map((_, index) => (
             <TableRow key={index}>
               {/* Drag Handle */}
               <TableCell>
@@ -33,13 +33,13 @@ export function BannerTableSkeleton() {
 
               {/* Image */}
               <TableCell>
-                <Skeleton className="h-16 w-full rounded-md" />
+                <Skeleton className="h-[90px] w-[160px] rounded-md aspect-21/8" />
               </TableCell>
 
               {/* Sort Order */}
               <TableCell className="text-center">
                 <div className="flex justify-center">
-                  <Skeleton className="h-5 w-8 rounded-full" />
+                  <Skeleton className="h-5 w-5 rounded-full" />
                 </div>
               </TableCell>
 
