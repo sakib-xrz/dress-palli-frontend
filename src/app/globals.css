@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --font-sans: Inter, system-ui, sans-serif;
 
@@ -141,7 +139,7 @@
 
   --foreground: oklch(0.3333 0.1112 280.5357);
 
-  --card: oklch(0.9876 0.0075 345.3413);
+  --card: oklch(1 0 0);
 
   --card-foreground: oklch(0.3333 0.1112 280.5357);
 
@@ -185,7 +183,7 @@
 
   --chart-5: oklch(0.7253 0.1752 349.7607);
 
-  --radius: 0.45rem;
+  --radius: 0rem;
 
   --sidebar: oklch(0.9907 0.0057 308.3971);
 
@@ -254,117 +252,6 @@
   --tracking-normal: 0.015em;
 }
 
-.dark {
-  --background: oklch(0.1713 0.0368 284.3266);
-
-  --foreground: oklch(0.9792 0.0106 291.9569);
-
-  --card: oklch(0.212 0.0465 285.5127);
-
-  --card-foreground: oklch(0.9792 0.0106 291.9569);
-
-  --popover: oklch(0.1713 0.0368 284.3266);
-
-  --popover-foreground: oklch(0.9792 0.0106 291.9569);
-
-  --primary: oklch(0.6445 0.1967 283.0081);
-
-  --primary-foreground: oklch(1 0 0);
-
-  --secondary: oklch(0.6764 0.2456 353.7742);
-
-  --secondary-foreground: oklch(1 0 0);
-
-  --muted: oklch(0.2692 0.0601 285.7622);
-
-  --muted-foreground: oklch(0.7676 0.0386 295.6592);
-
-  --accent: oklch(0.2867 0.0659 323.5314);
-
-  --accent-foreground: oklch(0.6764 0.2456 353.7742);
-
-  --destructive: oklch(0.6311 0.2545 28.8515);
-
-  --destructive-foreground: oklch(1 0 0);
-
-  --border: oklch(0.3128 0.0685 285.2158);
-
-  --input: oklch(0.2284 0.0549 284.2933);
-
-  --ring: oklch(0.6764 0.2456 353.7742);
-
-  --chart-1: oklch(0.6445 0.1967 283.0081);
-
-  --chart-2: oklch(0.6764 0.2456 353.7742);
-
-  --chart-3: oklch(0.7952 0.1617 86.0468);
-
-  --chart-4: oklch(0.6668 0.2591 322.1499);
-
-  --chart-5: oklch(0.5854 0.2041 277.1173);
-
-  --radius: 0.45rem;
-
-  --sidebar: oklch(0.156 0.0335 284.6497);
-
-  --sidebar-foreground: oklch(0.9792 0.0106 291.9569);
-
-  --sidebar-primary: oklch(0.6445 0.1967 283.0081);
-
-  --sidebar-primary-foreground: oklch(1 0 0);
-
-  --sidebar-accent: oklch(0.2692 0.0601 285.7622);
-
-  --sidebar-accent-foreground: oklch(0.6764 0.2456 353.7742);
-
-  --sidebar-border: oklch(0.2284 0.0549 284.2933);
-
-  --sidebar-ring: oklch(0.6764 0.2456 353.7742);
-
-  --font-sans: Inter, system-ui, sans-serif;
-
-  --font-serif: Playfair Display, serif;
-
-  --font-mono: Courier Prime, ui-monospace, monospace;
-
-  --shadow-color: #000000;
-
-  --shadow-opacity: 0.3;
-
-  --shadow-blur: 12px;
-
-  --shadow-spread: 0px;
-
-  --shadow-offset-x: 0px;
-
-  --shadow-offset-y: 4px;
-
-  --letter-spacing: 0.015em;
-
-  --spacing: 0.25rem;
-
-  --shadow-2xs: 0px 4px 12px 0px hsl(0 0% 0% / 0.15);
-
-  --shadow-xs: 0px 4px 12px 0px hsl(0 0% 0% / 0.15);
-
-  --shadow-sm:
-    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
-
-  --shadow:
-    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
-
-  --shadow-md:
-    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 2px 4px -1px hsl(0 0% 0% / 0.3);
-
-  --shadow-lg:
-    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 4px 6px -1px hsl(0 0% 0% / 0.3);
-
-  --shadow-xl:
-    0px 4px 12px 0px hsl(0 0% 0% / 0.3), 0px 8px 10px -1px hsl(0 0% 0% / 0.3);
-
-  --shadow-2xl: 0px 4px 12px 0px hsl(0 0% 0% / 0.75);
-}
-
 @layer base {
   body {
     letter-spacing: var(--tracking-normal);
@@ -390,9 +277,26 @@
   button {
     @apply cursor-pointer;
   }
+  input {
+    border-color: #dadada !important;
+  }
+  input:focus {
+    border-color: #7a7a7a !important;
+    box-shadow: none !important;
+  }
 }
 
+/* class="tiptap-editor rounded-md border shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]" */
+
 /* Tiptap editor styles */
+.tiptap-editor {
+  border-color: #dadada !important;
+  box-shadow: none !important;
+}
+.tiptap-editor:focus-within {
+  border-color: #7a7a7a !important;
+  box-shadow: none !important;
+}
 .tiptap-editor .ProseMirror {
   outline: none;
   min-height: 120px;

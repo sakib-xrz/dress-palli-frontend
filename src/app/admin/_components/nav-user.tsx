@@ -40,7 +40,7 @@ export function NavUser({ user }: { user: AuthUser | undefined }) {
           <Button
             variant="ghost"
             size="icon"
-            className="bg-white hover:bg-white transition-all duration-200 hover:text-red-600 cursor-pointer"
+            className="bg-white hover:bg-destructive! transition-all duration-200 hover:text-white cursor-pointer"
             onClick={logout}
             disabled={isLoggingOut}
             title="Sign out"

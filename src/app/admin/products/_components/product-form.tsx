@@ -666,7 +666,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
           </Card>
 
           {/* Category */}
-          <Card>
+          <Card className="gap-2">
             <CardHeader>
               <CardTitle>
                 Category <span className="text-destructive">*</span>

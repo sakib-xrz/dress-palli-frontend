@@ -61,7 +61,7 @@ export function CategoryCombobox({
           aria-expanded={open}
           aria-invalid={invalid}
           className={cn(
-            "w-full justify-between font-normal",
+            "w-full justify-between font-normal bg-transparent!",
             !value && "text-muted-foreground",
           )}
         >

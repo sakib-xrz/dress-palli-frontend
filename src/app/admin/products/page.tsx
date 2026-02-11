@@ -373,7 +373,7 @@ function ProductsPageContent() {
           {/* Advanced Filters (Collapsible Content) */}
           <Collapsible open={moreFiltersOpen} onOpenChange={setMoreFiltersOpen}>
             <CollapsibleContent className="bg-background">
-              <div className="rounded-md border bg-muted/30 p-3 sm:p-4">
+              <div className="rounded-md border p-3 sm:p-4">
                 <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground">
