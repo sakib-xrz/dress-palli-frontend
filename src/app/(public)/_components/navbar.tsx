@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  IconCategory2,
   IconChevronDown,
   IconHome2,
   IconMenu2,
@@ -131,10 +130,12 @@ export default function Navbar({ categories }: NavbarProps) {
                 <IconMenu2 className="size-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="grid grid-rows-[auto_1fr] gap-0 p-0">
+            <SheetContent
+              side="left"
+              className="grid grid-rows-[auto_1fr] gap-0 p-0"
+            >
               <SheetHeader className="bg-muted/30 border-border border-b px-5 py-4">
                 <SheetTitle className="grid grid-cols-[auto_1fr] items-center gap-2">
-                  <IconCategory2 className="text-primary size-4" />
                   <span>{brandName}</span>
                 </SheetTitle>
                 <SheetDescription>
