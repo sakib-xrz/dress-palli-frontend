@@ -497,6 +497,8 @@ export type Setting = {
   updated_at: string;
 };
 
+export type PublicSetting = Omit<Setting, "id" | "created_at" | "updated_at">;
+
 export type InitSettingPayload = {
   logo?: File;
   address: string;

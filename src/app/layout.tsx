@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
+import { getServerPublicSettings } from "@/lib/server/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,17 +21,19 @@ export const metadata: Metadata = {
     "Dress Palli is an online platform for buying and selling dresses for all occasions",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getServerPublicSettings();
+
   return (
     <html lang="en" className="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
+        <Providers initialSettings={settings}>
           <Suspense
             fallback={
               <div className="flex min-h-screen items-center justify-center">
