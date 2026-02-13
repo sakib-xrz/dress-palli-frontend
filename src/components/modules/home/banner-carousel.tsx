@@ -107,7 +107,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
         <>
           <button
             onClick={goToPrevious}
-            className="absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-10"
+            className="absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-10 hidden lg:block"
             aria-label="Previous slide"
           >
             <svg
@@ -126,7 +126,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
           </button>
           <button
             onClick={goToNext}
-            className="absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-10"
+            className="absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-10 hidden lg:block"
             aria-label="Next slide"
           >
             <svg
