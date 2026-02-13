@@ -117,8 +117,8 @@ export default function Navbar({ categories }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50">
       {/* Main Navbar */}
-      <div className="border-border bg-background/95 supports-backdrop-filter:bg-background/80 border-b backdrop-blur">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3.5 md:gap-4 h-[5rem]">
+      <div className="border-border bg-white">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3.5 md:gap-4 lg:h-[5rem]">
           <div className="grid grid-flow-col auto-cols-max items-center justify-self-start gap-2">
             <Sheet>
               <SheetTrigger asChild>
@@ -135,7 +135,7 @@ export default function Navbar({ categories }: NavbarProps) {
                 side="left"
                 className="grid grid-rows-[auto_1fr] gap-0 p-0 w-[85vw] sm:w-[400px]"
               >
-                <SheetHeader className="border-border border-b px-5 py-5">
+                <SheetHeader className="border-border border-b px-5 py-4.5 lg:py-5">
                   <SheetTitle className="grid grid-cols-[auto_1fr] items-center gap-3">
                     {logo ? (
                       <Image
@@ -143,14 +143,14 @@ export default function Navbar({ categories }: NavbarProps) {
                         alt={brandName}
                         width={48}
                         height={48}
-                        className="aspect-square size-10 object-contain rounded-lg"
+                        className="aspect-square lg:size-10 size-8 object-contain rounded-lg"
                       />
                     ) : (
-                      <div className="bg-linear-to-br from-pink-500 to-purple-500 text-white grid size-10 place-items-center rounded-lg text-base font-bold shadow-md">
+                      <div className="bg-linear-to-br from-pink-500 to-purple-500 text-white grid lg:size-10 size-8 place-items-center rounded-lg text-base font-bold shadow-md">
                         {brandName.charAt(0)}
                       </div>
                     )}
-                    <span className="text-lg font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    <span className="text-lg lg:text-xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                       {brandName}
                     </span>
                   </SheetTitle>
@@ -202,15 +202,15 @@ export default function Navbar({ categories }: NavbarProps) {
                   alt={brandName}
                   width={100}
                   height={100}
-                  className="relative aspect-square size-12 object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="relative aspect-square lg:size-12 size-10 object-contain transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
             ) : (
               <div className="grid items-center gap-1">
-                <div className="bg-linear-to-br from-pink-500 to-purple-600 text-white grid size-12 md:size-14 place-items-center rounded-xl text-lg md:text-xl font-bold shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <div className="bg-linear-to-br from-pink-500 to-purple-600 text-white grid lg:size-12 size-10 place-items-center rounded-xl text-lg lg:text-xl font-bold shadow-lg transition-transform duration-300 group-hover:scale-105">
                   {brandName.charAt(0)}
                 </div>
-                <p className="text-xs font-semibold text-center bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent hidden md:block">
+                <p className="text-xs font-semibold text-center bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent hidden lg:block">
                   Fashion
                 </p>
               </div>
