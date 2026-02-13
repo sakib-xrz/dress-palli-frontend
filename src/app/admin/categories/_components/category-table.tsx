@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import {
   ChevronDown,
@@ -58,11 +59,12 @@ export function CategoryTable({
 
   return (
     <div className="rounded-lg border">
-      <Table className="min-w-[640px] table-fixed">
+      <Table className="min-w-[760px] table-fixed">
         <TableHeader>
           <TableRow>
             <TableHead className="w-8" />
             <TableHead className="w-[200px]">Name</TableHead>
+            <TableHead className="w-[90px]">Image</TableHead>
             <TableHead className="w-[180px]">Slug</TableHead>
             <TableHead className="w-[130px] text-center">
               Sub-Categories
@@ -186,6 +188,22 @@ function ParentRow({
       {/* Name */}
       <TableCell className="font-medium truncate">{category.name}</TableCell>
 
+      {/* Image */}
+      <TableCell>
+        {category.image_url ? (
+          <div className="relative h-10 w-14 overflow-hidden rounded border">
+            <Image
+              src={category.image_url}
+              alt={`${category.name} image`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </TableCell>
+
       {/* Slug */}
       <TableCell className="truncate">
         <code className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs font-mono">
@@ -272,6 +290,7 @@ function ChildRow({ child, parentId, onEdit, onDelete }: ChildRowProps) {
   // Convert CategoryChild to a Category shape for edit/delete
   const asCategory: Category = {
     ...child,
+    image_url: null,
     parent_id: parentId,
     created_at: "",
     updated_at: "",
@@ -287,6 +306,11 @@ function ChildRow({ child, parentId, onEdit, onDelete }: ChildRowProps) {
         <div className="flex items-center gap-2 pl-4">
           <span className="truncate">{child.name}</span>
         </div>
+      </TableCell>
+
+      {/* Image */}
+      <TableCell>
+        <span className="text-xs text-muted-foreground">—</span>
       </TableCell>
 
       {/* Slug */}

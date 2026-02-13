@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -55,6 +56,7 @@ const categoryFormSchema = z.object({
   name: z.string().min(1, "Category name is required"),
   parent_id: z.string().nullable().optional(),
   is_active: z.boolean(),
+  image: z.instanceof(File).optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
@@ -76,6 +78,7 @@ export function CategoryFormModal({
 }: CategoryFormModalProps) {
   const isMobile = useIsMobile();
   const isEditing = !!category;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { data: categories } = useCategories();
   const createMutation = useCreateCategory();
@@ -100,12 +103,14 @@ export function CategoryFormModal({
           name: category.name,
           parent_id: category.parent_id || null,
           is_active: category.is_active,
+          image: undefined,
         });
       } else {
         form.reset({
           name: "",
           parent_id: null,
           is_active: true,
+          image: undefined,
         });
       }
     }
@@ -121,7 +126,32 @@ export function CategoryFormModal({
     return true;
   });
 
+  const selectedParentId = useWatch({ control: form.control, name: "parent_id" });
+  const isRootCategory = !selectedParentId;
+  const existingImageUrl = category?.image_url ?? null;
+  const displayImageUrl = previewUrl || existingImageUrl;
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    form.setValue("image", file, { shouldValidate: true });
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) setPreviewUrl(null);
+    onOpenChange(nextOpen);
+  };
+
   const onSubmit = async (values: CategoryFormValues) => {
+    if (isRootCategory && !values.image && !existingImageUrl) {
+      form.setError("image", {
+        type: "manual",
+        message: "Image is required for root category",
+      });
+      return;
+    }
+
     const payload = {
       ...values,
       parent_id: values.parent_id || null,
@@ -134,14 +164,21 @@ export function CategoryFormModal({
           data: {
             name: payload.name,
             parent_id: payload.parent_id,
+            image: isRootCategory ? payload.image : undefined,
           },
         },
-        { onSuccess: () => onOpenChange(false) },
+        { onSuccess: () => handleOpenChange(false) },
       );
     } else {
-      await createMutation.mutateAsync(payload, {
-        onSuccess: () => onOpenChange(false),
-      });
+      await createMutation.mutateAsync(
+        {
+          ...payload,
+          image: isRootCategory ? payload.image : undefined,
+        },
+        {
+          onSuccess: () => handleOpenChange(false),
+        },
+      );
     }
   };
 
@@ -200,6 +237,64 @@ export function CategoryFormModal({
           )}
         />
 
+        {/* Root Category Image Field */}
+        {isRootCategory && (
+          <FormField
+            control={form.control}
+            name="image"
+            render={() => (
+              <FormItem>
+                <FormLabel>Category Image (required for root)</FormLabel>
+                <FormControl>
+                  <div className="space-y-3">
+                    {displayImageUrl ? (
+                      <div className="relative h-36 w-full overflow-hidden rounded-lg border bg-muted">
+                        <Image
+                          src={displayImageUrl}
+                          alt="Category preview"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 p-6">
+                        <label
+                          htmlFor="category-image"
+                          className="flex cursor-pointer flex-col items-center gap-2"
+                        >
+                          <Upload className="h-7 w-7 text-muted-foreground" />
+                          <span className="text-sm font-medium">
+                            Upload Category Image
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        document.getElementById("category-image")?.click()
+                      }
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {displayImageUrl ? "Change Image" : "Choose Image"}
+                    </Button>
+                    <input
+                      id="category-image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         {/* Status Field (only on create) */}
         {!isEditing && (
           <FormField
@@ -232,7 +327,7 @@ export function CategoryFormModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={isPending}
             >
               Cancel
@@ -250,7 +345,7 @@ export function CategoryFormModal({
   // ── Mobile: Sheet from bottom ──
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetContent
           side="bottom"
           className="rounded-t-xl"
@@ -268,7 +363,7 @@ export function CategoryFormModal({
 
   // ── Desktop: Dialog ──
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

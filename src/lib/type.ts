@@ -38,6 +38,7 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  image_url: string | null;
   parent_id: string | null;
   is_active: boolean;
   created_at: string;
@@ -50,11 +51,13 @@ export type CreateCategoryPayload = {
   name: string;
   parent_id?: string | null;
   is_active?: boolean;
+  image?: File;
 };
 
 export type UpdateCategoryPayload = {
   name?: string;
   parent_id?: string | null;
+  image?: File;
 };
 
 export type UpdateCategoryStatusPayload = {
