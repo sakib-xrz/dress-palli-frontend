@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Category } from "@/lib/type";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import SectionHeader from "@/components/shared/section-header";
 
 interface CategorySectionProps {
   categories: Category[];
@@ -44,18 +45,18 @@ const CategoryCard = ({ category }: { category: Category }) => (
         )}
 
         {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-linear-to-t from-pink-500/0 via-transparent to-transparent group-hover:from-pink-500/20 dark:group-hover:from-pink-500/30 transition-all duration-300 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t via-transparent to-transparent from-pink-500/20 transition-all duration-300 pointer-events-none" />
       </div>
 
       {/* Category Name */}
-      <div className="p-4 text-center bg-background group-hover:bg-linear-to-br group-hover:from-pink-50/50 group-hover:to-purple-50/50 dark:group-hover:from-pink-950/10 dark:group-hover:to-purple-950/10 transition-all duration-300">
-        <h3 className="font-semibold text-foreground group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-300 line-clamp-2 text-sm md:text-base">
+      <div className="p-4 text-center bg-linear-to-br from-pink-50/50 to-purple-50/50 transition-all duration-300">
+        <h3 className="font-semibold text-pink-600 transition-colors duration-300 line-clamp-2 text-sm md:text-base">
           {category.name}
         </h3>
       </div>
 
       {/* Decorative Border Effect */}
-      <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+      <div className="absolute inset-0 rounded-xl opacity-100 transition-opacity duration-300 pointer-events-none">
         <div className="absolute inset-0 rounded-xl bg-linear-to-r from-pink-500/10 to-purple-500/10 dark:from-pink-500/20 dark:to-purple-500/20" />
       </div>
     </div>
@@ -125,15 +126,13 @@ export default function CategorySection({ categories }: CategorySectionProps) {
     <div className="w-full max-w-7xl mx-auto px-4">
       <section>
         {/* Section Header */}
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold pb-3 bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-            Category
-          </h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-            Discover our carefully curated collection of premium fashion for
-            every style and occasion
-          </p>
-        </div>
+        <SectionHeader
+          title="Category"
+          description="Discover our carefully curated collection of premium fashion for every style and occasion"
+          align="center"
+          showDecorator={true}
+          animated={true}
+        />
 
         {/* Categories Display - Grid or Carousel */}
         {categories.length <= 4 ? (
