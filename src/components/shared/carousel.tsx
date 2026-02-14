@@ -38,6 +38,12 @@ export interface CarouselProps<T> {
   ariaLabelDot?: (index: number) => string;
   /** Additional class for the carousel container */
   className?: string;
+  /** Enable autoplay - automatically advance to next slide */
+  autoplay?: boolean;
+  /** Autoplay interval in milliseconds */
+  autoplayInterval?: number;
+  /** Enable one-way loop - when at last slide, next goes to first; when at first, previous goes to last */
+  loop?: boolean;
 }
 
 export default function Carousel<T>({
@@ -52,6 +58,9 @@ export default function Carousel<T>({
   ariaLabelNext = "Next",
   ariaLabelDot = (index) => `Go to slide ${index + 1}`,
   className,
+  autoplay = true,
+  autoplayInterval = 5000,
+  loop = true,
 }: CarouselProps<T>) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -81,12 +90,29 @@ export default function Carousel<T>({
   const totalSlides = Math.ceil(items.length / itemsPerSlideCount);
   const showCarousel = items.length > itemsPerSlideCount;
 
+  // Autoplay - advance to next slide at interval
+  useEffect(() => {
+    if (!autoplay || !showCarousel || totalSlides <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) =>
+        loop ? (prev + 1) % totalSlides : Math.min(totalSlides - 1, prev + 1),
+      );
+    }, autoplayInterval);
+
+    return () => clearInterval(interval);
+  }, [autoplay, autoplayInterval, loop, showCarousel, totalSlides]);
+
   const goToPrevious = () => {
-    setCurrentSlide((prev) => Math.max(0, prev - 1));
+    setCurrentSlide((prev) =>
+      loop ? (prev - 1 + totalSlides) % totalSlides : Math.max(0, prev - 1),
+    );
   };
 
   const goToNext = () => {
-    setCurrentSlide((prev) => Math.min(totalSlides - 1, prev + 1));
+    setCurrentSlide((prev) =>
+      loop ? (prev + 1) % totalSlides : Math.min(totalSlides - 1, prev + 1),
+    );
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -165,10 +191,10 @@ export default function Carousel<T>({
               e.stopPropagation();
               goToPrevious();
             }}
-            disabled={currentSlide === 0}
+            disabled={!loop && currentSlide === 0}
             className={cn(
-              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 hidden disabled:cursor-not-allowed lg:block",
-              currentSlide === 0 && "hidden",
+              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed lg:block",
+              !loop && currentSlide === 0 && "hidden",
             )}
             aria-label={ariaLabelPrevious}
           >
@@ -192,10 +218,10 @@ export default function Carousel<T>({
               e.stopPropagation();
               goToNext();
             }}
-            disabled={currentSlide >= totalSlides - 1}
+            disabled={!loop && currentSlide >= totalSlides - 1}
             className={cn(
-              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 hidden disabled:cursor-not-allowed lg:block",
-              currentSlide >= totalSlides - 1 && "hidden",
+              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed lg:block",
+              !loop && currentSlide >= totalSlides - 1 && "hidden",
             )}
             aria-label={ariaLabelNext}
           >
