@@ -252,6 +252,35 @@ export type AdminProduct = {
   variants: FormattedVariant[];
 };
 
+/** Public product list item (formatted from /products via formatProduct) */
+export type PublicProductVariant = {
+  id: string;
+  size_id: string;
+  size_name: string;
+  stock: number;
+};
+
+export type PublicProductImage = {
+  url: string;
+  alt_text: string | null;
+  is_primary: boolean;
+};
+
+export type PublicProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FIXED";
+  is_featured: boolean;
+  is_new: boolean;
+  is_best_selling: boolean;
+  variants: PublicProductVariant[];
+  effective_price: number;
+  primary_image: PublicProductImage | null;
+};
+
 export type PaginatedResponse<T> = {
   success: boolean;
   statusCode: number;

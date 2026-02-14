@@ -1,11 +1,13 @@
 import Home from "@/components/modules/home";
 import { getServerBanners } from "@/lib/server/banner";
 import { getServerPublicCategories } from "@/lib/server/categories";
+import { getServerFeaturedProducts } from "@/lib/server/products";
 
 export default async function HomePage() {
-  const [banners, categories] = await Promise.all([
+  const [banners, categories, featuredProducts] = await Promise.all([
     getServerBanners(),
     getServerPublicCategories(),
+    getServerFeaturedProducts(),
   ]);
 
   // Filter parent categories (categories with no parent_id)
@@ -13,5 +15,11 @@ export default async function HomePage() {
     (category) => category.parent_id === null && category.is_active
   );
 
-  return <Home banners={banners} categories={parentCategories} />;
+  return (
+    <Home
+      banners={banners}
+      categories={parentCategories}
+      featuredProducts={featuredProducts}
+    />
+  );
 }

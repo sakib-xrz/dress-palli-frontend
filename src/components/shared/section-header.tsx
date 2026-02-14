@@ -68,7 +68,7 @@ export default function SectionHeader({
       {description && (
         <p
           className={cn(
-            "text-muted-foreground text-sm md:text-base lg:text-lg leading-relaxed",
+            "text-muted-foreground text-sm md:text-base lg:text-lg leading-relaxed pt-4",
             align === "center" && "max-w-2xl mx-auto",
             align === "right" && "max-w-2xl ml-auto",
             align === "left" && "max-w-2xl",

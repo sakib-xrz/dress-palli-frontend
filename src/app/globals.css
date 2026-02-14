@@ -6,11 +6,11 @@
 @custom-variant dark (&&:not(*));
 
 @theme inline {
-  --font-sans: Inter, system-ui, sans-serif;
+  --font-sans: var(--font-lato), system-ui, sans-serif;
 
   --font-mono: Courier Prime, ui-monospace, monospace;
 
-  --font-serif: Playfair Display, serif;
+  --font-serif: var(--font-playfair), serif;
 
   --radius: 0.45rem;
 
@@ -204,9 +204,9 @@
 
   --sidebar-ring: oklch(0.5904 0.237 351.9187);
 
-  --font-sans: Inter, system-ui, sans-serif;
+  --font-sans: var(--font-lato), system-ui, sans-serif;
 
-  --font-serif: Playfair Display, serif;
+  --font-serif: var(--font-playfair), serif;
 
   --font-mono: Courier Prime, ui-monospace, monospace;
 
@@ -258,6 +258,9 @@
 @layer base {
   body {
     letter-spacing: var(--tracking-normal);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
   }
 }
 

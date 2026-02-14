@@ -13,7 +13,7 @@ interface CategorySectionProps {
 
 const CategoryCard = ({ category }: { category: Category }) => (
   <Link href={`/category/${category.slug}`} className="group block">
-    <div className="relative overflow-hidden rounded-xl border border-border bg-background shadow-sm hover:shadow-xl hover:border-pink-200 dark:hover:border-pink-800 transition-all duration-300 transform">
+    <div className="relative overflow-hidden border border-border bg-background shadow-sm hover:shadow-xl hover:border-pink-200 dark:hover:border-pink-800 transition-all duration-300 transform">
       {/* Category Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
         {category.image_url ? (
@@ -56,8 +56,8 @@ const CategoryCard = ({ category }: { category: Category }) => (
       </div>
 
       {/* Decorative Border Effect */}
-      <div className="absolute inset-0 rounded-xl opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 rounded-xl bg-linear-to-r from-pink-500/10 to-purple-500/10 dark:from-pink-500/20 dark:to-purple-500/20" />
+      <div className="absolute inset-0 opacity-100 transition-opacity duration-300 pointer-events-none">
+        <div className="absolute inset-0 bg-linear-to-r from-pink-500/10 to-purple-500/10 dark:from-pink-500/20 dark:to-purple-500/20" />
       </div>
     </div>
   </Link>
@@ -137,7 +137,7 @@ export default function CategorySection({ categories }: CategorySectionProps) {
         {/* Categories Display - Grid or Carousel */}
         {categories.length <= 4 ? (
           // Grid for 4 or fewer categories
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-2 lg:gap-4">
             {categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
@@ -168,7 +168,7 @@ export default function CategorySection({ categories }: CategorySectionProps) {
                   return (
                     <div
                       key={slideIndex}
-                      className="min-w-full grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6"
+                      className="min-w-full grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2 lg:gap-4"
                     >
                       {slideCategories.map((category) => (
                         <CategoryCard key={category.id} category={category} />
