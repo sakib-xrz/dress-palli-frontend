@@ -15,14 +15,10 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, className }: ProductCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const outOfStock =
+    product.variants?.some((variant) => variant.stock === 0) || false;
 
   const primaryImage = product.primary_image?.url;
-
-  // Calculate total stock from variants
-  const totalStock = product.variants.reduce(
-    (sum, variant) => sum + variant.stock,
-    0,
-  );
 
   const hasDiscount = product.discount > 0;
   const discountPercentage =
@@ -45,7 +41,11 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className={cn("group block h-full", className)}
+      className={cn(
+        "group block h-full",
+        !outOfStock ? "cursor-pointer" : "pointer-events-none",
+        className,
+      )}
     >
       <article className="relative h-full flex flex-col bg-background border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-gray-300 dark:hover:border-gray-700">
         {/* Badges */}
@@ -56,6 +56,17 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </span>
           )}
         </div>
+
+        {/* Out of Stock Overlay - covers entire card */}
+        {outOfStock && (
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-30">
+            <div className="text-center w-full">
+              <div className="bg-black/50 px-4 py-2 w-full">
+                <p className="text-sm font-semibold text-white">Out of Stock</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Image Container */}
         <div className="relative aspect-3/4 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -96,36 +107,21 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
           {/* Subtle Gradient Overlay */}
           <div className="absolute inset-0 bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-          {/* Out of Stock Overlay */}
-          {totalStock !== 0 && (
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px] flex items-center justify-center z-20">
-              <div className="text-center">
-                <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded-md shadow-lg">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Out of Stock
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Product Details */}
         <div className="flex-1 flex flex-col lg:p-3.5 p-2">
           {/* Name */}
-          <div className="flex-1 mb-1">
-            <h3
-              title={product.name}
-              className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1 leading-snug group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors"
-            >
-              {product.name}
-            </h3>
-          </div>
+          <h3
+            title={product.name}
+            className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1 leading-snug group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors"
+          >
+            {product.name}
+          </h3>
 
           {/* Price & Stock */}
           <div className="space-y-1.5">
-            <div className="flex items-baseline mb-2 flex-wrap">
+            <div className="flex items-baseline mb-2 flex-col sm:flex-row sm:gap-2">
               <span className="text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                 BDT {product.effective_price.toLocaleString()}
               </span>
@@ -136,21 +132,23 @@ export default function ProductCard({ product, className }: ProductCardProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-auto">
               <Button
                 variant="outline"
                 onClick={handleAddToCart}
                 className="flex-1"
+                size="sm"
               >
-                <IconShoppingCart className="w-3.5 h-3.5" />
+                <IconShoppingCart className="w-3.5 h-3.5 block sm:hidden xl:block" />
                 <span className="hidden sm:block">Add to Cart</span>
               </Button>
               <Button
                 variant="secondary"
                 onClick={handleBuyNow}
                 className="flex-1"
+                size="sm"
               >
-                <IconShoppingBag className="w-3.5 h-3.5" />
+                <IconShoppingBag className="w-3.5 h-3.5 block sm:hidden xl:block" />
                 <span className="hidden sm:block">Buy Now</span>
               </Button>
             </div>

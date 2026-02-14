@@ -20,13 +20,15 @@ export default function FeaturedProductsSection({
   const [productSlide, setProductSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 640);
-      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+      setIsDesktop(window.innerWidth >= 1024 && window.innerWidth < 1280);
     };
 
     checkScreenSize();
@@ -38,6 +40,7 @@ export default function FeaturedProductsSection({
   const getItemsPerSlide = () => {
     if (isMobile) return 2;
     if (isTablet) return 3;
+    if (isDesktop) return 4;
     return 4;
   };
 
@@ -99,7 +102,7 @@ export default function FeaturedProductsSection({
         {/* Products Display - Grid or Carousel */}
         {!showCarousel ? (
           // Simple Grid for few products
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-2 lg:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-2 lg:gap-4">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -129,7 +132,7 @@ export default function FeaturedProductsSection({
                   return (
                     <div
                       key={slideIndex}
-                      className="min-w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-2 lg:gap-4"
+                      className="min-w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-2 lg:gap-4"
                     >
                       {slideProducts.map((product) => (
                         <ProductCard key={product.id} product={product} />

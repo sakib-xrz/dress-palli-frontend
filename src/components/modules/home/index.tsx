@@ -1,4 +1,4 @@
-import type { Banner, Category, AdminProduct } from "@/lib/type";
+import type { Banner, Category, PublicProduct } from "@/lib/type";
 import BannerCarousel from "./banner-carousel";
 import CategorySection from "./category-section";
 import FeaturedProductsSection from "./featured-products-section";
@@ -6,7 +6,7 @@ import FeaturedProductsSection from "./featured-products-section";
 interface HomeProps {
   banners: Banner[];
   categories: Category[];
-  featuredProducts?: AdminProduct[];
+  featuredProducts?: PublicProduct[];
 }
 
 export default function Home({
@@ -15,7 +15,7 @@ export default function Home({
   featuredProducts = [],
 }: HomeProps) {
   return (
-    <div className="lg:space-y-12 space-y-6 lg:mb-12 mb-6">
+    <div className="lg:space-y-20 space-y-8 lg:mb-12 mb-6">
       <BannerCarousel banners={banners} />
       <CategorySection categories={categories} />
       {featuredProducts.length > 0 && (
