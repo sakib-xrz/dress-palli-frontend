@@ -120,13 +120,13 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           </h3>
 
           {/* Price & Stock */}
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline mb-2 flex-col sm:flex-row sm:gap-2">
               <span className="text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                 BDT {product.effective_price.toLocaleString()}
               </span>
               {hasDiscount && (
-                <span className="text-sm font-medium text-gray-400 dark:text-gray-500 line-through">
+                <span className="text-sm font-medium text-gray-400 dark:text-gray-500 line-through hidden sm:block">
                   BDT {product.sell_price.toLocaleString()}
                 </span>
               )}
