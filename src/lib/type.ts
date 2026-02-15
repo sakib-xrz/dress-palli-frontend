@@ -126,6 +126,20 @@ export type ReorderFeaturedCategoryPayload = {
   items: { id: string; sort_order: number }[];
 };
 
+export type FeaturedCategoryWithProducts = {
+  id: string;
+  category_id: string;
+  title: string;
+  banner_url: string | null;
+  youtube_video_link: string | null;
+  sort_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+  category: { id: string; name: string; slug: string; is_active: boolean };
+  products: PublicProduct[];
+};
+
 // ── Size ───────────────────────────────────────────────────
 
 export type Size = {

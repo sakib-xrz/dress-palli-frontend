@@ -193,7 +193,7 @@ export default function Carousel<T>({
             }}
             disabled={!loop && currentSlide === 0}
             className={cn(
-              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed lg:block",
+              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
               !loop && currentSlide === 0 && "hidden",
             )}
             aria-label={ariaLabelPrevious}
@@ -220,7 +220,7 @@ export default function Carousel<T>({
             }}
             disabled={!loop && currentSlide >= totalSlides - 1}
             className={cn(
-              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed lg:block",
+              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
               !loop && currentSlide >= totalSlides - 1 && "hidden",
             )}
             aria-label={ariaLabelNext}

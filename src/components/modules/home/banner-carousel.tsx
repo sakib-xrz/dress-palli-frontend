@@ -84,6 +84,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
                     fill
                     className="object-cover"
                     priority={currentSlide === 0}
+                    quality={100}
                   />
                 </div>
               </Link>
@@ -95,6 +96,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
                   fill
                   className="object-cover"
                   priority={currentSlide === 0}
+                  quality={100}
                 />
               </div>
             )}

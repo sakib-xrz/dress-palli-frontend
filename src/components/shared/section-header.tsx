@@ -33,7 +33,7 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "mb-10 md:mb-12 flex flex-col relative overflow-hidden",
+        "mb-4 md:mb-8 flex flex-col relative overflow-hidden",
         alignmentClasses[align],
         animated && "animate-in fade-in-0 slide-in-from-bottom-4 duration-500",
         className,
@@ -43,7 +43,7 @@ export default function SectionHeader({
         {/* Title with Gradient */}
         <h2
           className={cn(
-            "text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 relative inline-block",
+            "text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 relative inline-block",
             titleClassName,
           )}
         >
@@ -68,7 +68,7 @@ export default function SectionHeader({
       {description && (
         <p
           className={cn(
-            "text-muted-foreground text-sm md:text-base lg:text-lg leading-relaxed pt-4",
+            "text-muted-foreground text-sm md:text-base lg:text-lg leading-relaxed pt-1",
             align === "center" && "max-w-2xl mx-auto",
             align === "right" && "max-w-2xl ml-auto",
             align === "left" && "max-w-2xl",
@@ -80,7 +80,7 @@ export default function SectionHeader({
       )}
 
       {/* Optional children for custom content */}
-      {children && <div className="mt-4">{children}</div>}
+      {children && <div className="mt-2">{children}</div>}
     </div>
   );
 }

@@ -1,9 +1,15 @@
 "use client";
 
-import type { Banner, Category, PublicProduct } from "@/lib/type";
+import type {
+  Banner,
+  Category,
+  FeaturedCategoryWithProducts,
+  PublicProduct,
+} from "@/lib/type";
 import BannerCarousel from "./banner-carousel";
 import CategorySection from "./category-section";
 import FeaturedProductsSection from "./featured-products-section";
+import FeaturedCategorySection from "./featured-category-section";
 import { useGlobalSettings } from "@/contexts/settings-context";
 
 interface HomeProps {
@@ -12,6 +18,7 @@ interface HomeProps {
   featuredProducts?: PublicProduct[];
   newProducts?: PublicProduct[];
   bestSellingProducts?: PublicProduct[];
+  featuredCategories?: FeaturedCategoryWithProducts[];
 }
 
 export default function Home({
@@ -20,6 +27,7 @@ export default function Home({
   featuredProducts = [],
   newProducts = [],
   bestSellingProducts = [],
+  featuredCategories = [],
 }: HomeProps) {
   const { settings } = useGlobalSettings();
 
@@ -44,6 +52,9 @@ export default function Home({
           description="Shop the most loved items our customers keep coming back for"
         />
       )}
+      {featuredCategories.map((fc) => (
+        <FeaturedCategorySection key={fc.id} featuredCategory={fc} />
+      ))}
     </div>
   );
 }

@@ -117,7 +117,7 @@ export default function Navbar({ categories }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50">
       {/* Main Navbar */}
-      <div className="border-border bg-white">
+      <div className="border-border border-b bg-white">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3.5 md:gap-4 lg:h-[5rem]">
           <div className="grid grid-flow-col auto-cols-max items-center justify-self-start gap-2">
             <Sheet>
