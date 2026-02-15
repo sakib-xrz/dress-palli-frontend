@@ -102,6 +102,12 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     }
   };
 
+  const hasSizeVariant =
+    product.variants?.length > 0 &&
+    product.variants.some(
+      (variant) => variant.size_name !== null && variant.id !== null,
+    );
+
   const renderDialogContent = () => (
     <div className="flex flex-col gap-4 justify-between h-full">
       <div>
@@ -125,73 +131,81 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
       <div className="space-y-4">
         {/* Size variant selection */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Select Size
-          </h4>
-          <div className="flex gap-2">
-            {product.variants?.map((variant) => {
-              const isOutOfStock = variant.stock === 0;
-              const isSelected = selectedVariant === variant.id;
+        {hasSizeVariant && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Select Size <span className="text-destructive">*</span>
+            </h4>
+            <div className="flex gap-2">
+              {hasSizeVariant &&
+                product.variants.map((variant) => {
+                  const isOutOfStock = variant.stock === 0;
+                  const isSelected = selectedVariant === variant.id;
 
-              return (
-                <Button
-                  variant="outline"
-                  key={variant.id}
-                  onClick={() => !isOutOfStock && selectVariant(variant.id)}
-                  disabled={isOutOfStock}
-                  size="icon"
-                  className={cn(isSelected && "bg-primary text-white")}
-                >
-                  <div className="text-center">
-                    <div className="font-semibold text-sm">
-                      {variant.size_name || "One Size"}
-                    </div>
-                  </div>
-                </Button>
-              );
-            })}
+                  return (
+                    <Button
+                      variant="outline"
+                      key={variant.id}
+                      onClick={() => !isOutOfStock && selectVariant(variant.id)}
+                      disabled={isOutOfStock}
+                      size="icon"
+                      className={cn(isSelected && "bg-primary text-white")}
+                    >
+                      <div className="text-center">
+                        <div className="font-semibold text-sm">
+                          {variant.size_name}
+                        </div>
+                      </div>
+                    </Button>
+                  );
+                })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Quantity & Stock row */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center border rounded-md overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              disabled={!canDecrement}
-              className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
-            >
-              −
-            </button>
-            <Input
-              type="number"
-              readOnly
-              min={1}
-              max={maxQuantity}
-              value={quantity}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                if (!isNaN(val))
-                  setQuantity(Math.min(maxQuantity, Math.max(1, val)));
-              }}
-              className="w-14 h-9 text-center border-0 rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default"
-            />
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-              disabled={!canIncrement}
-              className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
-            >
-              +
-            </button>
+        <div className="flex items-start gap-2 flex-col">
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Select Quantity <span className="text-destructive">*</span>
+          </h4>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center border rounded-md overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={!canDecrement}
+                className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+              >
+                −
+              </button>
+              <Input
+                type="number"
+                readOnly
+                min={1}
+                max={maxQuantity}
+                value={quantity}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val))
+                    setQuantity(Math.min(maxQuantity, Math.max(1, val)));
+                }}
+                className="w-14 h-9 text-center border-0 rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default"
+              />
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+                disabled={!canIncrement}
+                className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+              >
+                +
+              </button>
+            </div>
+            {selectedVariant && (
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {availableStock} available
+              </span>
+            )}
           </div>
-          {selectedVariant && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {availableStock} available
-            </span>
-          )}
         </div>
 
         {/* Action buttons */}
