@@ -11,7 +11,7 @@ interface FeaturedProductsSectionProps {
   description?: string;
 }
 
-export default function FeaturedProductsSection({
+export default function ProductsSection({
   products,
   title = "Featured Products",
   description = "Discover our handpicked collection of trending and premium fashion pieces",

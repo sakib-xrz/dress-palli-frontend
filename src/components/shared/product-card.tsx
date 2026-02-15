@@ -36,10 +36,6 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   const primaryImage = product.primary_image?.url;
 
   const hasDiscount = product.discount > 0;
-  const discountPercentage =
-    product.discount_type === "PERCENTAGE"
-      ? product.discount
-      : Math.round((product.discount / product.sell_price) * 100);
 
   const handleOpenDialogOrModal = (type: "cart" | "buy") => {
     setModalType(type);
@@ -251,8 +247,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           {/* Badges */}
           <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
             {hasDiscount && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-red-500 text-white shadow-md">
-                -{discountPercentage}% OFF
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-500 text-white shadow-md">
+                {product.discount}
+                {}
+                {product.discount_type === "PERCENTAGE" ? "%" : " BDT"} OFF
               </span>
             )}
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export interface CarouselBreakpoints {
@@ -38,11 +38,13 @@ export interface CarouselProps<T> {
   ariaLabelDot?: (index: number) => string;
   /** Additional class for the carousel container */
   className?: string;
+  /** Override class for the dots container (replaces default positioning) */
+  dotsClassName?: string;
   /** Enable autoplay - automatically advance to next slide */
   autoplay?: boolean;
   /** Autoplay interval in milliseconds */
   autoplayInterval?: number;
-  /** Enable one-way loop - when at last slide, next goes to first; when at first, previous goes to last */
+  /** Enable infinite loop (seamless Swiper-style looping with cloned boundary slides) */
   loop?: boolean;
 }
 
@@ -58,16 +60,24 @@ export default function Carousel<T>({
   ariaLabelNext = "Next",
   ariaLabelDot = (index) => `Go to slide ${index + 1}`,
   className,
+  dotsClassName,
   autoplay = true,
   autoplayInterval = 5000,
   loop = true,
 }: CarouselProps<T>) {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(loop ? 1 : 0);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [enableTransition, setEnableTransition] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const isSnapping = useRef(false);
+  const isHovered = useRef(false);
+  const [autoplayResetKey, setAutoplayResetKey] = useState(0);
 
+  const resetAutoplay = () => setAutoplayResetKey((k) => k + 1);
+
+  // ---- Screen-size detection ----
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -89,32 +99,122 @@ export default function Carousel<T>({
   const itemsPerSlideCount = getItemsPerSlide();
   const totalSlides = Math.ceil(items.length / itemsPerSlideCount);
   const showCarousel = items.length > itemsPerSlideCount;
+  const transitionDuration = 500; // must match Tailwind's duration-500
 
-  // Autoplay - advance to next slide at interval
+  const buildSlides = (): T[][] => {
+    const result: T[][] = [];
+
+    if (loop) {
+      const lastStart = (totalSlides - 1) * itemsPerSlideCount;
+      result.push(items.slice(lastStart, lastStart + itemsPerSlideCount));
+    }
+
+    for (let i = 0; i < totalSlides; i++) {
+      const start = i * itemsPerSlideCount;
+      result.push(items.slice(start, start + itemsPerSlideCount));
+    }
+
+    if (loop) {
+      result.push(items.slice(0, itemsPerSlideCount));
+    }
+
+    return result;
+  };
+
+  const slides = showCarousel ? buildSlides() : [];
+
+  // Map internal index → real slide index (0-based) for dots highlight
+  const realSlideIndex = loop
+    ? currentSlide === 0
+      ? totalSlides - 1
+      : currentSlide === totalSlides + 1
+        ? 0
+        : currentSlide - 1
+    : currentSlide;
+
+  useEffect(() => {
+    if (!loop || isSnapping.current) return;
+
+    if (currentSlide === totalSlides + 1) {
+      isSnapping.current = true;
+      const id = setTimeout(() => {
+        setEnableTransition(false);
+        setCurrentSlide(1);
+      }, transitionDuration + 20);
+      return () => clearTimeout(id);
+    }
+
+    if (currentSlide === 0) {
+      isSnapping.current = true;
+      const id = setTimeout(() => {
+        setEnableTransition(false);
+        setCurrentSlide(totalSlides);
+      }, transitionDuration + 20);
+      return () => clearTimeout(id);
+    }
+  }, [loop, currentSlide, totalSlides, transitionDuration]);
+
+  // Re-enable the CSS transition after the instant snap has painted
+  useEffect(() => {
+    if (!enableTransition) {
+      const id = setTimeout(() => {
+        setEnableTransition(true);
+        isSnapping.current = false;
+      }, 50);
+      return () => clearTimeout(id);
+    }
+  }, [enableTransition]);
+
+  // ---- Autoplay (pauses on hover, resets on user interaction) ----
   useEffect(() => {
     if (!autoplay || !showCarousel || totalSlides <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) =>
-        loop ? (prev + 1) % totalSlides : Math.min(totalSlides - 1, prev + 1),
-      );
+      if (isHovered.current) return;
+      if (loop) {
+        if (!isSnapping.current) {
+          setCurrentSlide((prev) => prev + 1);
+        }
+      } else {
+        setCurrentSlide((prev) => Math.min(totalSlides - 1, prev + 1));
+      }
     }, autoplayInterval);
 
     return () => clearInterval(interval);
-  }, [autoplay, autoplayInterval, loop, showCarousel, totalSlides]);
+  }, [autoplay, autoplayInterval, loop, showCarousel, totalSlides, autoplayResetKey]);
 
+  // ---- Navigation helpers ----
   const goToPrevious = () => {
-    setCurrentSlide((prev) =>
-      loop ? (prev - 1 + totalSlides) % totalSlides : Math.max(0, prev - 1),
-    );
+    if (loop) {
+      if (isSnapping.current) return;
+      setCurrentSlide((prev) => prev - 1);
+    } else {
+      setCurrentSlide((prev) => Math.max(0, prev - 1));
+    }
+    resetAutoplay();
   };
 
   const goToNext = () => {
-    setCurrentSlide((prev) =>
-      loop ? (prev + 1) % totalSlides : Math.min(totalSlides - 1, prev + 1),
-    );
+    if (loop) {
+      if (isSnapping.current) return;
+      setCurrentSlide((prev) => prev + 1);
+    } else {
+      setCurrentSlide((prev) => Math.min(totalSlides - 1, prev + 1));
+    }
+    resetAutoplay();
   };
 
+  const goToSlide = (realIndex: number) => {
+    if (loop) {
+      if (isSnapping.current) return;
+      setCurrentSlide(realIndex + 1); // +1 because index 0 is the prepended clone
+    } else {
+      setCurrentSlide(realIndex);
+    }
+    resetAutoplay();
+  };
+
+  // ---- Touch / swipe ----
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
     setTouchEnd(e.targetTouches[0].clientX);
@@ -128,13 +228,12 @@ export default function Carousel<T>({
     if (!touchStart || !touchEnd) return;
 
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 30;
-    const isRightSwipe = distance < -30;
-
-    if (isLeftSwipe) goToNext();
-    if (isRightSwipe) goToPrevious();
+    // goToNext / goToPrevious already call resetAutoplay()
+    if (distance > 30) goToNext();
+    if (distance < -30) goToPrevious();
   };
 
+  // ---- Render ----
   if (items.length === 0) return null;
 
   // Simple grid when all items fit in one slide
@@ -148,9 +247,13 @@ export default function Carousel<T>({
     );
   }
 
-  // Carousel with multiple slides
+  // Carousel with slides
   return (
-    <div className={cn("relative", className)}>
+    <div
+      className={cn("relative", className)}
+      onMouseEnter={() => (isHovered.current = true)}
+      onMouseLeave={() => (isHovered.current = false)}
+    >
       <div
         className="overflow-hidden"
         onTouchStart={handleTouchStart}
@@ -158,27 +261,21 @@ export default function Carousel<T>({
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className={cn(
+            "flex",
+            enableTransition && "transition-transform duration-500 ease-in-out",
+          )}
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {Array.from({ length: totalSlides }).map((_, slideIndex) => {
-            const startIndex = slideIndex * itemsPerSlideCount;
-            const slideItems = items.slice(
-              startIndex,
-              startIndex + itemsPerSlideCount,
-            );
-
-            return (
-              <div
-                key={slideIndex}
-                className={cn("min-w-full", slideClassName)}
-              >
-                {slideItems.map((item) => (
-                  <div key={itemKey(item)}>{renderItem(item)}</div>
-                ))}
-              </div>
-            );
-          })}
+          {slides.map((slideItems, slideIndex) => (
+            <div key={slideIndex} className={cn("min-w-full", slideClassName)}>
+              {slideItems.map((item) => (
+                <div key={`${slideIndex}-${itemKey(item)}`}>
+                  {renderItem(item)}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -244,14 +341,14 @@ export default function Carousel<T>({
 
       {/* Dots Navigation */}
       {showDots && (
-        <div className="flex justify-center gap-2 mt-6">
+        <div className={dotsClassName ?? "flex justify-center gap-2 mt-6"}>
           {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => goToSlide(index)}
               className={cn(
                 "h-2 rounded-full transition-all duration-200",
-                index === currentSlide
+                index === realSlideIndex
                   ? "bg-pink-600 dark:bg-pink-500 lg:w-8 w-5"
                   : "bg-gray-300 dark:bg-gray-700 lg:w-3 w-2 hover:bg-pink-400 dark:hover:bg-pink-600",
               )}
