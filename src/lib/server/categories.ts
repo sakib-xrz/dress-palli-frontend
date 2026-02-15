@@ -7,7 +7,7 @@ export async function getServerPublicCategories(): Promise<Category[]> {
   try {
     const response = await fetch(`${BACKEND_API_URL}/categories/public`, {
       method: "GET",
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
 
     if (!response.ok) {

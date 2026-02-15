@@ -7,7 +7,7 @@ export async function getServerPublicSettings(): Promise<PublicSetting | null> {
   try {
     const response = await fetch(`${BACKEND_API_URL}/settings/public`, {
       method: "GET",
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
 
     if (!response.ok) {

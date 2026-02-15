@@ -81,14 +81,6 @@ export default function SectionHeader({
 
       {/* Optional children for custom content */}
       {children && <div className="mt-4">{children}</div>}
-
-      {/* Decorative floating elements */}
-      {showDecorator && (
-        <>
-          <div className="absolute -top-8 -left-8 w-24 h-24 bg-pink-200 dark:bg-pink-900/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
-          <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-purple-200 dark:bg-purple-900/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
-        </>
-      )}
     </div>
   );
 }

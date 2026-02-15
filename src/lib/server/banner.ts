@@ -7,7 +7,7 @@ export async function getServerBanners(): Promise<Banner[]> {
   try {
     const response = await fetch(`${BACKEND_API_URL}/banners`, {
       method: "GET",
-      next: { revalidate: 300 }, // Revalidate every 5 minutes
+      cache: "no-store",
     });
 
     if (!response.ok) {
