@@ -9,7 +9,7 @@ import {
  * Public routes that don't require authentication.
  * These endpoints can be accessed without a token.
  */
-const PUBLIC_ROUTES = ["/cart"];
+const PUBLIC_ROUTES = ["/cart", "/orders"];
 
 /**
  * Catch-all API proxy.

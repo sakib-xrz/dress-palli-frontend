@@ -445,6 +445,22 @@ export type Order = {
   items?: OrderItem[];
 };
 
+export type CreatePublicOrderPayload = {
+  customer_name: string;
+  customer_phone: string;
+  is_inside_dhaka: boolean;
+  shipping_address: {
+    address: string;
+    area: string;
+    city: string;
+    note?: string;
+  };
+  items: {
+    variant_id: string;
+    quantity: number;
+  }[];
+};
+
 export type OrderQueryParams = {
   page?: number;
   limit?: number;

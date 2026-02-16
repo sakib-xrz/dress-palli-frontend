@@ -423,20 +423,26 @@ export default function CartPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {displayItems.map((item) => (
-                    <div
-                      key={item.variant_id}
-                      className="flex justify-between text-sm"
-                    >
-                      {" "}
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {item.product.name} - ({item.size}) x {item.quantity}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        BDT {item.total_price.toFixed(1)}
-                      </span>
-                    </div>
-                  ))}
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                    {displayItems.map((item) => (
+                      <div
+                        key={item.variant_id}
+                        className="flex gap-3 items-start"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                            {item.product.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {item.size && `${item.size} · `}Qty: {item.quantity}
+                          </p>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 shrink-0">
+                          BDT {item.total_price.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
 
                   <Separator className="my-3" />
                   <div className="flex justify-between text-base font-semibold pt-1">
@@ -444,19 +450,22 @@ export default function CartPage() {
                       Subtotal
                     </span>
                     <span className="text-pink-600 dark:text-pink-400 text-lg">
-                      BDT {summary.subtotal.toFixed(1)}
+                      BDT {summary.subtotal.toLocaleString()}
                     </span>
                   </div>
                 </div>
               )}
 
               <Button
+                asChild
                 className="mt-6 w-full bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
                 size="lg"
                 disabled={initialLoading}
               >
-                <IconShoppingBag className="size-5" />
-                Proceed to Checkout
+                <Link href="/checkout">
+                  <IconShoppingBag className="size-5" />
+                  Proceed to Checkout
+                </Link>
               </Button>
             </div>
 

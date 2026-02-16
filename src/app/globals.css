@@ -259,7 +259,12 @@
   body {
     letter-spacing: var(--tracking-normal);
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-serif);
   }
 }
@@ -287,6 +292,13 @@
     border-color: #dadada !important;
   }
   input:focus {
+    border-color: #7a7a7a !important;
+    box-shadow: none !important;
+  }
+  textarea {
+    border-color: #dadada !important;
+  }
+  textarea:focus {
     border-color: #7a7a7a !important;
     box-shadow: none !important;
   }

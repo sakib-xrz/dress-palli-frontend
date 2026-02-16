@@ -1,6 +1,7 @@
 import api from "@/lib/axios";
 import type {
   ApiResponse,
+  CreatePublicOrderPayload,
   Order,
   OrderHistory,
   OrderQueryParams,
@@ -12,7 +13,15 @@ import type {
 const ORDER_URL = "/orders";
 
 export const orderService = {
-  // ── Orders ─────────────────────────────────────────
+  // ── Public ─────────────────────────────────────────
+
+  createPublicOrder: async (
+    data: CreatePublicOrderPayload,
+  ): Promise<ApiResponse<Order>> => {
+    return api.post(ORDER_URL, data);
+  },
+
+  // ── Admin ──────────────────────────────────────────
 
   getAll: async (
     params?: OrderQueryParams,
