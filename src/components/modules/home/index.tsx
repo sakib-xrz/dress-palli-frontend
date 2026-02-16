@@ -34,7 +34,7 @@ export default function Home({
   return (
     <div className="lg:space-y-20 space-y-8 lg:mb-12 mb-6">
       <BannerCarousel banners={banners} />
-      <CategorySection categories={[...categories, ...categories]} />
+      <CategorySection categories={categories} />
       {settings?.show_featured_products && featuredProducts.length > 0 && (
         <ProductsSection products={featuredProducts} />
       )}
