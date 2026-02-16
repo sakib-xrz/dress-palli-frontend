@@ -6,6 +6,12 @@ import {
 } from "@/lib/auth";
 
 /**
+ * Public routes that don't require authentication.
+ * These endpoints can be accessed without a token.
+ */
+const PUBLIC_ROUTES = ["/cart"];
+
+/**
  * Catch-all API proxy.
  *
  * Reads the HttpOnly auth cookie, attaches it as a Bearer token,
@@ -19,7 +25,14 @@ async function proxyRequest(
   const { path } = await params;
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
-  if (!token) {
+  // Build target path to check if it's a public route
+  const targetPath = `/${path.join("/")}`;
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+    targetPath.startsWith(route),
+  );
+
+  // Only require authentication for non-public routes
+  if (!token && !isPublicRoute) {
     return NextResponse.json(
       { success: false, message: "Not authenticated" },
       { status: 401 },
@@ -27,8 +40,8 @@ async function proxyRequest(
   }
 
   // Build target URL
-  const targetPath = path.join("/");
-  const url = new URL(`${BACKEND_API_URL}/${targetPath}`);
+  const backendPath = path.join("/");
+  const url = new URL(`${BACKEND_API_URL}/${backendPath}`);
 
   // Forward query parameters
   request.nextUrl.searchParams.forEach((value, key) => {
@@ -36,9 +49,12 @@ async function proxyRequest(
   });
 
   // Build headers — only forward what's necessary
-  const headers: HeadersInit = {
-    Authorization: `Bearer ${token}`,
-  };
+  const headers: HeadersInit = {};
+  
+  // Only add Authorization header if token exists
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   const contentType = request.headers.get("content-type");
   if (contentType && !["GET", "HEAD"].includes(request.method)) {

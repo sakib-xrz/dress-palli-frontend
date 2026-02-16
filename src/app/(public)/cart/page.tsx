@@ -256,7 +256,7 @@ export default function CartPage() {
 
                       <div className="flex gap-4 p-4">
                         {/* Product Image */}
-                        <div className="relative aspect-3/4 overflow-hidden bg-gray-50 dark:bg-gray-900 w-[20%]">
+                        <div className="relative aspect-3/4 overflow-hidden bg-gray-50 dark:bg-gray-900 w-[20%] hidden sm:block">
                           {cartItem.image ? (
                             <Image
                               src={cartItem.image.url}
@@ -444,7 +444,7 @@ export default function CartPage() {
                       Subtotal
                     </span>
                     <span className="text-pink-600 dark:text-pink-400 text-lg">
-                      BDT {summary.grand_total.toLocaleString()}
+                      BDT {summary.subtotal.toFixed(1)}
                     </span>
                   </div>
                 </div>
