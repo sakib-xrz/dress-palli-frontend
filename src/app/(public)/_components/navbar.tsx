@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { useCartCount } from "@/store/use-cart-store";
 
 const searchSuggestions = ["Saree", "Three Piece"];
 
@@ -51,7 +52,7 @@ export default function Navbar({ categories }: NavbarProps) {
   const { settings } = useGlobalSettings();
   const brandName = settings?.title ?? "Dress Palli";
   const logo = settings?.logo ?? "";
-  const cartCount = 3;
+  const cartCount = useCartCount();
   const categoryTree = categories as CategoryTreeNode[];
 
   const renderCategoryNodes = (

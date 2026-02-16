@@ -40,4 +40,17 @@ export const showToast = {
       },
     });
   },
+
+  warning: (message: string) => {
+    toast.warning(message, {
+      duration: 4000,
+      style: {
+        backgroundColor: "#f59e0b",
+        color: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        zIndex: 9999,
+      },
+    });
+  },
 };

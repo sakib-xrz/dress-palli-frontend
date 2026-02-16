@@ -11,6 +11,7 @@ import { PublicProduct } from "@/lib/type";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import useCartStore from "@/store/use-cart-store";
 
 interface ProductCardProps {
   product: PublicProduct;
@@ -24,6 +25,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { addToCart } = useCartStore();
 
   const selectedVariantData = product.variants?.find(
     (v) => v.id === selectedVariant,
@@ -62,14 +64,13 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
   const handleAddToCartConfirm = () => {
     if (!selectedVariant) return;
-    console.log(
-      "Add to cart:",
-      product.id,
-      "variant:",
-      selectedVariant,
-      "qty:",
-      quantity,
-    );
+    
+    // Add item to cart with just variant_id and quantity
+    addToCart({
+      variant_id: selectedVariant,
+      quantity: quantity,
+    });
+    
     closeAndReset();
   };
 
