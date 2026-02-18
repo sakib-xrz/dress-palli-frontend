@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
+  IconBuildingStore,
   IconChevronDown,
   IconHome2,
   IconMenu2,
@@ -242,15 +243,26 @@ export default function Navbar({ categories }: NavbarProps) {
                 </SheetHeader>
 
                 <div className="grid content-start gap-4 overflow-y-auto px-4 py-4">
-                  <SheetClose asChild>
-                    <Link
-                      href="/"
-                      className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
-                    >
-                      <IconHome2 className="size-5" />
-                      <span>Home</span>
-                    </Link>
-                  </SheetClose>
+                  <div>
+                    <SheetClose asChild>
+                      <Link
+                        href="/"
+                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                      >
+                        <IconHome2 className="size-5" />
+                        <span>Home</span>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/products"
+                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                      >
+                        <IconBuildingStore className="size-5" />
+                        <span>Shop</span>
+                      </Link>
+                    </SheetClose>
+                  </div>
 
                   <Separator className="my-1" />
 

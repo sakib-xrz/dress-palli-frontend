@@ -110,6 +110,10 @@ export default function ProductsListing({
     { shallow: true },
   );
   const [searchInput, setSearchInput] = useState(params.search);
+  const [priceRangeInput, setPriceRangeInput] = useState({
+    min: params.min_price,
+    max: params.max_price,
+  });
 
   useEffect(() => {
     const syncTimer = setTimeout(() => {
@@ -129,6 +133,36 @@ export default function ProductsListing({
 
     return () => clearTimeout(timer);
   }, [searchInput, params.search, setParams]);
+
+  useEffect(() => {
+    const syncTimer = setTimeout(() => {
+      setPriceRangeInput((prev) => {
+        const next = { min: params.min_price, max: params.max_price };
+        if (prev.min === next.min && prev.max === next.max) return prev;
+        return next;
+      });
+    }, 0);
+
+    return () => clearTimeout(syncTimer);
+  }, [params.min_price, params.max_price]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const nextMin = priceRangeInput.min.trim();
+      const nextMax = priceRangeInput.max.trim();
+      const currentMin = params.min_price.trim();
+      const currentMax = params.max_price.trim();
+
+      if (nextMin !== currentMin || nextMax !== currentMax) {
+        setParams({
+          min_price: nextMin || null,
+          max_price: nextMax || null,
+        });
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [priceRangeInput, params.min_price, params.max_price, setParams]);
 
   const categoryTree = useMemo(
     () =>
@@ -254,6 +288,7 @@ export default function ProductsListing({
 
   const clearAllFilters = () => {
     setSearchInput("");
+    setPriceRangeInput({ min: "", max: "" });
     setParams({
       search: null,
       category: null,
@@ -265,6 +300,12 @@ export default function ProductsListing({
 
   const removeFilter = (key: keyof typeof params) => {
     if (key === "search") setSearchInput("");
+    if (key === "min_price" || key === "max_price") {
+      setPriceRangeInput((prev) => ({
+        ...prev,
+        [key === "min_price" ? "min" : "max"]: "",
+      }));
+    }
     setParams({ [key]: null });
   };
 
@@ -280,8 +321,10 @@ export default function ProductsListing({
           <Input
             type="number"
             placeholder="Min"
-            value={params.min_price}
-            onChange={(e) => setParams({ min_price: e.target.value || null })}
+            value={priceRangeInput.min}
+            onChange={(e) =>
+              setPriceRangeInput((prev) => ({ ...prev, min: e.target.value }))
+            }
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min={0}
           />
@@ -289,8 +332,10 @@ export default function ProductsListing({
           <Input
             type="number"
             placeholder="Max"
-            value={params.max_price}
-            onChange={(e) => setParams({ max_price: e.target.value || null })}
+            value={priceRangeInput.max}
+            onChange={(e) =>
+              setPriceRangeInput((prev) => ({ ...prev, max: e.target.value }))
+            }
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min={0}
           />
@@ -541,6 +586,7 @@ export default function ProductsListing({
                   <SheetContent
                     side="right"
                     className="w-[85vw] sm:w-[380px] overflow-hidden"
+                    onOpenAutoFocus={(event) => event.preventDefault()}
                   >
                     <SheetHeader>
                       <SheetTitle>Filters</SheetTitle>
@@ -584,9 +630,10 @@ export default function ProductsListing({
                   <Badge variant="secondary" className="gap-1 pr-1 font-normal">
                     BDT {params.min_price || "0"} — {params.max_price || "∞"}
                     <button
-                      onClick={() =>
-                        setParams({ min_price: null, max_price: null })
-                      }
+                      onClick={() => {
+                        setPriceRangeInput({ min: "", max: "" });
+                        setParams({ min_price: null, max_price: null });
+                      }}
                       className="ml-1 hover:bg-gray-200 rounded-full p-0.5 transition-colors"
                       aria-label="Remove price filter"
                     >
