@@ -38,6 +38,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     return null;
   });
   const [quantity, setQuantity] = useState(1);
+  const [showSizeValidationError, setShowSizeValidationError] = useState(false);
 
   const selectedVariantData = product.variants.find(
     (v) => v.id === selectedVariant,
@@ -55,22 +56,29 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     const variant = product.variants.find((v) => v.id === variantId);
     if (variant && variant.stock > 0) {
       setSelectedVariant(variantId);
+      setShowSizeValidationError(false);
       setQuantity((q) => Math.min(q, Math.min(variant.stock, 99)));
     }
   };
 
   const handleAddToCart = () => {
+    if (hasSizeVariant && !selectedVariant) {
+      setShowSizeValidationError(true);
+      return;
+    }
     if (!selectedVariant) return;
     addToCart({ variant_id: selectedVariant, quantity });
   };
 
   const handleBuyNow = () => {
+    if (hasSizeVariant && !selectedVariant) {
+      setShowSizeValidationError(true);
+      return;
+    }
     if (!selectedVariant) return;
     setBuyNowItem({ variant_id: selectedVariant, quantity });
     router.push("/checkout?mode=buy-now");
   };
-
-  const needsVariantSelection = hasSizeVariant && !selectedVariant;
 
   return (
     <div className="min-h-[calc(100vh-10rem)]">
@@ -224,6 +232,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                         </span>
                       )}
                     </div>
+                    {showSizeValidationError && (
+                      <p className="text-xs text-destructive">
+                        Please select a size before continuing.
+                      </p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       {product.variants.map((variant) => {
                         const isOutOfStock = variant.stock === 0;
@@ -306,8 +319,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     variant="outline"
                     size="lg"
                     onClick={handleAddToCart}
-                    disabled={needsVariantSelection}
-                    className="flex-1 h-12 text-sm sm:text-base font-semibold border-2 hover:border-gray-400"
+                    className="flex-1 h-12 text-sm sm:text-base font-semibold"
                   >
                     <IconShoppingCart className="size-[18px]" />
                     Add to Cart
@@ -315,7 +327,6 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   <Button
                     size="lg"
                     onClick={handleBuyNow}
-                    disabled={needsVariantSelection}
                     className="flex-1 h-12 text-sm sm:text-base font-semibold bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-sm"
                   >
                     <IconShoppingBag className="size-[18px]" />

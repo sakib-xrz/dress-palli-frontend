@@ -26,6 +26,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   const [modalType, setModalType] = useState<"cart" | "buy" | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [showSizeValidationError, setShowSizeValidationError] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { addToCart, setBuyNowItem } = useCartStore();
 
@@ -41,9 +42,17 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
   const hasDiscount = product.discount > 0;
 
+  const getDefaultVariantId = () => {
+    const firstInStockVariant = product.variants?.find(
+      (variant) => variant.stock > 0,
+    );
+    return firstInStockVariant?.id ?? null;
+  };
+
   const handleOpenDialogOrModal = (type: "cart" | "buy") => {
     setModalType(type);
-    setSelectedVariant(null);
+    setSelectedVariant(hasSizeVariant ? null : getDefaultVariantId());
+    setShowSizeValidationError(false);
     setQuantity(1);
     setIsOpen(true);
   };
@@ -52,6 +61,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     setModalType(null);
     setIsOpen(false);
     setSelectedVariant(null);
+    setShowSizeValidationError(false);
     setQuantity(1);
   };
 
@@ -60,23 +70,32 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     if (!open) {
       setModalType(null);
       setSelectedVariant(null);
+      setShowSizeValidationError(false);
       setQuantity(1);
     }
   };
 
   const handleAddToCartConfirm = () => {
+    if (hasSizeVariant && !selectedVariant) {
+      setShowSizeValidationError(true);
+      return;
+    }
     if (!selectedVariant) return;
-    
+
     // Add item to cart with just variant_id and quantity
     addToCart({
       variant_id: selectedVariant,
       quantity: quantity,
     });
-    
+
     closeAndReset();
   };
 
   const handleBuyNowConfirm = () => {
+    if (hasSizeVariant && !selectedVariant) {
+      setShowSizeValidationError(true);
+      return;
+    }
     if (!selectedVariant) return;
     setBuyNowItem({
       variant_id: selectedVariant,
@@ -94,6 +113,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     const variant = product.variants?.find((v) => v.id === variantId);
     if (variant && variant.stock > 0) {
       setSelectedVariant(variantId);
+      setShowSizeValidationError(false);
       setQuantity((q) => Math.min(q, Math.min(variant.stock, 99)));
     }
   };
@@ -132,6 +152,11 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Select Size <span className="text-destructive">*</span>
             </h4>
+            {showSizeValidationError && (
+              <p className="text-xs text-destructive">
+                Please select a size before continuing.
+              </p>
+            )}
             <div className="flex gap-2">
               {hasSizeVariant &&
                 product.variants.map((variant) => {
@@ -210,7 +235,6 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             <Button
               variant="default"
               onClick={handleAddToCartConfirm}
-              disabled={!selectedVariant}
               className="w-full"
             >
               <IconShoppingCart className="size-4" />
@@ -221,7 +245,6 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             <Button
               variant="secondary"
               onClick={handleBuyNowConfirm}
-              disabled={!selectedVariant}
               className="w-full"
             >
               <IconShoppingBag className="size-4" />
