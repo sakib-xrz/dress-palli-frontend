@@ -369,7 +369,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               </h2>
             </div>
             <div
-              className="product-description max-w-4xl"
+              className="product-description max-w-4xl text-gray-900!"
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           </div>
