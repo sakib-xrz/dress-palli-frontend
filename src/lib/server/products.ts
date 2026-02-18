@@ -1,7 +1,12 @@
 import "server-only";
 
 import { BACKEND_API_URL } from "@/lib/auth";
-import type { PublicProduct, PaginatedResponse } from "@/lib/type";
+import type {
+  PublicProduct,
+  PublicProductDetail,
+  PaginatedResponse,
+  ApiResponse,
+} from "@/lib/type";
 
 async function getServerProducts(query: string): Promise<PublicProduct[]> {
   try {
@@ -34,4 +39,22 @@ export async function getServerNewProducts(): Promise<PublicProduct[]> {
 
 export async function getServerBestSellingProducts(): Promise<PublicProduct[]> {
   return getServerProducts("is_best_selling=true");
+}
+
+export async function getServerProductBySlug(
+  slug: string,
+): Promise<PublicProductDetail | null> {
+  try {
+    const response = await fetch(`${BACKEND_API_URL}/products/${slug}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    if (!response.ok) return null;
+
+    const data = (await response.json()) as ApiResponse<PublicProductDetail>;
+    return data.data ?? null;
+  } catch {
+    return null;
+  }
 }

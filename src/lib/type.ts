@@ -266,6 +266,30 @@ export type AdminProduct = {
   variants: FormattedVariant[];
 };
 
+/** Public product detail (from /products/:slug) */
+export type PublicProductDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FLAT";
+  is_featured: boolean;
+  is_new: boolean;
+  is_best_selling: boolean;
+  attributes: Record<string, string> | null;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  images: PublicProductImage[];
+  variants: PublicProductVariant[];
+  effective_price: number;
+  primary_image: PublicProductImage | null;
+};
+
 /** Public product list item (formatted from /products via formatProduct) */
 export type PublicProductVariant = {
   id: string;
