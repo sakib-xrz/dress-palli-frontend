@@ -360,6 +360,15 @@
   margin: 1em 0;
 }
 
+/* Thumbnail scroll – hide scrollbar across browsers */
+.thumb-scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.thumb-scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Product description (rendered tiptap HTML) */
 .product-description {
   font-size: 1rem;
