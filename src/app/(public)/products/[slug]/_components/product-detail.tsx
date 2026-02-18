@@ -24,7 +24,7 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
-  const { addToCart } = useCartStore();
+  const { addToCart, setBuyNowItem } = useCartStore();
 
   const hasSizeVariant =
     product.variants.length > 0 &&
@@ -66,8 +66,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   const handleBuyNow = () => {
     if (!selectedVariant) return;
-    addToCart({ variant_id: selectedVariant, quantity });
-    router.push("/checkout");
+    setBuyNowItem({ variant_id: selectedVariant, quantity });
+    router.push("/checkout?mode=buy-now");
   };
 
   const needsVariantSelection = hasSizeVariant && !selectedVariant;

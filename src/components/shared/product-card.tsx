@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "../ui/button";
@@ -19,13 +20,14 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, className }: ProductCardProps) {
+  const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [modalType, setModalType] = useState<"cart" | "buy" | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { addToCart } = useCartStore();
+  const { addToCart, setBuyNowItem } = useCartStore();
 
   const selectedVariantData = product.variants?.find(
     (v) => v.id === selectedVariant,
@@ -76,15 +78,12 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
   const handleBuyNowConfirm = () => {
     if (!selectedVariant) return;
-    console.log(
-      "Buy now:",
-      product.id,
-      "variant:",
-      selectedVariant,
-      "qty:",
+    setBuyNowItem({
+      variant_id: selectedVariant,
       quantity,
-    );
+    });
     closeAndReset();
+    router.push("/checkout?mode=buy-now");
   };
 
   const maxQuantity = selectedVariant ? Math.min(availableStock, 99) : 1;

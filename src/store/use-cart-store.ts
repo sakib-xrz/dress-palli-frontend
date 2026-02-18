@@ -10,7 +10,10 @@ export interface CartItem {
 interface CartStoreState {
   is_inside_dhaka?: boolean;
   items: CartItem[];
+  buyNowItem: CartItem | null;
   addToCart: (item: CartItem) => void;
+  setBuyNowItem: (item: CartItem | null) => void;
+  clearBuyNowItem: () => void;
   removeFromCart: (variant_id: string) => void;
   incrementQuantity: (variant_id: string) => void;
   decrementQuantity: (variant_id: string) => void;
@@ -23,6 +26,7 @@ const useCartStore = create<CartStoreState>()(
     (set) => ({
       is_inside_dhaka: undefined,
       items: [],
+      buyNowItem: null,
 
       addToCart: (item: CartItem) =>
         set((state) => {
@@ -40,6 +44,10 @@ const useCartStore = create<CartStoreState>()(
           showToast.warning("Item already in cart");
           return state;
         }),
+
+      setBuyNowItem: (item: CartItem | null) => set({ buyNowItem: item }),
+
+      clearBuyNowItem: () => set({ buyNowItem: null }),
 
       removeFromCart: (variant_id: string) =>
         set((state) => ({

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,9 +47,13 @@ const INITIAL_FORM_DATA: FormData = {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isBuyNowMode = searchParams.get("mode") === "buy-now";
   const {
     items,
+    buyNowItem,
     clearCart,
+    clearBuyNowItem,
     is_inside_dhaka: storedIsInsideDhaka,
     setInsideDhaka: storeSetInsideDhaka,
   } = useCartStore();
@@ -67,24 +71,28 @@ export default function CheckoutPage() {
   const [productDataMap, setProductDataMap] = useState<
     Map<string, CartItemResponse>
   >(new Map());
+  const [productDataSummary, setProductDataSummary] = useState<{
+    item_count: number;
+    total_quantity: number;
+    subtotal: number;
+    delivery_charge: number;
+    grand_total: number;
+  }>({
+    item_count: 0,
+    total_quantity: 0,
+    subtotal: 0,
+    delivery_charge: 0,
+    grand_total: 0,
+  });
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const variantIdsKey = useMemo(
-    () =>
-      items
-        .map((i) => i.variant_id)
-        .sort()
-        .join(","),
-    [items],
+  const checkoutItems = useMemo(
+    () => (isBuyNowMode && buyNowItem ? [buyNowItem] : items),
+    [isBuyNowMode, buyNowItem, items],
   );
 
-  const itemsRef = useRef(items);
-  itemsRef.current = items;
-
   const fetchProductData = useCallback(async () => {
-    const currentItems = itemsRef.current;
-
-    if (currentItems.length === 0) {
+    if (checkoutItems.length === 0) {
       setProductDataMap(new Map());
       setInitialLoading(false);
       return;
@@ -92,7 +100,7 @@ export default function CheckoutPage() {
 
     try {
       const response = await cartService.getCartItems(
-        currentItems,
+        checkoutItems,
         isInsideDhaka,
       );
       const map = new Map<string, CartItemResponse>();
@@ -100,13 +108,13 @@ export default function CheckoutPage() {
         map.set(item.variant_id, item);
       }
       setProductDataMap(map);
+      setProductDataSummary(response.data.summary);
     } catch {
       showToast.error("Failed to load cart items");
     } finally {
       setInitialLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantIdsKey]);
+  }, [checkoutItems, isInsideDhaka]);
 
   useEffect(() => {
     fetchProductData();
@@ -114,7 +122,7 @@ export default function CheckoutPage() {
 
   // ── Computed values ──────────────────────────────────────
   const displayItems = useMemo(() => {
-    return items
+    return checkoutItems
       .map((storeItem) => {
         const data = productDataMap.get(storeItem.variant_id);
         if (!data) return null;
@@ -129,18 +137,7 @@ export default function CheckoutPage() {
       quantity: number;
       total_price: number;
     })[];
-  }, [items, productDataMap]);
-
-  const deliveryCharge = isInsideDhaka
-    ? (settings?.delivery_charge_inside_dhaka ?? 0)
-    : (settings?.delivery_charge_outside_dhaka ?? 0);
-
-  const subtotal = useMemo(
-    () => displayItems.reduce((sum, item) => sum + item.total_price, 0),
-    [displayItems],
-  );
-
-  const grandTotal = subtotal + deliveryCharge;
+  }, [checkoutItems, productDataMap]);
 
   // ── Handlers ─────────────────────────────────────────────
   const handleChange = (field: keyof FormData, value: string) => {
@@ -155,6 +152,10 @@ export default function CheckoutPage() {
   };
 
   const handleDeliveryAreaChange = (insideDhaka: boolean) => {
+    if (insideDhaka === isInsideDhaka) {
+      return;
+    }
+
     setIsInsideDhaka(insideDhaka);
     storeSetInsideDhaka(insideDhaka);
 
@@ -221,7 +222,7 @@ export default function CheckoutPage() {
           city: formData.city.trim(),
           ...(formData.note.trim() && { note: formData.note.trim() }),
         },
-        items: items.map((item) => ({
+        items: checkoutItems.map((item) => ({
           variant_id: item.variant_id,
           quantity: item.quantity,
         })),
@@ -229,7 +230,11 @@ export default function CheckoutPage() {
 
       const response = await orderService.createPublicOrder(payload);
       router.push(`/order-success?order_id=${response.data.order_id}`);
-      clearCart();
+      if (isBuyNowMode) {
+        clearBuyNowItem();
+      } else {
+        clearCart();
+      }
     } catch (error) {
       const apiError = error as ApiErrorResponse;
       showToast.error(
@@ -241,7 +246,7 @@ export default function CheckoutPage() {
   };
 
   // ── Empty cart state ─────────────────────────────────────
-  if (!initialLoading && items.length === 0) {
+  if (!initialLoading && checkoutItems.length === 0) {
     return (
       <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
@@ -603,7 +608,7 @@ export default function CheckoutPage() {
                           {displayItems.length !== 1 ? "s" : ""})
                         </span>
                         <span className="font-medium text-gray-900 dark:text-gray-100">
-                          BDT {subtotal.toLocaleString()}
+                          BDT {productDataSummary.subtotal.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -611,7 +616,8 @@ export default function CheckoutPage() {
                           Delivery Charge
                         </span>
                         <span className="font-medium text-gray-900 dark:text-gray-100">
-                          BDT {deliveryCharge.toLocaleString()}
+                          BDT{" "}
+                          {productDataSummary.delivery_charge.toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -623,7 +629,7 @@ export default function CheckoutPage() {
                         Grand Total
                       </span>
                       <span className="text-pink-600 dark:text-pink-400 text-lg">
-                        BDT {grandTotal.toLocaleString()}
+                        BDT {productDataSummary.grand_total.toLocaleString()}
                       </span>
                     </div>
                   </div>
