@@ -9,7 +9,7 @@ import {
  * Public routes that don't require authentication.
  * These endpoints can be accessed without a token.
  */
-const PUBLIC_ROUTES = ["/cart", "/orders"];
+const PUBLIC_ROUTES = ["/cart", "/orders", "/products/search"];
 
 /**
  * Catch-all API proxy.
@@ -50,7 +50,7 @@ async function proxyRequest(
 
   // Build headers — only forward what's necessary
   const headers: HeadersInit = {};
-  
+
   // Only add Authorization header if token exists
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -81,8 +81,7 @@ async function proxyRequest(
         status: 401,
         headers: {
           "Content-Type":
-            backendResponse.headers.get("Content-Type") ||
-            "application/json",
+            backendResponse.headers.get("Content-Type") || "application/json",
         },
       });
       response.cookies.set(AUTH_COOKIE_NAME, "", getAuthCookieOptions(0));

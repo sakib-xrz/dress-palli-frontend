@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
   IconChevronDown,
   IconHome2,
@@ -9,7 +10,8 @@ import {
   IconShoppingCart,
 } from "@tabler/icons-react";
 import { useGlobalSettings } from "@/contexts/settings-context";
-import type { Category } from "@/lib/type";
+import api from "@/lib/axios";
+import type { ApiResponse, Category } from "@/lib/type";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,11 +33,28 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { useCartCount } from "@/store/use-cart-store";
 
 const searchSuggestions = ["Saree", "Three Piece"];
+const MIN_SEARCH_LENGTH = 2;
+const SEARCH_DEBOUNCE_MS = 400;
+
+type GlobalSearchProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  sell_price: number;
+  discount: number;
+  discount_type: "PERCENTAGE" | "FLAT" | "FIXED";
+  effective_price: number;
+  image: {
+    url: string;
+    alt: string;
+  } | null;
+};
 
 type NavbarProps = {
   categories: Category[];
@@ -54,6 +73,71 @@ export default function Navbar({ categories }: NavbarProps) {
   const logo = settings?.logo ?? "";
   const cartCount = useCartCount();
   const categoryTree = categories as CategoryTreeNode[];
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<GlobalSearchProduct[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
+  const trimmedSearchTerm = searchTerm.trim();
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (!debouncedSearchTerm) {
+      setSearchResults([]);
+      setSearchError(null);
+      setIsSearching(false);
+      return;
+    }
+
+    if (debouncedSearchTerm.length < MIN_SEARCH_LENGTH) {
+      setSearchResults([]);
+      setSearchError(null);
+      setIsSearching(false);
+      return;
+    }
+
+    const currentRequestId = ++requestIdRef.current;
+
+    const fetchSearchResults = async () => {
+      try {
+        setIsSearching(true);
+        setSearchError(null);
+
+        const response: ApiResponse<GlobalSearchProduct[]> = await api.get(
+          "/products/search",
+          {
+            params: { search: debouncedSearchTerm },
+          },
+        );
+
+        if (currentRequestId !== requestIdRef.current) return;
+        setSearchResults(response.data ?? []);
+      } catch (error) {
+        if (currentRequestId !== requestIdRef.current) return;
+        setSearchResults([]);
+        setSearchError(
+          error && typeof error === "object" && "message" in error
+            ? String(error.message)
+            : "Failed to search products. Please try again.",
+        );
+      } finally {
+        if (currentRequestId === requestIdRef.current) {
+          setIsSearching(false);
+        }
+      }
+    };
+
+    fetchSearchResults();
+  }, [debouncedSearchTerm]);
 
   const renderCategoryNodes = (
     nodes: CategoryTreeNode[],
@@ -219,7 +303,7 @@ export default function Navbar({ categories }: NavbarProps) {
           </Link>
 
           <div className="grid grid-flow-col auto-cols-max items-center justify-self-end gap-1.5 md:gap-2">
-            <Popover>
+            <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
@@ -250,25 +334,134 @@ export default function Navbar({ categories }: NavbarProps) {
                   </div>
                   <Input
                     placeholder="Search for dresses, sarees..."
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
                     className="h-11 border-pink-200 dark:border-pink-800 focus-visible:ring-pink-400"
+                    autoFocus
                   />
-                  <div className="grid gap-2">
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Popular Searches:
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {searchSuggestions.map((item) => (
-                        <Button
-                          key={item}
-                          variant="secondary"
-                          size="sm"
-                          className="justify-start hover:bg-linear-to-r"
-                        >
-                          {item}
-                        </Button>
-                      ))}
+                  {!trimmedSearchTerm && (
+                    <div className="grid gap-2">
+                      <p className="text-muted-foreground text-xs font-medium">
+                        Popular Searches:
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {searchSuggestions.map((item) => (
+                          <Button
+                            key={item}
+                            variant="secondary"
+                            size="sm"
+                            className="justify-start hover:bg-linear-to-r"
+                            onClick={() => setSearchTerm(item)}
+                          >
+                            {item}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {!!trimmedSearchTerm &&
+                    trimmedSearchTerm.length < MIN_SEARCH_LENGTH && (
+                      <p className="text-muted-foreground text-xs">
+                        Type at least {MIN_SEARCH_LENGTH} characters to search.
+                      </p>
+                    )}
+
+                  {!!trimmedSearchTerm &&
+                    trimmedSearchTerm.length >= MIN_SEARCH_LENGTH && (
+                      <div className="grid gap-2">
+                        <p className="text-muted-foreground text-xs font-medium">
+                          Search Results
+                        </p>
+
+                        {isSearching && (
+                          <div className="grid gap-2">
+                            {[...Array(4)].map((_, index) => (
+                              <div
+                                key={`search-skeleton-${index}`}
+                                className="border-border grid grid-cols-[44px_1fr] items-center gap-3 rounded-md border p-2"
+                              >
+                                <Skeleton className="h-11 w-11 rounded-md" />
+                                <div className="grid gap-2">
+                                  <Skeleton className="h-3.5 w-4/5" />
+                                  <Skeleton className="h-3 w-2/5" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {!isSearching && searchError && (
+                          <p className="text-destructive text-xs">
+                            {searchError}
+                          </p>
+                        )}
+
+                        {!isSearching &&
+                          !searchError &&
+                          searchResults.length === 0 && (
+                            <p className="text-muted-foreground text-xs">
+                              No products found for &quot;{trimmedSearchTerm}
+                              &quot;.
+                            </p>
+                          )}
+
+                        {!isSearching &&
+                          !searchError &&
+                          searchResults.length > 0 && (
+                            <div className="grid max-h-72 gap-2 overflow-y-auto pr-1">
+                              {searchResults.map((product) => (
+                                <Link
+                                  key={product.id}
+                                  href={`/products/${product.slug}`}
+                                  onClick={() => {
+                                    setIsSearchOpen(false);
+                                    setSearchTerm("");
+                                    setSearchResults([]);
+                                    setSearchError(null);
+                                    setIsSearching(false);
+                                  }}
+                                  className="hover:bg-muted/70 grid grid-cols-[44px_1fr_auto] items-center gap-3 rounded-md px-2 py-2 transition-colors"
+                                >
+                                  {product.image ? (
+                                    <Image
+                                      src={product.image.url}
+                                      alt={product.name}
+                                      width={44}
+                                      height={44}
+                                      className="h-11 w-11 rounded-md object-cover"
+                                    />
+                                  ) : (
+                                    <div className="bg-muted text-muted-foreground grid h-11 w-11 place-items-center rounded-md text-sm font-semibold">
+                                      {product.name.charAt(0)}
+                                    </div>
+                                  )}
+                                  <div className="grid min-w-0 gap-1">
+                                    <p className="truncate text-sm font-medium">
+                                      {product.name}
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
+                                      BDT{" "}
+                                      {product.effective_price.toLocaleString(
+                                        "en-BD",
+                                      )}
+                                    </p>
+                                  </div>
+                                  {product.discount > 0 && (
+                                    <span className="bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 rounded px-1.5 py-0.5 text-[10px] font-semibold">
+                                      {product.discount}
+                                      {product.discount_type === "PERCENTAGE"
+                                        ? "%"
+                                        : " BDT"}{" "}
+                                      OFF
+                                    </span>
+                                  )}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                      </div>
+                    )}
                 </div>
               </PopoverContent>
             </Popover>
