@@ -35,6 +35,11 @@ const navGroups = [
         url: "/admin/dashboard",
         icon: IconDashboard,
       },
+      {
+        title: "Admins",
+        url: "/admin/admins",
+        icon: IconUsers,
+      },
     ],
   },
   {
@@ -105,6 +110,17 @@ const navGroups = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useAuthUser();
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+
+  const resolvedNavGroups = navGroups.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => {
+      if (item.url === "/admin/admins") {
+        return isSuperAdmin;
+      }
+      return true;
+    }),
+  }));
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -120,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain groups={navGroups} />
+        <NavMain groups={resolvedNavGroups} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

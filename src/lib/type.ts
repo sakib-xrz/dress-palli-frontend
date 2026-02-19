@@ -554,6 +554,43 @@ export type UpdateCustomerPayload = {
   email?: string | null;
 };
 
+// ── Admin ─────────────────────────────────────────────────
+
+export type AdminRole = "SUPER_ADMIN" | "ADMIN";
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: AdminRole;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminQueryParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  is_active?: "true" | "false";
+  sort_by?: "created_at" | "name";
+  sort_order?: "asc" | "desc";
+};
+
+export type CreateAdminPayload = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+export type UpdateAdminStatusPayload = {
+  is_active: boolean;
+};
+
+export type ResetAdminPasswordPayload = {
+  password: string;
+};
+
 // ── Setting ──────────────────────────────────────────────
 
 export type Setting = {
