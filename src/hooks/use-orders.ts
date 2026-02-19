@@ -34,14 +34,14 @@ export function useOrder(id: string) {
   });
 }
 
-export function useOrderHistory(id: string) {
+export function useOrderHistory(id: string, enabled = true) {
   return useQuery({
     queryKey: [...ORDER_QUERY_KEY, id, "history"],
     queryFn: async () => {
       const response = await orderService.getHistory(id);
       return response.data;
     },
-    enabled: !!id,
+    enabled: !!id && enabled,
   });
 }
 

@@ -1,6 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./_components/app-sidebar";
 import { SiteHeader } from "./_components/site-header";
+import { AdminAccessGuard } from "./_components/admin-access-guard";
 
 export default function AdminPanelLayout({
   children,
@@ -20,7 +21,9 @@ export default function AdminPanelLayout({
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-6">
+            <AdminAccessGuard>{children}</AdminAccessGuard>
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>

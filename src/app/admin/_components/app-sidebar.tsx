@@ -111,16 +111,37 @@ const navGroups = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useAuthUser();
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  const isAdmin = user?.role === "ADMIN";
 
-  const resolvedNavGroups = navGroups.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => {
-      if (item.url === "/admin/admins") {
-        return isSuperAdmin;
-      }
-      return true;
-    }),
-  }));
+  const adminOnlyNavGroups = [
+    {
+      label: "Sales",
+      items: [
+        {
+          title: "Products",
+          url: "/admin/products",
+          icon: IconPackage,
+        },
+        {
+          title: "Orders",
+          url: "/admin/orders",
+          icon: IconShoppingCart,
+        },
+      ],
+    },
+  ];
+
+  const resolvedNavGroups = isAdmin
+    ? adminOnlyNavGroups
+    : navGroups.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          if (item.url === "/admin/admins") {
+            return isSuperAdmin;
+          }
+          return true;
+        }),
+      }));
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

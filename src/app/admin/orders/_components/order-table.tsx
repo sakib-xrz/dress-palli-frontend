@@ -14,6 +14,7 @@ import {
   useUpdateOrderStatus,
   useUpdatePaymentStatus,
 } from "@/hooks/use-orders";
+import { useAuthUser } from "@/hooks/use-auth";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/type";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,10 @@ export function OrderTable({
   onPageChange,
   onPageSizeChange,
 }: OrderTableProps) {
+  const { data: user } = useAuthUser();
+  const canManageOrders =
+    user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
+
   const orderStatusMutation = useUpdateOrderStatus();
   const paymentStatusMutation = useUpdatePaymentStatus();
 
@@ -153,6 +158,7 @@ export function OrderTable({
         ),
         cell: ({ row }) => {
           const order = row.original;
+
           return (
             <div className="flex items-center justify-center">
               <Select
@@ -193,6 +199,7 @@ export function OrderTable({
         ),
         cell: ({ row }) => {
           const order = row.original;
+
           return (
             <div className="flex items-center justify-center">
               <Select
@@ -237,7 +244,7 @@ export function OrderTable({
         size: 50,
       },
     ],
-    [orderStatusMutation, paymentStatusMutation],
+    [canManageOrders, orderStatusMutation, paymentStatusMutation],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library

@@ -47,6 +47,8 @@ interface ProductTableProps {
   onDelete: (product: AdminProduct) => void;
   onViewDetails: (product: AdminProduct) => void;
   onManageImages: (product: AdminProduct) => void;
+  canManage?: boolean;
+  canTogglePublishStatus?: boolean;
 }
 
 export function ProductTable({
@@ -59,6 +61,8 @@ export function ProductTable({
   onDelete,
   onViewDetails,
   onManageImages,
+  canManage = false,
+  canTogglePublishStatus = false,
 }: ProductTableProps) {
   const statusMutation = useUpdateProductStatus();
 
@@ -88,12 +92,18 @@ export function ProductTable({
                 )}
               </div>
               <div className="min-w-0 space-y-1">
-                <Link
-                  href={`/admin/products/${product.id}/edit`}
-                  className="font-medium text-sm hover:underline line-clamp-1 block"
-                >
-                  {product.name}
-                </Link>
+                {canManage ? (
+                  <Link
+                    href={`/admin/products/${product.id}/edit`}
+                    className="font-medium text-sm hover:underline line-clamp-1 block"
+                  >
+                    {product.name}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-sm line-clamp-1 block">
+                    {product.name}
+                  </span>
+                )}
                 <div className="flex flex-wrap items-center gap-1">
                   {product.is_featured && (
                     <Badge
@@ -140,9 +150,15 @@ export function ProductTable({
         id: "price",
         header: () => (
           <div className="flex items-center justify-center">
-            Price (<span className="text-red-600 dark:text-red-400">Buy</span>,{" "}
-            <span className="text-orange-600 dark:text-orange-400">Cost</span>,{" "}
-            <span className="text-blue-600 dark:text-blue-400">Sell</span>)
+            {canManage ? (
+              <>
+                Price (<span className="text-red-600 dark:text-red-400">Buy</span>,{" "}
+                <span className="text-orange-600 dark:text-orange-400">Cost</span>,{" "}
+                <span className="text-blue-600 dark:text-blue-400">Sell</span>)
+              </>
+            ) : (
+              <>Price</>
+            )}
           </div>
         ),
         cell: ({ row }) => {
@@ -154,24 +170,35 @@ export function ProductTable({
               : `${product.discount} BDT OFF`;
           return (
             <div className="space-y-1 text-xs text-center">
-              <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums justify-center font-bold">
-                <span className="text-red-600 dark:text-red-400">
-                  {product.buy_price.toLocaleString("en-BD")}
-                </span>
-                <span className="text-orange-600 dark:text-orange-400">
-                  {product.cost_price.toLocaleString("en-BD")}
-                </span>
-                {hasDiscount && (
-                  <>
+              {canManage ? (
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums justify-center font-bold">
+                  <span className="text-red-600 dark:text-red-400">
+                    {product.buy_price.toLocaleString("en-BD")}
+                  </span>
+                  <span className="text-orange-600 dark:text-orange-400">
+                    {product.cost_price.toLocaleString("en-BD")}
+                  </span>
+                  {hasDiscount && (
                     <span className="text-muted-foreground line-through">
                       {product.sell_price.toLocaleString("en-BD")}
                     </span>
-                  </>
-                )}
-                <span className="font-medium text-blue-600 dark:text-blue-400">
-                  {product.effective_price.toLocaleString("en-BD")}
-                </span>
-              </div>
+                  )}
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                    {product.effective_price.toLocaleString("en-BD")}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 tabular-nums justify-center font-bold">
+                  {hasDiscount && (
+                    <span className="text-muted-foreground line-through">
+                      {product.sell_price.toLocaleString("en-BD")}
+                    </span>
+                  )}
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                    {product.effective_price.toLocaleString("en-BD")}
+                  </span>
+                </div>
+              )}
               {hasDiscount && (
                 <span className="text-green-600 dark:text-green-400 font-medium">
                   {discountText}
@@ -220,6 +247,17 @@ export function ProductTable({
         cell: ({ row }) => {
           const product = row.original;
           const isLive = product.is_published;
+
+          if (!canTogglePublishStatus) {
+            return (
+              <div className="flex items-center justify-center">
+                <Badge variant={isLive ? "default" : "secondary"}>
+                  {isLive ? "Published" : "Unpublished"}
+                </Badge>
+              </div>
+            );
+          }
+
           return (
             <div className="flex items-center justify-center gap-2">
               <div className="flex items-center gap-2 rounded-md border px-2 py-1 w-30">
@@ -269,25 +307,33 @@ export function ProductTable({
                       <Eye className="size-4" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/admin/products/${product.id}/edit`}>
-                        <Pencil className="size-4" />
-                        Edit Product
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onManageImages(product)}>
-                      <Images className="size-4" />
-                      Manage Images
-                    </DropdownMenuItem>
+                    {canManage && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/admin/products/${product.id}/edit`}>
+                            <Pencil className="size-4" />
+                            Edit Product
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onManageImages(product)}>
+                          <Images className="size-4" />
+                          Manage Images
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onDelete(product)}
-                  >
-                    <Trash2 className="size-4" />
-                    Delete
-                  </DropdownMenuItem>
+                  {canManage && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => onDelete(product)}
+                      >
+                        <Trash2 className="size-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -296,7 +342,14 @@ export function ProductTable({
         size: 50,
       },
     ],
-    [statusMutation, onDelete, onViewDetails, onManageImages],
+    [
+      canManage,
+      canTogglePublishStatus,
+      statusMutation,
+      onDelete,
+      onViewDetails,
+      onManageImages,
+    ],
   );
 
   // eslint-disable-next-line react-hooks/incompatible-library

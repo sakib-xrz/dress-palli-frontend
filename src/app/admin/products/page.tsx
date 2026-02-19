@@ -6,6 +6,7 @@ import { ArrowDownUp, Filter, Plus, Search, X } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { useProducts } from "@/hooks/use-products";
+import { useAuthUser } from "@/hooks/use-auth";
 import type { AdminProduct } from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,11 @@ import { ProductDetailView } from "./_components/product-detail-view";
 import { ManageImagesModal } from "./_components/manage-images-modal";
 
 function ProductsPageContent() {
+  const { data: user } = useAuthUser();
+  const canManageProducts = user?.role === "SUPER_ADMIN";
+  const canTogglePublishStatus =
+    user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
+
   // ── URL State (Nuqs) ─────────────────────────────────
   const [pageParam, setPage] = useQueryState("page", parseAsInteger);
   const [limitParam, setLimit] = useQueryState("limit", parseAsInteger);
@@ -267,12 +273,14 @@ function ProductsPageContent() {
             Manage your products, variants, and inventory.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/products/new">
-            <Plus />
-            Create Product
-          </Link>
-        </Button>
+        {canManageProducts && (
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Plus />
+              Create Product
+            </Link>
+          </Button>
+        )}
       </div>
 
       {/* Filters Toolbar */}
@@ -482,29 +490,36 @@ function ProductsPageContent() {
           onDelete={handleDelete}
           onViewDetails={handleViewDetails}
           onManageImages={handleManageImages}
+          canManage={canManageProducts}
+          canTogglePublishStatus={canTogglePublishStatus}
         />
       )}
 
       {/* Delete Dialog */}
-      <DeleteProductDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        product={selectedProduct}
-      />
+      {canManageProducts && (
+        <DeleteProductDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          product={selectedProduct}
+        />
+      )}
 
       {/* View Details Modal/Sheet */}
       <ProductDetailView
         open={detailViewOpen}
         onOpenChange={setDetailViewOpen}
         product={selectedProduct}
+        canManage={canManageProducts}
       />
 
       {/* Manage Images Modal/Sheet */}
-      <ManageImagesModal
-        open={manageImagesOpen}
-        onOpenChange={setManageImagesOpen}
-        product={selectedProduct}
-      />
+      {canManageProducts && (
+        <ManageImagesModal
+          open={manageImagesOpen}
+          onOpenChange={setManageImagesOpen}
+          product={selectedProduct}
+        />
+      )}
     </div>
   );
 }

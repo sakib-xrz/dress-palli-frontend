@@ -6,6 +6,7 @@ import {
   useUpdateOrderStatus,
   useUpdatePaymentStatus,
 } from "@/hooks/use-orders";
+import { useAuthUser } from "@/hooks/use-auth";
 import type { OrderStatus, PaymentStatus } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
@@ -102,9 +103,13 @@ function OrderDetailSkeleton() {
 export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params.id as string;
+  const { data: user } = useAuthUser();
+  const canManageOrders =
+    user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
+  const canViewOrderLogs = user?.role === "SUPER_ADMIN";
 
   const { data: order, isLoading } = useOrder(orderId);
-  const { data: history } = useOrderHistory(orderId);
+  const { data: history } = useOrderHistory(orderId, canViewOrderLogs);
   const orderStatusMutation = useUpdateOrderStatus();
   const paymentStatusMutation = useUpdatePaymentStatus();
 
@@ -174,36 +179,42 @@ export default function OrderDetailPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Select
-              value={order.status}
-              onValueChange={(value: OrderStatus) => {
-                orderStatusMutation.mutate({
-                  id: order.id,
-                  data: { status: value },
-                });
-              }}
-              disabled={orderStatusMutation.isPending}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                <SelectItem value="PROCESSING">Processing</SelectItem>
-                <SelectItem value="SHIPPED">Shipped</SelectItem>
-                <SelectItem value="DELIVERED">Delivered</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem
-                  value="RETURNED"
-                  disabled={
-                    order.status !== "DELIVERED" && order.status !== "RETURNED"
-                  }
-                >
-                  Returned
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            {canManageOrders ? (
+              <Select
+                value={order.status}
+                onValueChange={(value: OrderStatus) => {
+                  orderStatusMutation.mutate({
+                    id: order.id,
+                    data: { status: value },
+                  });
+                }}
+                disabled={orderStatusMutation.isPending}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                  <SelectItem value="PROCESSING">Processing</SelectItem>
+                  <SelectItem value="SHIPPED">Shipped</SelectItem>
+                  <SelectItem value="DELIVERED">Delivered</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectItem
+                    value="RETURNED"
+                    disabled={
+                      order.status !== "DELIVERED" && order.status !== "RETURNED"
+                    }
+                  >
+                    Returned
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge variant="outline" className="w-full justify-center py-2">
+                {order.status}
+              </Badge>
+            )}
           </CardContent>
         </Card>
 
@@ -219,25 +230,31 @@ export default function OrderDetailPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Select
-              value={order.payment_status}
-              onValueChange={(value: PaymentStatus) => {
-                paymentStatusMutation.mutate({
-                  id: order.id,
-                  data: { payment_status: value },
-                });
-              }}
-              disabled={paymentStatusMutation.isPending}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="COLLECTED">Collected</SelectItem>
-                <SelectItem value="REFUNDED">Refunded</SelectItem>
-              </SelectContent>
-            </Select>
+            {canManageOrders ? (
+              <Select
+                value={order.payment_status}
+                onValueChange={(value: PaymentStatus) => {
+                  paymentStatusMutation.mutate({
+                    id: order.id,
+                    data: { payment_status: value },
+                  });
+                }}
+                disabled={paymentStatusMutation.isPending}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="COLLECTED">Collected</SelectItem>
+                  <SelectItem value="REFUNDED">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge variant="outline" className="w-full justify-center py-2">
+                {order.payment_status}
+              </Badge>
+            )}
           </CardContent>
         </Card>
 
@@ -393,7 +410,7 @@ export default function OrderDetailPage() {
           </Card>
 
           {/* Order History */}
-          {history && history.length > 0 && (
+          {canViewOrderLogs && history && history.length > 0 && (
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">

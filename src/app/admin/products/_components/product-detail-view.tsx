@@ -53,6 +53,7 @@ interface ProductDetailViewProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: AdminProduct | null;
+  canManage?: boolean;
 }
 
 interface EditableVariant {
@@ -85,12 +86,15 @@ export function ProductDetailView({
   open,
   onOpenChange,
   product,
+  canManage = false,
 }: ProductDetailViewProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (!product) return null;
 
-  const content = <DetailContent key={product.id} product={product} />;
+  const content = (
+    <DetailContent key={product.id} product={product} canManage={canManage} />
+  );
 
   if (isDesktop) {
     return (
@@ -114,14 +118,16 @@ export function ProductDetailView({
             </div>
           </DialogHeader>
           <div className="px-6">{content}</div>
-          <DialogFooter className="border-t px-6 py-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/admin/products/${product.id}/edit`}>
-                <ExternalLink className="size-3.5" />
-                Edit Full Product
-              </Link>
-            </Button>
-          </DialogFooter>
+          {canManage && (
+            <DialogFooter className="border-t px-6 py-4">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/admin/products/${product.id}/edit`}>
+                  <ExternalLink className="size-3.5" />
+                  Edit Full Product
+                </Link>
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     );
@@ -142,14 +148,16 @@ export function ProductDetailView({
           </SheetDescription>
         </SheetHeader>
         <div className="px-5 pb-5">{content}</div>
-        <SheetFooter className="border-t px-5 py-4">
-          <Button variant="outline" size="sm" className="w-full" asChild>
-            <Link href={`/admin/products/${product.id}/edit`}>
-              <ExternalLink className="size-3.5" />
-              Edit Full Product
-            </Link>
-          </Button>
-        </SheetFooter>
+        {canManage && (
+          <SheetFooter className="border-t px-5 py-4">
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link href={`/admin/products/${product.id}/edit`}>
+                <ExternalLink className="size-3.5" />
+                Edit Full Product
+              </Link>
+            </Button>
+          </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -157,7 +165,13 @@ export function ProductDetailView({
 
 // ── Detail Content ───────────────────────────────────────
 
-function DetailContent({ product }: { product: AdminProduct }) {
+function DetailContent({
+  product,
+  canManage,
+}: {
+  product: AdminProduct;
+  canManage: boolean;
+}) {
   const updateProduct = useUpdateProduct();
 
   // ── Editing State ───────────────────────────
@@ -340,7 +354,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                 </p>
               </div>
             </div>
-            {!isEditing ? (
+            {!isEditing && canManage ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -350,7 +364,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                 <SquarePen className="size-3.5" />
                 Quick Edit
               </Button>
-            ) : (
+            ) : isEditing && canManage ? (
               <div className="flex flex-wrap items-center gap-2 shrink-0">
                 {isDirty && (
                   <span className="text-xs text-muted-foreground">
@@ -381,11 +395,15 @@ function DetailContent({ product }: { product: AdminProduct }) {
                   Save
                 </Button>
               </div>
+            ) : (
+              <Badge variant="outline" className="w-fit">
+                View only
+              </Badge>
             )}
           </div>
 
           {/* Bulk Fill (edit mode only) */}
-          {isEditing && (
+          {isEditing && canManage && (
             <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed bg-muted/40 px-3 py-2.5 mt-1">
               <span className="text-xs font-medium text-muted-foreground">
                 Set all sizes to:
@@ -443,7 +461,7 @@ function DetailContent({ product }: { product: AdminProduct }) {
                       </TableCell>
 
                       <TableCell className="text-center">
-                        {isEditing ? (
+                        {isEditing && canManage ? (
                           <Input
                             type="number"
                             min={0}
