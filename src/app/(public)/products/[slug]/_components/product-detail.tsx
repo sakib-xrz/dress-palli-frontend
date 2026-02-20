@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,7 @@ interface ProductDetailProps {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
   const { addToCart, setBuyNowItem } = useCartStore();
+  const productInfoRef = useRef<HTMLDivElement | null>(null);
 
   const phone = "01997427472";
   const whatsappNumber = "8801997427472";
@@ -102,6 +103,26 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     if (!selectedVariant) return;
     setBuyNowItem({ variant_id: selectedVariant, quantity });
     router.push("/checkout?mode=buy-now");
+  };
+
+  const scrollToProductInfo = () => {
+    if (typeof window === "undefined" || !productInfoRef.current) return;
+
+    const headerOffset = 88;
+    const targetTop =
+      window.scrollY + productInfoRef.current.getBoundingClientRect().top - headerOffset;
+
+    window.scrollTo({ top: Math.max(targetTop, 0), behavior: "smooth" });
+  };
+
+  const handleMobileAddToCart = () => {
+    scrollToProductInfo();
+    handleAddToCart();
+  };
+
+  const handleMobileBuyNow = () => {
+    scrollToProductInfo();
+    handleBuyNow();
   };
 
   const handleWhatsAppMessage = () => {
@@ -195,7 +216,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           {/* Product Info */}
           <div className="flex flex-col gap-5 min-w-0">
             {/* Top Section: Badges + Name + Price */}
-            <div className="space-y-3">
+            <div ref={productInfoRef} className="space-y-3">
               {/* Badges */}
               {(product.is_new ||
                 product.is_featured ||
@@ -512,7 +533,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={handleAddToCart}
+                onClick={handleMobileAddToCart}
                 className="flex-1 h-11 text-sm font-semibold"
               >
                 <IconShoppingCart className="size-[18px]" />
@@ -520,7 +541,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               </Button>
               <Button
                 size="lg"
-                onClick={handleBuyNow}
+                onClick={handleMobileBuyNow}
                 className="flex-1 h-11 text-sm font-semibold bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
               >
                 <IconShoppingBag className="size-[18px]" />
