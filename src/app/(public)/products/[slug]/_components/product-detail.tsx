@@ -403,52 +403,54 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               </div>
             )}
 
-            <div className="rounded-2xl border border-border/60 bg-muted/30 overflow-hidden">
-              {/* Call CTA */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-foreground">
+                Need help ordering?
+              </h4>
+
               <a
                 href={`tel:${phone}`}
-                className="flex items-center gap-3 bg-primary px-4 py-4 text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-green-600 px-4 py-3 text-white shadow-sm transition-colors hover:bg-green-700 active:bg-green-800"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15">
-                  <IconPhoneCall className="size-[18px]" />
+                <IconPhoneCall className="size-[18px] shrink-0" />
+                <span className="text-sm font-bold tracking-wide">
+                  Call Now: {phone}
                 </span>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-medium opacity-75 leading-none mb-1">
-                    Need help ordering?
-                  </p>
-                  <p className="text-sm font-bold tracking-wide truncate leading-tight">
-                    Call Now: {phone}
-                  </p>
-                </div>
               </a>
 
-              {/* Quick contact strip */}
-              <div className="grid grid-cols-3 divide-x divide-border/40 bg-card">
-                <button
+              <div className="grid grid-cols-3 gap-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={handleWhatsAppMessage}
-                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-green-50 hover:text-green-700 active:bg-green-100"
+                  className="h-10 gap-1.5 text-xs font-semibold border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 active:bg-green-100"
                 >
-                  <IconBrandWhatsapp className="size-[18px] text-green-600 shrink-0" />
-                  <span>WhatsApp</span>
-                </button>
-                <a
-                  href={facebookMessageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100"
+                  <IconBrandWhatsapp className="size-4 shrink-0" />
+                  <span className="hidden lg:inline">WhatsApp</span>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 gap-1.5 text-xs font-semibold border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 active:bg-blue-100"
                 >
-                  <IconBrandFacebook className="size-[18px] text-blue-600 shrink-0" />
-                  <span>Facebook</span>
-                </a>
-                <button
+                  <a
+                    href={facebookMessageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <IconBrandFacebook className="size-4 shrink-0" />
+                    <span className="hidden lg:inline">Facebook</span>
+                  </a>
+                </Button>
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={handleShare}
-                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:bg-accent/80"
+                  className="h-10 gap-1.5 text-xs font-semibold"
                 >
-                  <IconShare3 className="size-[18px] shrink-0" />
-                  <span>Share</span>
-                </button>
+                  <IconShare3 className="size-4 shrink-0" />
+                  <span className="hidden lg:inline">Share</span>
+                </Button>
               </div>
             </div>
 
