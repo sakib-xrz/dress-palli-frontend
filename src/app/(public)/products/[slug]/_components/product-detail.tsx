@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { showToast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,10 @@ import {
   IconShoppingBag,
   IconChevronRight,
   IconHome2,
+  IconPhoneCall,
+  IconBrandWhatsapp,
+  IconBrandFacebook,
+  IconShare3,
 } from "@tabler/icons-react";
 import type { PublicProductDetail } from "@/lib/type";
 import useCartStore from "@/store/use-cart-store";
@@ -25,6 +30,10 @@ interface ProductDetailProps {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
   const { addToCart, setBuyNowItem } = useCartStore();
+
+  const phone = "01997427472";
+  const whatsappNumber = "8801997427472";
+  const facebookPage = "https://www.facebook.com/DressPalli";
 
   const hasSizeVariant =
     product.variants.length > 0 &&
@@ -51,6 +60,21 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const maxQuantity = selectedVariant ? Math.min(availableStock, 99) : 1;
   const canIncrement = !!selectedVariant && quantity < maxQuantity;
   const canDecrement = quantity > 1;
+
+  const facebookMessageUrl = (() => {
+    try {
+      const url =
+        facebookPage.startsWith("http://") ||
+        facebookPage.startsWith("https://")
+          ? new URL(facebookPage)
+          : new URL(`https://facebook.com/${facebookPage.replace(/^@/, "")}`);
+      const pageId = url.pathname.split("/").filter(Boolean)[0];
+      if (!pageId) return "https://facebook.com";
+      return `https://m.me/${pageId}`;
+    } catch {
+      return "https://facebook.com";
+    }
+  })();
 
   const selectVariant = (variantId: string) => {
     const variant = product.variants.find((v) => v.id === variantId);
@@ -80,8 +104,51 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     router.push("/checkout?mode=buy-now");
   };
 
+  const handleWhatsAppMessage = () => {
+    if (typeof window === "undefined") return;
+
+    const productUrl = window.location.href;
+    const message = `Hi, I want to order this product: ${product.name}\n${productUrl}`;
+    const whatsappUrl = `${whatsappNumber ? `https://wa.me/${whatsappNumber}` : "https://wa.me/"}?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+
+    const shareData: ShareData = {
+      title: product.name,
+      text: `Check out this product from Dress Palli: ${product.name}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareData.url as string);
+      showToast.success("Product link copied. You can share it anywhere.");
+    } catch {
+      showToast.error("Share is not available on this device right now.");
+    }
+  };
+
   return (
-    <div className="min-h-[calc(100vh-10rem)]">
+    <div
+      className={cn(
+        "min-h-[calc(100vh-10rem)]",
+        !outOfStock && "pb-24 md:pb-0",
+      )}
+    >
       <div className="mx-auto max-w-7xl px-4 py-4 sm:py-6 lg:py-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
@@ -312,9 +379,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     )}
                   </div>
                 </div>
-                <Separator />
+                <Separator className="hidden md:block" />
                 {/* Action Buttons */}
-                <div className="flex gap-2.5 pt-1">
+                <div className="hidden md:flex gap-2.5 pt-1">
                   <Button
                     variant="outline"
                     size="lg"
@@ -335,6 +402,55 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 </div>
               </div>
             )}
+
+            <div className="rounded-2xl border border-border/60 bg-muted/30 overflow-hidden">
+              {/* Call CTA */}
+              <a
+                href={`tel:${phone}`}
+                className="flex items-center gap-3 bg-primary px-4 py-4 text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+                  <IconPhoneCall className="size-[18px]" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-medium opacity-75 leading-none mb-1">
+                    Need help ordering?
+                  </p>
+                  <p className="text-sm font-bold tracking-wide truncate leading-tight">
+                    Call Now: {phone}
+                  </p>
+                </div>
+              </a>
+
+              {/* Quick contact strip */}
+              <div className="grid grid-cols-3 divide-x divide-border/40 bg-card">
+                <button
+                  type="button"
+                  onClick={handleWhatsAppMessage}
+                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-green-50 hover:text-green-700 active:bg-green-100"
+                >
+                  <IconBrandWhatsapp className="size-[18px] text-green-600 shrink-0" />
+                  <span>WhatsApp</span>
+                </button>
+                <a
+                  href={facebookMessageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100"
+                >
+                  <IconBrandFacebook className="size-[18px] text-blue-600 shrink-0" />
+                  <span>Facebook</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="flex flex-col lg:flex-row items-center justify-center gap-1.5 lg:gap-2 px-3 py-3.5 text-[11px] lg:text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:bg-accent/80"
+                >
+                  <IconShare3 className="size-[18px] shrink-0" />
+                  <span>Share</span>
+                </button>
+              </div>
+            </div>
 
             {/* Attributes */}
             {product.attributes &&
@@ -386,6 +502,32 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </div>
         )}
       </div>
+
+      {!outOfStock && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden">
+          <div className="mx-auto max-w-7xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+            <div className="flex items-center gap-2.5">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleAddToCart}
+                className="flex-1 h-11 text-sm font-semibold"
+              >
+                <IconShoppingCart className="size-[18px]" />
+                Add to Cart
+              </Button>
+              <Button
+                size="lg"
+                onClick={handleBuyNow}
+                className="flex-1 h-11 text-sm font-semibold bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              >
+                <IconShoppingBag className="size-[18px]" />
+                Buy Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
