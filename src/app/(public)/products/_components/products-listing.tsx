@@ -63,8 +63,11 @@ const SORT_MAP: Record<string, { sort_by: string; sort_order: string }> = {
 type ProductsListingProps = {
   initialProducts: PaginatedResponse<PublicProduct>;
   categories: Category[];
+  endpointBase?: string;
+  fallbackTitle?: string;
+  showFilters?: boolean;
+  gridClassName?: string;
 };
-
 // ── Helpers ─────────────────────────────────────────────────
 
 // ── Skeleton ────────────────────────────────────────────────
@@ -92,6 +95,10 @@ function ProductCardSkeleton() {
 export default function ProductsListing({
   initialProducts,
   categories,
+  endpointBase = "/products",
+  fallbackTitle = "All Products",
+  showFilters = true,
+  gridClassName,
 }: ProductsListingProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(
@@ -196,11 +203,14 @@ export default function ProductsListing({
       limit: String(PRODUCTS_PER_PAGE),
     };
     if (params.search) raw.search = params.search;
-    if (params.category) raw.category_id = params.category;
+    if (endpointBase === "/products" && params.category) {
+      raw.category_id = params.category;
+    }
     if (params.min_price) raw.min_price = params.min_price;
     if (params.max_price) raw.max_price = params.max_price;
     return raw;
   }, [
+    endpointBase,
     params.search,
     params.category,
     params.sort,
@@ -220,10 +230,10 @@ export default function ProductsListing({
     isLoading,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ["public-products", apiParamsKey],
+    queryKey: ["public-products", endpointBase, apiParamsKey],
     queryFn: async ({ pageParam }) => {
       const response: PaginatedResponse<PublicProduct> = await api.get(
-        "/products",
+        endpointBase,
         { params: { ...apiParams, page: pageParam } },
       );
       return response;
@@ -272,17 +282,17 @@ export default function ProductsListing({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Filter state helpers
-  const activeFilterCount = [
-    params.category,
-    params.min_price,
-    params.max_price,
-  ].filter(Boolean).length;
+  const activeFilterCount = showFilters
+    ? [params.category, params.min_price, params.max_price].filter(Boolean)
+        .length
+    : 0;
 
-  const hasActiveFilters =
-    !!params.search ||
-    !!params.category ||
-    !!params.min_price ||
-    !!params.max_price;
+  const hasActiveFilters = showFilters
+    ? !!params.search ||
+      !!params.category ||
+      !!params.min_price ||
+      !!params.max_price
+    : !!params.search;
 
   const isRefreshing = isFetching && !isFetchingNextPage && !isLoading;
 
@@ -500,7 +510,7 @@ export default function ProductsListing({
               ? `Search: "${params.search}"`
               : params.category
                 ? getCategoryName(params.category)
-                : "All Products"}
+                : fallbackTitle}
           </h1>
           {!isLoading && (
             <p className="text-sm text-muted-foreground mt-1">
@@ -511,13 +521,15 @@ export default function ProductsListing({
         </div>
 
         {/* Two-column layout: sidebar + content */}
-        <div className="lg:flex lg:gap-8">
+        <div className={cn(showFilters && "lg:flex lg:gap-8")}>
           {/* Desktop sidebar */}
-          <aside className="hidden lg:block w-[260px] shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pb-8 no-scrollbar">
-              {filterContent}
-            </div>
-          </aside>
+          {showFilters && (
+            <aside className="hidden lg:block w-[260px] shrink-0">
+              <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pb-8 no-scrollbar">
+                {filterContent}
+              </div>
+            </aside>
+          )}
 
           {/* Main content */}
           <div className="flex-1 min-w-0">
@@ -568,34 +580,36 @@ export default function ProductsListing({
                 </Select>
 
                 {/* Mobile-only filter sheet */}
-                <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="h-10! gap-2 relative lg:hidden"
+                {showFilters && (
+                  <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="h-10! gap-2 relative lg:hidden"
+                      >
+                        <IconAdjustmentsHorizontal className="size-4" />
+                        <span className="hidden sm:inline">Filters</span>
+                        {activeFilterCount > 0 && (
+                          <Badge className="absolute -top-2 -right-2 bg-linear-to-r from-pink-500 to-purple-500 text-white border-0 h-5 min-w-5 flex items-center justify-center rounded-full text-[10px] font-bold p-0">
+                            {activeFilterCount}
+                          </Badge>
+                        )}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="right"
+                      className="w-[85vw] sm:w-[380px] overflow-hidden"
+                      onOpenAutoFocus={(event) => event.preventDefault()}
                     >
-                      <IconAdjustmentsHorizontal className="size-4" />
-                      <span className="hidden sm:inline">Filters</span>
-                      {activeFilterCount > 0 && (
-                        <Badge className="absolute -top-2 -right-2 bg-linear-to-r from-pink-500 to-purple-500 text-white border-0 h-5 min-w-5 flex items-center justify-center rounded-full text-[10px] font-bold p-0">
-                          {activeFilterCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="right"
-                    className="w-[85vw] sm:w-[380px] overflow-hidden"
-                    onOpenAutoFocus={(event) => event.preventDefault()}
-                  >
-                    <SheetHeader>
-                      <SheetTitle>Filters</SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
-                      {filterContent}
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-6 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
+                        {filterContent}
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                )}
               </div>
             </div>
 
@@ -614,7 +628,7 @@ export default function ProductsListing({
                     </button>
                   </Badge>
                 )}
-                {params.category && (
+                {showFilters && params.category && (
                   <Badge variant="secondary" className="gap-1 pr-1 font-normal">
                     {getCategoryName(params.category)}
                     <button
@@ -626,7 +640,7 @@ export default function ProductsListing({
                     </button>
                   </Badge>
                 )}
-                {(params.min_price || params.max_price) && (
+                {showFilters && (params.min_price || params.max_price) && (
                   <Badge variant="secondary" className="gap-1 pr-1 font-normal">
                     BDT {params.min_price || "0"} — {params.max_price || "∞"}
                     <button
@@ -688,6 +702,7 @@ export default function ProductsListing({
               <div
                 className={cn(
                   "grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 transition-opacity duration-200",
+                  gridClassName,
                   isRefreshing && "opacity-60 pointer-events-none",
                 )}
               >
