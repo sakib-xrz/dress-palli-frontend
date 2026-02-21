@@ -649,3 +649,152 @@ export type UpdateSettingPayload = {
   delivery_charge_inside_dhaka?: number;
   delivery_charge_outside_dhaka?: number;
 };
+
+// ── Dashboard ─────────────────────────────────────────────
+
+export type DatePreset =
+  | "today"
+  | "last_7_days"
+  | "last_30_days"
+  | "this_month"
+  | "last_month";
+
+export type DashboardDateRangeParams = {
+  start_date?: string;
+  end_date?: string;
+  preset?: DatePreset;
+};
+
+export type DashboardOverview = {
+  period: { start_date: string; end_date: string };
+  orders: {
+    total: number;
+    pending: number;
+    processing: number;
+    delivered: number;
+    cancelled: number;
+    returned: number;
+  };
+  revenue: {
+    total: number;
+    subtotal: number;
+    delivery_fees: number;
+    pending: number;
+  };
+  all_time: {
+    total_revenue: number;
+    total_completed_orders: number;
+  };
+  customers: {
+    new: number;
+    total: number;
+  };
+  products: {
+    active: number;
+  };
+};
+
+export type OrderStatusDistribution = {
+  period: { start_date: string; end_date: string };
+  distribution: { status: OrderStatus; count: number }[];
+};
+
+export type RevenueTrend = {
+  period: { start_date: string; end_date: string };
+  trend: { date: string; revenue: number; orders: number }[];
+};
+
+export type TopSellingProduct = {
+  product_id: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  quantity: number;
+  revenue: number;
+};
+
+export type TopSellingProductsResponse = {
+  period: { start_date: string; end_date: string };
+  products: TopSellingProduct[];
+};
+
+export type ProductSalesItem = {
+  product_id: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  sell_price: number;
+  buy_price: number;
+  quantity_sold: number;
+  revenue: number;
+  estimated_profit: number;
+};
+
+export type ProductSalesQueryParams = DashboardDateRangeParams & {
+  product_id?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort_by?: "revenue" | "quantity" | "name";
+  sort_order?: "asc" | "desc";
+};
+
+export type SingleProductSales = {
+  period: { start_date: string; end_date: string };
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    image: string | null;
+    sell_price: number;
+    buy_price: number;
+  };
+  summary: {
+    total_quantity_sold: number;
+    total_revenue: number;
+    estimated_profit: number;
+    current_stock: number;
+  };
+  variants: {
+    size: string;
+    current_stock: number;
+    quantity_sold: number;
+    revenue: number;
+  }[];
+  trend: { date: string; quantity: number; revenue: number }[];
+};
+
+export type LowStockAlert = {
+  variant_id: string;
+  product_id: string;
+  product_name: string;
+  product_slug: string;
+  product_image: string | null;
+  size: string;
+  current_stock: number;
+  is_out_of_stock: boolean;
+};
+
+export type LowStockQueryParams = {
+  threshold?: number;
+  page?: number;
+  limit?: number;
+};
+
+export type ProductSearchResult = {
+  id: string;
+  name: string;
+  slug: string;
+  image: string | null;
+};
+
+export type RecentOrder = {
+  id: string;
+  order_id: string;
+  customer_name: string;
+  customer_phone: string;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  total_amount: string;
+  created_at: string;
+};

@@ -809,7 +809,7 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Inside Dhaka (৳)
+                    Inside Dhaka (BDT )
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -837,7 +837,7 @@ export function SettingForm({ setting, isInit }: SettingFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground">
-                    Outside Dhaka (৳)
+                    Outside Dhaka (BDT )
                   </FormLabel>
                   <FormControl>
                     <Input
