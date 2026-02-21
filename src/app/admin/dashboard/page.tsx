@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { DatePreset } from "@/lib/type";
 import {
   useDashboardOverview,
@@ -20,7 +19,6 @@ import { TopSellingProducts } from "./_components/top-selling-products";
 import { LowStockAlerts } from "./_components/low-stock-alerts";
 import { RecentOrders } from "./_components/recent-orders";
 import { ProductSalesLookup } from "./_components/product-sales-lookup";
-import { ProductSalesTable } from "./_components/product-sales-table";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 export default function DashboardPage() {
@@ -44,7 +42,7 @@ export default function DashboardPage() {
   const { data: topProducts, isLoading: isLoadingTopProducts } =
     useTopSellingProducts({ ...dateParams, limit: 5 });
   const { data: lowStockData, isLoading: isLoadingLowStock } =
-    useLowStockAlerts({ threshold: 10, limit: 20 });
+    useLowStockAlerts({ threshold: 10, limit: 5 });
   const { data: recentOrders, isLoading: isLoadingRecentOrders } =
     useRecentOrders(5);
 
@@ -136,26 +134,11 @@ export default function DashboardPage() {
       {/* Product Sales Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Product Sales Analytics</h2>
-        <Tabs defaultValue="lookup" className="w-full">
-          <TabsList>
-            <TabsTrigger value="lookup">Product Lookup</TabsTrigger>
-            <TabsTrigger value="table">All Products Table</TabsTrigger>
-          </TabsList>
-          <TabsContent value="lookup" className="mt-4">
-            <ProductSalesLookup
-              preset={customStartDate ? undefined : preset}
-              startDate={customStartDate}
-              endDate={customEndDate}
-            />
-          </TabsContent>
-          <TabsContent value="table" className="mt-4">
-            <ProductSalesTable
-              preset={customStartDate ? undefined : preset}
-              startDate={customStartDate}
-              endDate={customEndDate}
-            />
-          </TabsContent>
-        </Tabs>
+        <ProductSalesLookup
+          preset={customStartDate ? undefined : preset}
+          startDate={customStartDate}
+          endDate={customEndDate}
+        />
       </div>
     </div>
   );

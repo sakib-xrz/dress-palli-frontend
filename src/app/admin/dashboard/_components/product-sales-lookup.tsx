@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -72,15 +72,24 @@ export function ProductSalesLookup({
   endDate,
 }: ProductSalesLookupProps) {
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
   const [selectedProductName, setSelectedProductName] = useState<string>("");
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  // Search products
+  // Debounce search input by 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Search products using the debounced value
   const { data: searchResults, isLoading: isSearching } =
-    useProductSearch(searchInput);
+    useProductSearch(debouncedSearch);
 
   // Get single product sales
   const { data: productSales, isLoading: isLoadingSales } =
@@ -95,6 +104,7 @@ export function ProductSalesLookup({
       setSelectedProductId(productId);
       setSelectedProductName(productName);
       setSearchInput("");
+      setDebouncedSearch("");
       setPopoverOpen(false);
     },
     [],
@@ -135,7 +145,12 @@ export function ProductSalesLookup({
                     <Input
                       placeholder="Type product name..."
                       value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
+                      onChange={(e) => setSearchInput(e.target.value.trim())}
+                      onInput={(e) =>
+                        setSearchInput(
+                          (e.target as HTMLInputElement).value.trim(),
+                        )
+                      }
                       className="flex h-10 w-full border-0 bg-transparent py-2 text-sm focus-visible:outline-none focus-visible:ring-0"
                     />
                   </div>
@@ -151,7 +166,7 @@ export function ProductSalesLookup({
                       </div>
                     )}
                     {!isSearching &&
-                      searchInput.length >= 2 &&
+                      debouncedSearch.length >= 2 &&
                       !searchResults?.length && (
                         <CommandEmpty>No products found.</CommandEmpty>
                       )}
@@ -312,8 +327,8 @@ function ProductSalesDetails({ data }: { data: SingleProductSales }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.variants.map((variant) => (
-                  <TableRow key={variant.size}>
+                {data.variants.map((variant, index) => (
+                  <TableRow key={`${index}-${variant.size}`}>
                     <TableCell>
                       <Badge variant="outline">{variant.size}</Badge>
                     </TableCell>

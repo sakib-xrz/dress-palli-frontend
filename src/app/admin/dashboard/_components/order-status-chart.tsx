@@ -95,7 +95,6 @@ export function OrderStatusChart({ data, isLoading }: OrderStatusChartProps) {
                 outerRadius={100}
                 paddingAngle={2}
                 dataKey="value"
-                labelLine={false}
               >
                 {chartData.map((entry) => (
                   <Cell
@@ -105,13 +104,7 @@ export function OrderStatusChart({ data, isLoading }: OrderStatusChartProps) {
                   />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-              />
+              <Tooltip />
               <Legend
                 verticalAlign="bottom"
                 height={36}
