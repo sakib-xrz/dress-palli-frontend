@@ -110,7 +110,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
     const headerOffset = 88;
     const targetTop =
-      window.scrollY + productInfoRef.current.getBoundingClientRect().top - headerOffset;
+      window.scrollY +
+      productInfoRef.current.getBoundingClientRect().top -
+      headerOffset;
 
     window.scrollTo({ top: Math.max(targetTop, 0), behavior: "smooth" });
   };
