@@ -518,6 +518,42 @@ export type OrderHistory = {
   created_at: string;
 };
 
+// ── Public Order Tracking ─────────────────────────────────
+
+export type PublicOrderTrackingItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  size: string | null;
+  product_slug: string | null;
+  image: string | null;
+};
+
+export type PublicOrderStatusHistory = {
+  id: string;
+  from_status: OrderStatus | null;
+  to_status: OrderStatus | null;
+  changed_at: string;
+};
+
+export type PublicOrderTracking = {
+  order_id: string;
+  status: OrderStatus;
+  shipping_address: {
+    address: string | null;
+    area: string | null;
+    city: string | null;
+  };
+  subtotal_amount: number;
+  delivery_fee: number;
+  total_amount: number;
+  is_inside_dhaka: boolean;
+  created_at: string;
+  items: PublicOrderTrackingItem[];
+  status_history: PublicOrderStatusHistory[];
+};
+
 // ── Customer ──────────────────────────────────────────────
 
 export type Customer = {

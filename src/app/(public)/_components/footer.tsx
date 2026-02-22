@@ -15,6 +15,7 @@ import { useGlobalSettings } from "@/contexts/settings-context";
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
+  { label: "Track Order", href: "/track-order" },
   { label: "New Arrivals", href: "/new-arrivals" },
   { label: "Best Sellers", href: "/best-sellers" },
   { label: "Featured", href: "/featured" },

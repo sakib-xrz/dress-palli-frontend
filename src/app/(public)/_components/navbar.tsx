@@ -7,6 +7,7 @@ import {
   IconChevronDown,
   IconHome2,
   IconMenu2,
+  IconPackage,
   IconSearch,
   IconShoppingCart,
 } from "@tabler/icons-react";
@@ -260,6 +261,15 @@ export default function Navbar({ categories }: NavbarProps) {
                       >
                         <IconBuildingStore className="size-5" />
                         <span>Shop</span>
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/track-order"
+                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                      >
+                        <IconPackage className="size-5" />
+                        <span>Track Order</span>
                       </Link>
                     </SheetClose>
                   </div>

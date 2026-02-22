@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function formatPrice(value: number) {
+  return `৳${value.toLocaleString("en-BD")}`;
+}
+
 export function sanitizeParams(
   params: Record<string, string | number | boolean | undefined>,
 ) {

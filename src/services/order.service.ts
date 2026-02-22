@@ -6,6 +6,7 @@ import type {
   OrderHistory,
   OrderQueryParams,
   PaginatedResponse,
+  PublicOrderTracking,
   UpdateOrderStatusPayload,
   UpdatePaymentStatusPayload,
 } from "@/lib/type";
@@ -19,6 +20,12 @@ export const orderService = {
     data: CreatePublicOrderPayload,
   ): Promise<ApiResponse<Order>> => {
     return api.post(ORDER_URL, data);
+  },
+
+  trackOrder: async (
+    orderId: string,
+  ): Promise<ApiResponse<PublicOrderTracking>> => {
+    return api.get(`${ORDER_URL}/track/${orderId}`);
   },
 
   // ── Admin ──────────────────────────────────────────
