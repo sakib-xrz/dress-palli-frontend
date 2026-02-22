@@ -16,17 +16,14 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
   { label: "Track Order", href: "/track-order" },
-  { label: "New Arrivals", href: "/new-arrivals" },
-  { label: "Best Sellers", href: "/best-sellers" },
-  { label: "Featured", href: "/featured" },
 ];
 
-const aboutLinks = [
-  { label: "About Us", href: "/about" },
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Service", href: "/terms" },
-  { label: "FAQs", href: "/faqs" },
-];
+// const aboutLinks = [
+//   { label: "About Us", href: "/about" },
+//   { label: "Privacy Policy", href: "/privacy" },
+//   { label: "Terms of Service", href: "/terms" },
+//   { label: "FAQs", href: "/faqs" },
+// ];
 
 const socialLinks = [
   {
@@ -58,7 +55,7 @@ export default function Footer() {
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8">
           {/* Brand Section */}
           <div className="grid content-start gap-4">
-            <div>
+            <div className="flex items-center gap-4">
               <Link
                 href="/"
                 className="text-foreground grid w-fit auto-cols-max grid-flow-col items-center gap-3 group"
@@ -77,7 +74,7 @@ export default function Footer() {
                   </div>
                 )}
               </Link>
-              <div className="text-2xl font-bold tracking-tight mt-3 bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              <div className="text-2xl font-bold tracking-tight bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                 {brandName}
               </div>
             </div>
@@ -85,34 +82,6 @@ export default function Footer() {
               Your trusted destination for fashionable and quality outfits.
               Explore elegant collections for every season and occasion.
             </p>
-
-            {/* Social Links */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-foreground">Follow Us</p>
-              <div className="flex flex-wrap gap-2">
-                {socialLinks.map((social) => {
-                  const Icon = social.icon;
-                  return (
-                    <Button
-                      key={social.label}
-                      variant="outline"
-                      size="icon"
-                      asChild
-                      className={`transition-all duration-200 ${social.color}`}
-                    >
-                      <a
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={social.label}
-                      >
-                        <Icon className="size-5" />
-                      </a>
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -134,7 +103,7 @@ export default function Footer() {
           </div>
 
           {/* About */}
-          <div className="grid content-start gap-4">
+          {/* <div className="grid content-start gap-4">
             <h3 className="text-foreground text-sm font-bold tracking-wide uppercase">
               About
             </h3>
@@ -149,7 +118,7 @@ export default function Footer() {
                 </Link>
               ))}
             </nav>
-          </div>
+          </div> */}
 
           {/* Contact */}
           <div>
@@ -196,6 +165,34 @@ export default function Footer() {
                   {email}
                 </a>
               </div>
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-foreground">Follow Us</p>
+            <div className="flex flex-wrap gap-2">
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <Button
+                    key={social.label}
+                    variant="outline"
+                    size="icon"
+                    asChild
+                    className={`transition-all duration-200 ${social.color}`}
+                  >
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                    >
+                      <Icon className="size-5" />
+                    </a>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </div>

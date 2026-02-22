@@ -299,10 +299,10 @@ export default function TrackOrderPage() {
             <div className="relative flex-1">
               <Input
                 type="text"
-                placeholder="Enter your order ID (e.g., WVGR957OJWX)"
+                placeholder="Enter your order ID"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value.toUpperCase())}
-                className="h-12 text-center sm:text-left font-mono text-lg tracking-wider uppercase pr-10"
+                className="h-12 text-center sm:text-left font-mono text-lg tracking-wider uppercase pr-10 placeholder:text-sm"
                 disabled={isLoading}
               />
               {orderId && (
