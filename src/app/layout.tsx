@@ -4,6 +4,7 @@ import { Lato, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { getServerPublicSettings } from "@/lib/server/settings";
+import { GlobalLoading } from "@/components/shared/global-loading";
 
 const lato = Lato({
   variable: "--font-lato",
@@ -36,15 +37,7 @@ export default async function RootLayout({
         className={`${lato.variable} ${playfairDisplay.variable} font-sans antialiased`}
       >
         <Providers initialSettings={settings}>
-          <Suspense
-            fallback={
-              <div className="flex min-h-screen items-center justify-center">
-                <div className="text-muted-foreground text-sm">Loading...</div>
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
+          <Suspense fallback={<GlobalLoading />}>{children}</Suspense>
         </Providers>
       </body>
     </html>
