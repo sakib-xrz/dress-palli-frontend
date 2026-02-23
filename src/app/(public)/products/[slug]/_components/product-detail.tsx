@@ -27,14 +27,14 @@ interface ProductDetailProps {
   product: PublicProductDetail;
 }
 
+const phone = "01997427472";
+const whatsappNumber = "8801997427472";
+const facebookPage = "https://www.facebook.com/DressPalli";
+
 export default function ProductDetail({ product }: ProductDetailProps) {
   const router = useRouter();
   const { addToCart, setBuyNowItem } = useCartStore();
   const productInfoRef = useRef<HTMLDivElement | null>(null);
-
-  const phone = "01997427472";
-  const whatsappNumber = "8801997427472";
-  const facebookPage = "https://www.facebook.com/DressPalli";
 
   const hasSizeVariant =
     product.variants.length > 0 &&
@@ -142,7 +142,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
     const shareData: ShareData = {
       title: product.name,
-      text: `Check out this product from Dress Palli: ${product.name}`,
+      text: product?.description || "",
       url: window.location.href,
     };
 
@@ -159,9 +159,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
     try {
       await navigator.clipboard.writeText(shareData.url as string);
-      showToast.success("Product link copied. You can share it anywhere.");
+      showToast.success("Product link copied.");
     } catch {
-      showToast.error("Share is not available on this device right now.");
+      showToast.error("Share is not available on this device.");
     }
   };
 
