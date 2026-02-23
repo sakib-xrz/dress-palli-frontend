@@ -126,7 +126,10 @@ export function CategoryFormModal({
     return true;
   });
 
-  const selectedParentId = useWatch({ control: form.control, name: "parent_id" });
+  const selectedParentId = useWatch({
+    control: form.control,
+    name: "parent_id",
+  });
   const isRootCategory = !selectedParentId;
   const existingImageUrl = category?.image_url ?? null;
   const displayImageUrl = previewUrl || existingImageUrl;
@@ -245,6 +248,9 @@ export function CategoryFormModal({
             render={() => (
               <FormItem>
                 <FormLabel>Category Image (required for root)</FormLabel>
+                <span className="text-xs text-muted-foreground font-mono">
+                  Recommended: 1024px x 1024px (1:1)
+                </span>
                 <FormControl>
                   <div className="space-y-3">
                     {displayImageUrl ? (

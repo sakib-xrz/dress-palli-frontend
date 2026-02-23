@@ -188,8 +188,8 @@ export function BannerFormModal({
                         <span className="text-sm font-medium">
                           Upload Banner Image
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          Recommended: 1920×810px (21:9 ratio)
+                        <span className="text-xs text-muted-foreground font-mono">
+                          Recommended: 1920px x 810px (21:9)
                         </span>
                         <input
                           id="banner-image"

@@ -23,7 +23,10 @@ import {
 } from "@/hooks/use-products";
 import { productService } from "@/services/product.service";
 import { showToast } from "@/lib/toast";
-import type { AdminProduct, ProductImage as ProductImageType } from "@/lib/type";
+import type {
+  AdminProduct,
+  ProductImage as ProductImageType,
+} from "@/lib/type";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -297,8 +300,11 @@ function ManageImagesContent({ product }: { product: AdminProduct }) {
             {isUploading ? "Uploading..." : "Click or drag images to upload"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            JPEG, PNG, WebP up to 30MB &middot; Max 10 at once
+            JPEG, PNG, WebP up to 5MB &middot; Max 5 at once
           </p>
+          <span className="text-xs text-muted-foreground font-mono">
+            Recommended: 768px x 1024px (3:4)
+          </span>
           <input
             ref={fileInputRef}
             type="file"

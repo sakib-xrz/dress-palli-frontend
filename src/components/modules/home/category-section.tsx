@@ -14,18 +14,18 @@ const CategoryCard = ({ category }: { category: Category }) => (
   <Link href={`/category/${category.slug}`} className="group block">
     <div className="relative overflow-hidden border border-border bg-background shadow-sm hover:shadow-xl hover:border-pink-200 dark:hover:border-pink-800 transition-all duration-300 transform">
       {/* Category Image */}
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative aspect-square overflow-hidden bg-muted aspect-square">
         {category.image_url ? (
           <Image
             src={category.image_url}
             alt={category.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out aspect-square"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20">
-            <div className="bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 p-4 rounded-full">
+          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 aspect-square">
+            <div className="bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 p-4 rounded-full aspect-square">
               <svg
                 className="w-12 h-12 text-pink-400 dark:text-pink-600"
                 fill="none"

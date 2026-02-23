@@ -250,10 +250,13 @@ export function FeaturingFormModal({
           render={() => (
             <FormItem>
               <FormLabel>Banner Image (optional)</FormLabel>
+              <span className="text-xs text-muted-foreground font-mono">
+                Recommended: 1920px x 730px (21:8)
+              </span>
               <FormControl>
                 <div className="space-y-4">
                   {displayPreviewUrl && (
-                    <div className="relative aspect-21/9 w-full overflow-hidden rounded-lg border bg-muted">
+                    <div className="relative aspect-21/8 w-full overflow-hidden rounded-lg border bg-muted">
                       <Image
                         src={displayPreviewUrl}
                         alt="Banner preview"
@@ -274,7 +277,7 @@ export function FeaturingFormModal({
                           Upload Banner Image
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Recommended: 1920×810px (21:9 ratio)
+                          Recommended: 1920×730px (21:8)
                         </span>
                         <input
                           id="featuring-banner"
