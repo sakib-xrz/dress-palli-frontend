@@ -1,4 +1,3 @@
-import type { Organization, WithContext } from "schema-dts";
 import { getServerPublicSettings } from "@/lib/server/settings";
 
 const SITE_URL = "https://www.dresspalli.com";
@@ -8,7 +7,7 @@ export async function OrganizationSchema() {
 
   if (!settings) return null;
 
-  const schema: WithContext<Organization> = {
+  const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: settings.title,
