@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Home from "@/components/modules/home";
 import { getServerBanners } from "@/lib/server/banner";
 import { getServerPublicCategories } from "@/lib/server/categories";
@@ -7,6 +8,12 @@ import {
   getServerFeaturedProducts,
   getServerNewProducts,
 } from "@/lib/server/products";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default async function HomePage() {
   const [
@@ -27,7 +34,7 @@ export default async function HomePage() {
 
   // Filter parent categories (categories with no parent_id)
   const parentCategories = categories.filter(
-    (category) => category.parent_id === null && category.is_active
+    (category) => category.parent_id === null && category.is_active,
   );
 
   return (

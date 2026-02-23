@@ -5,6 +5,8 @@ import { getServerPublicCategories } from "@/lib/server/categories";
 import type { PaginatedResponse, PublicProduct } from "@/lib/type";
 import ProductsListing from "./_components/products-listing";
 
+const SITE_URL = "https://www.dresspalli.com";
+
 // ── Constants ───────────────────────────────────────────────
 
 const PRODUCTS_PER_PAGE = 12;
@@ -37,9 +39,7 @@ type SearchParams = {
   max_price?: string;
 };
 
-function pickString(
-  value: string | string[] | undefined,
-): string | undefined {
+function pickString(value: string | string[] | undefined): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
@@ -135,9 +135,8 @@ export default async function ProductsPage({ searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: params.search ? `Search: "${params.search}"` : "All Products",
-    description:
-      "Browse our complete product collection at Dress Palli.",
-    url: "/products",
+    description: "Browse our complete product collection at Dress Palli.",
+    url: `${SITE_URL}/products`,
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: initialProducts.meta?.total ?? 0,
@@ -147,7 +146,7 @@ export default async function ProductsPage({ searchParams }: Props) {
         item: {
           "@type": "Product",
           name: product.name,
-          url: `/products/${product.slug}`,
+          url: `${SITE_URL}/products/${product.slug}`,
           image: product.primary_image?.url,
           offers: {
             "@type": "Offer",
@@ -163,12 +162,12 @@ export default async function ProductsPage({ searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
       {
         "@type": "ListItem",
         position: 2,
         name: "Products",
-        item: "/products",
+        item: `${SITE_URL}/products`,
       },
     ],
   };

@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getServerProductBySlug } from "@/lib/server/products";
 import ProductDetail from "./_components/product-detail";
 
+const SITE_URL = "https://www.dresspalli.com";
+
 function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, "")
@@ -58,19 +60,19 @@ export default async function ProductDetailPage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "/",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: product.category.name,
-        item: `/category/${product.category.slug}`,
+        item: `${SITE_URL}/category/${product.category.slug}`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: product.name,
-        item: `/products/${product.slug}`,
+        item: `${SITE_URL}/products/${product.slug}`,
       },
     ],
   };

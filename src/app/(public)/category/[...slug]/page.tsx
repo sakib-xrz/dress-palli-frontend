@@ -6,6 +6,8 @@ import { getServerPublicCategories } from "@/lib/server/categories";
 import type { Category, PaginatedResponse, PublicProduct } from "@/lib/type";
 import ProductsListing from "../../products/_components/products-listing";
 
+const SITE_URL = "https://www.dresspalli.com";
+
 const PRODUCTS_PER_PAGE = 12;
 
 const SORT_MAP: Record<string, { sort_by: string; sort_order: string }> = {
@@ -161,16 +163,74 @@ export default async function CategoryWithProducts({
     (cat) => cat.parent_id === null && cat.is_active,
   );
 
+  // Build breadcrumb trail
+  const breadcrumbItems = [{ name: "Home", url: SITE_URL }];
+  for (let i = 0; i < slug.length; i++) {
+    const cat = findCategoryBySlug(categories, slug[i]);
+    breadcrumbItems.push({
+      name: cat?.name || slug[i],
+      url: `${SITE_URL}/category/${slug.slice(0, i + 1).join("/")}`,
+    });
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: matchedCategory.name,
+    description: `Explore products in ${matchedCategory.name} at Dress Palli.`,
+    url: `${SITE_URL}/category/${slug.join("/")}`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: initialProducts.meta?.total ?? 0,
+      itemListElement: initialProducts.data.map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Product",
+          name: product.name,
+          url: `${SITE_URL}/products/${product.slug}`,
+          image: product.primary_image?.url,
+          offers: {
+            "@type": "Offer",
+            price: product.effective_price,
+            priceCurrency: "BDT",
+          },
+        },
+      })),
+    },
+  };
+
   return (
-    <Suspense>
-      <ProductsListing
-        initialProducts={initialProducts}
-        categories={parentCategories}
-        endpointBase={`/products/category/${encodeURIComponent(currentSlug)}`}
-        fallbackTitle={matchedCategory.name}
-        showFilters={false}
-        gridClassName="lg:grid-cols-4"
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-    </Suspense>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <Suspense>
+        <ProductsListing
+          initialProducts={initialProducts}
+          categories={parentCategories}
+          endpointBase={`/products/category/${encodeURIComponent(currentSlug)}`}
+          fallbackTitle={matchedCategory.name}
+          showFilters={false}
+          gridClassName="lg:grid-cols-4"
+        />
+      </Suspense>
+    </>
   );
 }
