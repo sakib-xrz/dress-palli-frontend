@@ -167,7 +167,7 @@ export function BannerFormModal({
                 <div className="space-y-4">
                   {/* Preview */}
                   {displayPreviewUrl && (
-                    <div className="relative aspect-21/9 w-full overflow-hidden rounded-lg border bg-muted">
+                    <div className="relative aspect-21/8 w-full overflow-hidden rounded-lg border bg-muted">
                       <Image
                         src={displayPreviewUrl}
                         alt="Banner preview"
@@ -189,7 +189,7 @@ export function BannerFormModal({
                           Upload Banner Image
                         </span>
                         <span className="text-xs text-muted-foreground font-mono">
-                          Recommended: 1920px x 810px (21:9)
+                          Recommended: 1920px x 730px (21:8)
                         </span>
                         <input
                           id="banner-image"

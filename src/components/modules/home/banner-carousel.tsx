@@ -17,7 +17,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
         const isFirst = banner === banners[0];
         return banner.link_url ? (
           <Link href={banner.link_url} className="block">
-            <div className="relative w-full aspect-21/9">
+            <div className="relative w-full aspect-21/8">
               <Image
                 src={banner.image_url}
                 alt={`Banner ${banner.id}`}
@@ -29,7 +29,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
             </div>
           </Link>
         ) : (
-          <div className="relative w-full aspect-21/9">
+          <div className="relative w-full aspect-21/8">
             <Image
               src={banner.image_url}
               alt={`Banner ${banner.id}`}
