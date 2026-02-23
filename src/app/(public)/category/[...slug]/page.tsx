@@ -105,8 +105,8 @@ export async function generateMetadata({
   const search = pickString(rawSearch.search);
 
   const title = search
-    ? `Search: "${search}" in ${category?.name || "Category"} | Dress Palli`
-    : `${category?.name || "Category"} | Dress Palli`;
+    ? `Search: "${search}" in ${category?.name || "Category"}`
+    : `${category?.name || "Category"}`;
 
   const description = search
     ? `Browse products matching "${search}" in ${category?.name || "this category"} at Dress Palli.`

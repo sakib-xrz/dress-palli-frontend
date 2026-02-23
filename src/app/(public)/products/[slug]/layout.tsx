@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { getServerProductBySlug } from "@/lib/server/products";
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export async function generateMetadata({
@@ -15,7 +18,7 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found | Dress Palli",
+      title: "Product Not Found",
       description: "The requested product could not be found.",
       robots: { index: false, follow: false },
     };
@@ -33,7 +36,7 @@ export async function generateMetadata({
   }));
 
   return {
-    title: `${product.name} | Dress Palli`,
+    title: `${product.name}`,
     description: plainDescription,
     keywords: [
       product.name,

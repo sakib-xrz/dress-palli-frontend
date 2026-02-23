@@ -82,9 +82,7 @@ export async function generateMetadata({
   const raw = await searchParams;
   const search = pickString(raw.search);
 
-  const title = search
-    ? `Search: "${search}" | Dress Palli`
-    : "Shop All Products | Dress Palli";
+  const title = search ? `Search: "${search}"` : "Shop All Products";
 
   const description = search
     ? `Browse products matching "${search}" at Dress Palli. Find the best deals on dresses, kurtis, three-pieces, and more.`
