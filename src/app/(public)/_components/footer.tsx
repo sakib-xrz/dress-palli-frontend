@@ -18,28 +18,6 @@ const quickLinks = [
   { label: "Track Order", href: "/track-order" },
 ];
 
-// const aboutLinks = [
-//   { label: "About Us", href: "/about" },
-//   { label: "Privacy Policy", href: "/privacy" },
-//   { label: "Terms of Service", href: "/terms" },
-//   { label: "FAQs", href: "/faqs" },
-// ];
-
-const socialLinks = [
-  {
-    label: "Facebook",
-    href: "https://facebook.com",
-    icon: IconBrandFacebook,
-    color: "hover:bg-blue-100 dark:hover:bg-blue-900/20",
-  },
-  {
-    label: "Instagram",
-    href: "https://instagram.com",
-    icon: IconBrandInstagram,
-    color: "hover:bg-pink-100 dark:hover:bg-pink-900/20",
-  },
-];
-
 export default function Footer() {
   const { settings } = useGlobalSettings();
   const brandName = settings?.title ?? "Dress Palli";
@@ -47,6 +25,23 @@ export default function Footer() {
   const email = settings?.email ?? "support@dresspalli.com";
   const phone = settings?.phone ?? "+880 1000-000000";
   const currentYear = new Date().getFullYear();
+  const facebookUrl = settings?.facebook ?? null;
+  const instagramUrl = settings?.instagram ?? null;
+
+  const socialLinks = [
+    {
+      label: "Facebook",
+      href: facebookUrl || "https://facebook.com",
+      icon: IconBrandFacebook,
+      color: "hover:bg-blue-100 dark:hover:bg-blue-900/20",
+    },
+    {
+      label: "Instagram",
+      href: instagramUrl || "https://instagram.com",
+      icon: IconBrandInstagram,
+      color: "hover:bg-pink-100 dark:hover:bg-pink-900/20",
+    },
+  ];
 
   return (
     <footer className="border-t border-border">

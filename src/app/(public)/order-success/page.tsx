@@ -131,7 +131,7 @@ export default function OrderSuccessPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+          <div className="space-y-3 w-full max-w-sm">
             <Button asChild size="lg" variant="outline" className="w-full">
               <Link href={`/track-order?id=${orderId}`}>Track Order</Link>
             </Button>
