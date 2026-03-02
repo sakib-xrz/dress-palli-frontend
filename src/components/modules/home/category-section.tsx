@@ -42,21 +42,13 @@ const CategoryCard = ({ category }: { category: Category }) => (
             </div>
           </div>
         )}
-
-        {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-linear-to-t via-transparent to-transparent from-pink-500/20 transition-all duration-300 pointer-events-none" />
       </div>
 
       {/* Category Name */}
-      <div className="p-4 text-center bg-linear-to-br from-pink-50/50 to-purple-50/50 transition-all duration-300">
-        <h3 className="font-semibold text-pink-600 transition-colors duration-300 line-clamp-2 text-sm md:text-base">
+      <div className="p-2 py-3 lg:p-4 text-center bg-linear-to-br from-pink-50/50 to-purple-50/50 transition-all duration-300">
+        <h3 className="font-semibold text-pink-600 transition-colors duration-300 line-clamp-2 text-xs sm:text-sm md:text-base line-clam-1">
           {category.name}
         </h3>
-      </div>
-
-      {/* Decorative Border Effect */}
-      <div className="absolute inset-0 opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 bg-linear-to-r from-pink-500/10 to-purple-500/10 dark:from-pink-500/20 dark:to-purple-500/20" />
       </div>
     </div>
   </Link>
