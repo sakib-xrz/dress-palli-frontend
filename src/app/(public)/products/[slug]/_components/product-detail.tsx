@@ -27,8 +27,8 @@ interface ProductDetailProps {
   product: PublicProductDetail;
 }
 
-const phone = "01997427472";
-const whatsappNumber = "8801997427472";
+const phone = "01608570763";
+const whatsappNumber = "8801608570763";
 const facebookPage = "https://www.facebook.com/DressPalli";
 
 export default function ProductDetail({ product }: ProductDetailProps) {
