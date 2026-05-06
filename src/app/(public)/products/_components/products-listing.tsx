@@ -74,15 +74,15 @@ type ProductsListingProps = {
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex flex-col bg-background border border-gray-200 rounded-lg overflow-hidden">
-      <div className="aspect-3/4 bg-gray-100 animate-pulse" />
+    <div className="flex flex-col bg-background border border-border rounded-lg overflow-hidden">
+      <div className="aspect-3/4 bg-muted animate-pulse" />
       <div className="lg:p-3.5 p-2 space-y-2.5">
-        <div className="h-4 bg-gray-100 rounded w-3/4 animate-pulse" />
+        <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
         <div className="space-y-1.5">
-          <div className="h-5 bg-gray-100 rounded w-2/5 animate-pulse" />
+          <div className="h-5 bg-muted rounded w-2/5 animate-pulse" />
           <div className="flex gap-2 pt-1">
-            <div className="h-8 bg-gray-100 rounded flex-1 animate-pulse" />
-            <div className="h-8 bg-gray-100 rounded flex-1 animate-pulse" />
+            <div className="h-8 bg-muted rounded flex-1 animate-pulse" />
+            <div className="h-8 bg-muted rounded flex-1 animate-pulse" />
           </div>
         </div>
       </div>
@@ -322,9 +322,9 @@ export default function ProductsListing({
   // ── Filter panel content ──────────────────────────────────
 
   const filterContent = (
-    <div className="space-y-6 lg:bg-gray-50 lg:p-4 max-lg:px-4">
+    <div className="space-y-6 lg:bg-card/50 lg:p-4 max-lg:px-4">
       <div>
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
           Price Range
         </h4>
         <div className="flex items-center gap-2">
@@ -338,7 +338,7 @@ export default function ProductsListing({
             className="flex-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min={0}
           />
-          <span className="text-gray-400 text-sm shrink-0">—</span>
+          <span className="text-muted-foreground text-sm shrink-0">—</span>
           <Input
             type="number"
             placeholder="Max"
@@ -356,7 +356,7 @@ export default function ProductsListing({
 
       {categoryTree.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Category
           </h4>
           <div className="space-y-0.5">
@@ -366,7 +366,7 @@ export default function ProductsListing({
                 "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
                 !params.category
                   ? "bg-primary/10 text-primary font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
               onClick={() => setParams({ category: null })}
             >
@@ -385,7 +385,7 @@ export default function ProductsListing({
                         "flex-1 text-left px-3 py-2 rounded-lg text-sm transition-colors",
                         isParentSelected
                           ? "bg-primary/10 text-primary font-medium"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
+                          : "text-foreground/85 hover:bg-muted hover:text-foreground",
                       )}
                       onClick={() => {
                         if (cat.children?.length) {
@@ -410,7 +410,7 @@ export default function ProductsListing({
                             ? "Collapse subcategories"
                             : "Expand subcategories"
                         }
-                        className="p-2 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                        className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                         onClick={() => {
                           setExpandedCategoryIds((prev) => {
                             const next = new Set(prev);
@@ -431,7 +431,7 @@ export default function ProductsListing({
                   </div>
 
                   {isExpanded && !!cat.children?.length && (
-                    <div className="ml-2 border-l border-gray-200 pl-2 space-y-1">
+                    <div className="ml-2 border-l border-border pl-2 space-y-1">
                       {cat.children.map((child) => (
                         <button
                           key={child.id}
@@ -440,7 +440,7 @@ export default function ProductsListing({
                             "w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors",
                             params.category === child.id
                               ? "bg-primary/10 text-primary font-medium"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                           onClick={() => {
                             setExpandedCategoryIds((prev) => {
@@ -505,7 +505,7 @@ export default function ProductsListing({
 
         {/* Page heading */}
         <div className="mb-5 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-serif">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground font-serif">
             {params.search
               ? `Search: "${params.search}"`
               : params.category
@@ -590,7 +590,7 @@ export default function ProductsListing({
                         <IconAdjustmentsHorizontal className="size-4" />
                         <span className="hidden sm:inline">Filters</span>
                         {activeFilterCount > 0 && (
-                          <Badge className="absolute -top-2 -right-2 bg-linear-to-r from-pink-500 to-purple-500 text-white border-0 h-5 min-w-5 flex items-center justify-center rounded-full text-[10px] font-bold p-0">
+                          <Badge className="absolute -top-2 -right-2 bg-linear-to-r from-primary to-accent text-primary-foreground border-0 h-5 min-w-5 flex items-center justify-center rounded-full text-[10px] font-bold p-0">
                             {activeFilterCount}
                           </Badge>
                         )}
@@ -621,7 +621,7 @@ export default function ProductsListing({
                     Search: &quot;{params.search}&quot;
                     <button
                       onClick={() => removeFilter("search")}
-                      className="ml-1 hover:bg-gray-200 rounded-full p-0.5 transition-colors"
+                      className="ml-1 hover:bg-muted rounded-full p-0.5 transition-colors"
                       aria-label="Remove search filter"
                     >
                       <IconX className="size-3" />
@@ -633,7 +633,7 @@ export default function ProductsListing({
                     {getCategoryName(params.category)}
                     <button
                       onClick={() => removeFilter("category")}
-                      className="ml-1 hover:bg-gray-200 rounded-full p-0.5 transition-colors"
+                      className="ml-1 hover:bg-muted rounded-full p-0.5 transition-colors"
                       aria-label="Remove category filter"
                     >
                       <IconX className="size-3" />
@@ -648,7 +648,7 @@ export default function ProductsListing({
                         setPriceRangeInput({ min: "", max: "" });
                         setParams({ min_price: null, max_price: null });
                       }}
-                      className="ml-1 hover:bg-gray-200 rounded-full p-0.5 transition-colors"
+                      className="ml-1 hover:bg-muted rounded-full p-0.5 transition-colors"
                       aria-label="Remove price filter"
                     >
                       <IconX className="size-3" />
@@ -682,10 +682,10 @@ export default function ProductsListing({
               </div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="bg-gray-100 rounded-full p-4 mb-4">
-                  <IconMoodEmpty className="size-8 text-gray-400" />
+                <div className="bg-muted rounded-full p-4 mb-4">
+                  <IconMoodEmpty className="size-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                <h3 className="text-lg font-semibold text-foreground mb-1">
                   No products found
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-md mb-4">

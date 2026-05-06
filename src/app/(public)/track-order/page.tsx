@@ -58,8 +58,7 @@ const STATUS_CONFIG: Record<
   },
   PROCESSING: {
     label: "Processing",
-    color:
-      "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
+    color: "bg-secondary/20 text-secondary border-secondary/40",
     icon: IconSettings,
   },
   SHIPPED: {
@@ -82,8 +81,7 @@ const STATUS_CONFIG: Record<
   },
   RETURNED: {
     label: "Returned",
-    color:
-      "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700",
+    color: "bg-muted text-muted-foreground border-border",
     icon: IconRotateClockwise,
   },
 };
@@ -126,7 +124,7 @@ function StatusTimeline({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+      <h3 className="font-semibold text-foreground">
         Order Status
       </h3>
 
@@ -183,8 +181,8 @@ function StatusTimeline({
                   className={cn(
                     "flex items-center justify-center size-10 rounded-full border-2 transition-colors",
                     isReached || isCurrent
-                      ? "bg-green-100 border-green-500 text-green-600 dark:bg-green-900/30 dark:border-green-500 dark:text-green-400"
-                      : "bg-gray-100 border-gray-300 text-gray-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-500",
+                      ? "bg-accent/20 border-accent text-accent"
+                      : "bg-muted border-border text-muted-foreground",
                   )}
                 >
                   <Icon className="size-5" />
@@ -195,7 +193,7 @@ function StatusTimeline({
                       "w-0.5 h-12 transition-colors",
                       isReached && reachedStatuses.has(ORDER_FLOW[index + 1])
                         ? "bg-green-500"
-                        : "bg-gray-200 dark:bg-gray-700",
+                        : "bg-border",
                     )}
                   />
                 )}
@@ -207,8 +205,8 @@ function StatusTimeline({
                   className={cn(
                     "font-medium",
                     isReached || isCurrent
-                      ? "text-gray-900 dark:text-gray-100"
-                      : "text-gray-400 dark:text-gray-500",
+                      ? "text-foreground"
+                      : "text-muted-foreground",
                   )}
                 >
                   {config.label}
@@ -278,14 +276,14 @@ export default function TrackOrderPage() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
+    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-background to-muted/30">
       <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center size-16 rounded-full bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 mb-4">
-            <IconPackage className="size-8 text-pink-600 dark:text-pink-400" />
+          <div className="inline-flex items-center justify-center size-16 rounded-full bg-linear-to-br from-muted to-card mb-4">
+            <IconPackage className="size-8 text-accent" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Track Your Order
           </h1>
           <p className="text-muted-foreground max-w-md mx-auto">
@@ -314,10 +312,10 @@ export default function TrackOrderPage() {
                     setHasSearched(false);
                     router.replace("/track-order", { scroll: false });
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted transition-colors"
                   aria-label="Clear search"
                 >
-                  <IconX className="size-4 text-gray-500" />
+                  <IconX className="size-4 text-muted-foreground" />
                 </button>
               )}
             </div>
@@ -325,7 +323,7 @@ export default function TrackOrderPage() {
               type="submit"
               size="lg"
               disabled={isLoading || !orderId.trim()}
-              className="h-12 px-8 bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              className="h-12 px-8 bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
             >
               {isLoading ? (
                 <>
@@ -397,10 +395,10 @@ export default function TrackOrderPage() {
                   {orderData.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50"
+                      className="flex items-center gap-4 p-3 rounded-lg bg-card/70"
                     >
                       {/* Product Image */}
-                      <div className="relative size-16 sm:size-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
+                      <div className="relative size-16 sm:size-20 rounded-lg overflow-hidden bg-muted shrink-0">
                         {item.image ? (
                           <Image
                             src={item.image}
@@ -410,7 +408,7 @@ export default function TrackOrderPage() {
                           />
                         ) : (
                           <div className="flex items-center justify-center size-full">
-                            <IconPackage className="size-8 text-gray-400" />
+                            <IconPackage className="size-8 text-muted-foreground" />
                           </div>
                         )}
                       </div>
@@ -420,12 +418,12 @@ export default function TrackOrderPage() {
                         {item.product_slug ? (
                           <Link
                             href={`/products/${item.product_slug}`}
-                            className="font-medium text-gray-900 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 line-clamp-2"
+                            className="font-medium text-foreground hover:text-accent line-clamp-2"
                           >
                             {item.name}
                           </Link>
                         ) : (
-                          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                          <p className="font-medium text-foreground line-clamp-2">
                             {item.name}
                           </p>
                         )}
@@ -443,7 +441,7 @@ export default function TrackOrderPage() {
 
                       {/* Price */}
                       <div className="text-right">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">
+                        <p className="font-semibold text-foreground">
                           {formatPrice(Number(item.price) * item.quantity)}
                         </p>
                         {item.quantity > 1 && (
@@ -478,7 +476,7 @@ export default function TrackOrderPage() {
                   <Separator />
                   <div className="flex justify-between font-semibold text-base">
                     <span>Total</span>
-                    <span className="text-pink-600 dark:text-pink-400">
+                    <span className="text-accent">
                       {formatPrice(Number(orderData.total_amount))}
                     </span>
                   </div>
@@ -498,7 +496,7 @@ export default function TrackOrderPage() {
                 <div className="flex items-start gap-3">
                   <IconHome className="size-5 text-muted-foreground shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <p className="text-gray-900 dark:text-gray-100">
+                    <p className="text-foreground">
                       {orderData.shipping_address.address}
                     </p>
                     {(orderData.shipping_address.area ||
@@ -522,10 +520,10 @@ export default function TrackOrderPage() {
         {/* No Results */}
         {hasSearched && !isLoading && !orderData && (
           <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center size-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
-              <IconSearch className="size-8 text-gray-400" />
+            <div className="inline-flex items-center justify-center size-16 rounded-full bg-muted mb-4">
+              <IconSearch className="size-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Order Not Found
             </h3>
             <p className="text-muted-foreground max-w-md mx-auto">

@@ -32,19 +32,19 @@ export default function Footer() {
       label: "Facebook",
       href: facebookUrl || "https://facebook.com",
       icon: IconBrandFacebook,
-      color: "hover:bg-blue-100 dark:hover:bg-blue-900/20",
+      color: "hover:bg-muted hover:text-accent",
     },
     {
       label: "Instagram",
       href: instagramUrl || "https://instagram.com",
       icon: IconBrandInstagram,
-      color: "hover:bg-pink-100 dark:hover:bg-pink-900/20",
+      color: "hover:bg-muted hover:text-accent",
     },
   ];
 
   return (
     <footer className="border-t border-border/80">
-      <div className="bg-linear-to-b from-transparent via-white/65 to-white/90">
+      <div className="bg-linear-to-b from-transparent via-card/45 to-card/80">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8">
           <div className="grid content-start gap-4">
             <div className="flex items-center gap-4">
@@ -61,12 +61,12 @@ export default function Footer() {
                     className="aspect-square size-14 rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="grid size-14 place-items-center rounded-xl bg-linear-to-br from-rose-500 to-fuchsia-600 text-lg font-bold text-white shadow-lg transition-transform duration-300 group-hover:scale-105">
+                  <div className="grid size-14 place-items-center rounded-xl bg-linear-to-br from-primary to-accent text-lg font-bold text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105">
                     {brandName.charAt(0)}
                   </div>
                 )}
               </Link>
-              <div className="bg-linear-to-r from-rose-600 to-fuchsia-700 bg-clip-text text-2xl font-bold tracking-tight text-transparent">
+              <div className="bg-linear-to-r from-accent to-primary bg-clip-text text-2xl font-bold tracking-tight text-transparent">
                 {brandName}
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function Footer() {
                   variant="outline"
                   size="icon-sm"
                   asChild
-                  className="transition-colors hover:bg-rose-100"
+                  className="transition-colors hover:bg-muted"
                 >
                   <a
                     href={`tel:${phone.replace(/\s+/g, "")}`}
@@ -124,7 +124,7 @@ export default function Footer() {
                   variant="outline"
                   size="icon-sm"
                   asChild
-                  className="transition-colors hover:bg-rose-100"
+                  className="transition-colors hover:bg-muted"
                 >
                   <a href={`mailto:${email}`} aria-label="Email us">
                     <IconMail className="size-4" />
@@ -169,7 +169,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-border/80 bg-white/85">
+      <div className="border-t border-border/80 bg-card/85">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center sm:flex-row sm:text-left">
           <p className="text-xs text-muted-foreground">
             © {currentYear} {brandName}. All rights reserved.

@@ -50,9 +50,9 @@ export default function ProductImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-3/4 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+      <div className="aspect-3/4 rounded-xl bg-muted flex items-center justify-center border border-border">
         <svg
-          className="w-16 h-16 text-gray-300"
+          className="w-16 h-16 text-muted-foreground/60"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ export default function ProductImageGallery({
     <div className="flex flex-col gap-2.5 min-w-0">
       {/* Main Image */}
       <div
-        className="relative aspect-3/4 overflow-hidden rounded-xl bg-gray-50 cursor-zoom-in group border border-gray-200/80"
+        className="relative aspect-3/4 overflow-hidden rounded-xl bg-muted cursor-zoom-in group border border-border/80"
         onClick={() => setLightboxOpen(true)}
         role="button"
         tabIndex={0}
@@ -102,8 +102,8 @@ export default function ProductImageGallery({
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center pointer-events-none">
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
-            <IconZoomIn className="size-5 text-gray-700" />
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-card/90 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
+            <IconZoomIn className="size-5 text-foreground" />
           </div>
         </div>
 
@@ -124,18 +124,18 @@ export default function ProductImageGallery({
               <button
                 type="button"
                 onClick={() => scrollThumbs("left")}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 size-7 rounded-full bg-white/90 shadow-md border border-gray-200 items-center justify-center hover:bg-white transition-colors hidden sm:flex"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 size-7 rounded-full bg-card/90 shadow-md border border-border items-center justify-center hover:bg-muted transition-colors hidden sm:flex"
                 aria-label="Scroll thumbnails left"
               >
-                <IconChevronLeft className="size-3.5 text-gray-600" />
+                <IconChevronLeft className="size-3.5 text-foreground/80" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollThumbs("right")}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 size-7 rounded-full bg-white/90 shadow-md border border-gray-200 items-center justify-center hover:bg-white transition-colors hidden sm:flex"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 size-7 rounded-full bg-card/90 shadow-md border border-border items-center justify-center hover:bg-muted transition-colors hidden sm:flex"
                 aria-label="Scroll thumbnails right"
               >
-                <IconChevronRight className="size-3.5 text-gray-600" />
+                <IconChevronRight className="size-3.5 text-foreground/80" />
               </button>
             </>
           )}
@@ -153,10 +153,10 @@ export default function ProductImageGallery({
                   setMainImageLoaded(false);
                 }}
                 className={cn(
-                  "relative shrink-0 w-14 h-[4.5rem] sm:w-[4.5rem] sm:h-[5.5rem] rounded-lg overflow-hidden border-2 transition-all duration-200",
+                  "relative shrink-0 w-14 h-18 sm:w-18 sm:h-22 rounded-lg overflow-hidden border-2 transition-all duration-200",
                   selectedIndex === index
-                    ? "border-pink-500 shadow-md ring-1 ring-pink-500/30"
-                    : "border-gray-200 hover:border-gray-400",
+                    ? "border-primary shadow-md ring-1 ring-primary/40"
+                    : "border-border hover:border-accent",
                 )}
                 aria-label={`View image ${index + 1}`}
               >

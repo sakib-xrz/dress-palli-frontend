@@ -151,14 +151,14 @@ export default function CartPage() {
 
   if (!initialLoading && items.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
+      <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-background to-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-          <div className="flex flex-col items-center justify-center space-y-6 rounded-2xl border border-pink-200/50 bg-white dark:bg-gray-900/50 dark:border-pink-800/50 p-12 backdrop-blur-sm shadow-sm">
-            <div className="rounded-full bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 p-6">
-              <IconShoppingCartOff className="size-16 text-pink-600 dark:text-pink-400" />
+          <div className="flex flex-col items-center justify-center space-y-6 rounded-2xl border border-border bg-card/90 p-12 backdrop-blur-sm shadow-sm">
+            <div className="rounded-full bg-linear-to-br from-muted to-card p-6">
+              <IconShoppingCartOff className="size-16 text-accent" />
             </div>
             <div className="space-y-2 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-foreground">
                 Your cart is empty
               </h2>
               <p className="text-muted-foreground max-w-md">
@@ -169,7 +169,7 @@ export default function CartPage() {
             <Button
               asChild
               size="lg"
-              className="mt-4 bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              className="mt-4 bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
             >
               <Link href="/">
                 <IconShoppingBag className="size-5" />
@@ -183,11 +183,11 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
+    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-background to-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-accent to-primary bg-clip-text text-transparent">
             Shopping Cart
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
@@ -204,7 +204,7 @@ export default function CartPage() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm"
+                    className="rounded-lg border border-border bg-card p-4 shadow-sm"
                   >
                     <div className="flex gap-4">
                       <Skeleton className="h-28 w-28 rounded-md shrink-0" />
@@ -225,10 +225,10 @@ export default function CartPage() {
                     <article
                       key={cartItem.variant_id}
                       className={cn(
-                        "group relative overflow-hidden rounded-lg border bg-white dark:bg-gray-900 shadow-sm transition-all duration-300",
+                        "group relative overflow-hidden rounded-lg border bg-card shadow-sm transition-all duration-300",
                         isOutOfStock
-                          ? "border-red-200 dark:border-red-900/50 opacity-75"
-                          : "border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700",
+                          ? "border-destructive/40 opacity-75"
+                          : "border-border hover:shadow-md hover:border-accent/40",
                       )}
                     >
                       {/* Out of Stock Badge */}
@@ -244,7 +244,7 @@ export default function CartPage() {
                       {/* Discount Badge */}
                       {cartItem.product.has_discount && !isOutOfStock && (
                         <div className="absolute right-3 top-3 z-10">
-                          <Badge className="bg-red-500 text-white shadow-md border-0">
+                          <Badge className="bg-primary text-primary-foreground shadow-md border-0">
                             {cartItem.product.discount}
                             {cartItem.product.discount_type === "PERCENTAGE"
                               ? "%"
@@ -256,7 +256,7 @@ export default function CartPage() {
 
                       <div className="flex gap-4 p-4">
                         {/* Product Image */}
-                        <div className="relative aspect-3/4 overflow-hidden bg-gray-50 dark:bg-gray-900 w-[20%] hidden sm:block">
+                        <div className="relative aspect-3/4 overflow-hidden bg-muted w-[20%] hidden sm:block">
                           {cartItem.image ? (
                             <Image
                               src={cartItem.image.url}
@@ -278,7 +278,7 @@ export default function CartPage() {
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center">
-                              <IconShoppingBag className="size-10 text-gray-300 dark:text-gray-600" />
+                              <IconShoppingBag className="size-10 text-muted-foreground/60" />
                             </div>
                           )}
                           {/* Subtle Gradient Overlay */}
@@ -288,7 +288,7 @@ export default function CartPage() {
                         {/* Product Details */}
                         <div className="flex flex-1 flex-col justify-between min-w-0">
                           <div className="space-y-1.5">
-                            <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2 leading-snug group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                            <h3 className="font-medium text-foreground line-clamp-2 leading-snug group-hover:text-accent transition-colors">
                               {cartItem.product.name}
                             </h3>
 
@@ -303,12 +303,12 @@ export default function CartPage() {
                               )}
 
                               <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                <span className="text-lg font-semibold text-foreground">
                                   BDT{" "}
                                   {cartItem.effected_unit_price.toLocaleString()}
                                 </span>
                                 {cartItem.product.has_discount && (
-                                  <span className="text-sm font-medium text-gray-400 dark:text-gray-500 line-through">
+                                  <span className="text-sm font-medium text-muted-foreground line-through">
                                     BDT{" "}
                                     {cartItem.product.sell_price.toLocaleString()}
                                   </span>
@@ -323,7 +323,7 @@ export default function CartPage() {
                             <div className="mt-3 flex items-center justify-between flex-wrap gap-3">
                               <div className="flex items-center gap-2">
                                 {/* Quantity Selector */}
-                                <div className="flex items-center overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 shadow-sm">
+                                <div className="flex items-center overflow-hidden rounded-md border border-border shadow-sm">
                                   <button
                                     type="button"
                                     onClick={() =>
@@ -332,7 +332,7 @@ export default function CartPage() {
                                     disabled={
                                       cartItem.quantity <= 1 || isOutOfStock
                                     }
-                                    className="flex h-9 w-9 items-center justify-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="flex h-9 w-9 items-center justify-center bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     aria-label="Decrease quantity"
                                   >
                                     <IconMinus className="size-4" />
@@ -343,7 +343,7 @@ export default function CartPage() {
                                     min={1}
                                     max={maxQuantity}
                                     value={cartItem.quantity}
-                                    className="h-9 w-14 border-0 text-center font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default bg-white dark:bg-gray-900"
+                                    className="h-9 w-14 border-0 text-center font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default bg-card"
                                   />
                                   <button
                                     type="button"
@@ -354,7 +354,7 @@ export default function CartPage() {
                                       cartItem.quantity >= maxQuantity ||
                                       isOutOfStock
                                     }
-                                    className="flex h-9 w-9 items-center justify-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="flex h-9 w-9 items-center justify-center bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     aria-label="Increase quantity"
                                   >
                                     <IconPlus className="size-4" />
@@ -380,11 +380,11 @@ export default function CartPage() {
                               </Button>
                             </div>
                             {/* Item Subtotal */}
-                            <div className="mt-2 flex items-center justify-between text-sm pt-2 border-t border-gray-100 dark:border-gray-800">
-                              <span className="text-gray-600 dark:text-gray-400">
+                            <div className="mt-2 flex items-center justify-between text-sm pt-2 border-t border-border/70">
+                              <span className="text-muted-foreground">
                                 Item Total:
                               </span>
-                              <span className="font-semibold text-gray-900 dark:text-gray-100">
+                              <span className="font-semibold text-foreground">
                                 BDT {cartItem.total_price.toLocaleString()}
                               </span>
                             </div>
@@ -401,7 +401,7 @@ export default function CartPage() {
                 variant="outline"
                 size="lg"
                 onClick={handleClearCart}
-                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/50 transition-colors"
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/40 transition-colors"
               >
                 <IconTrash className="size-4" />
                 Clear All Items
@@ -412,8 +412,8 @@ export default function CartPage() {
           {/* Order Summary - Sticky Sidebar */}
           <div className="lg:sticky lg:top-24 h-fit space-y-4">
             {/* Order Summary */}
-            <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
-              <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 text-lg">
+            <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+              <h3 className="mb-4 font-semibold text-foreground text-lg">
                 Order Summary
               </h3>
               {initialLoading ? (
@@ -430,14 +430,14 @@ export default function CartPage() {
                         className="flex gap-3 items-start"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                          <p className="text-sm font-medium text-foreground line-clamp-1">
                             {item.product.name}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {item.size && `${item.size} · `}Qty: {item.quantity}
                           </p>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 shrink-0">
+                        <span className="text-sm font-medium text-foreground shrink-0">
                           BDT {item.total_price.toLocaleString()}
                         </span>
                       </div>
@@ -446,10 +446,10 @@ export default function CartPage() {
 
                   <Separator className="my-3" />
                   <div className="flex justify-between text-base font-semibold pt-1">
-                    <span className="text-gray-900 dark:text-gray-100">
+                      <span className="text-foreground">
                       Subtotal
                     </span>
-                    <span className="text-pink-600 dark:text-pink-400 text-lg">
+                      <span className="text-accent text-lg">
                       BDT {summary.subtotal.toLocaleString()}
                     </span>
                   </div>
@@ -458,7 +458,7 @@ export default function CartPage() {
 
               <Button
                 asChild
-                className="mt-6 w-full bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
+                className="mt-6 w-full bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-md hover:shadow-lg transition-all"
                 size="lg"
                 disabled={initialLoading}
               >
@@ -474,7 +474,7 @@ export default function CartPage() {
               variant="outline"
               asChild
               size="lg"
-              className="w-full hover:bg-pink-50 dark:hover:bg-pink-900/10 hover:border-pink-300 dark:hover:border-pink-700 transition-colors"
+              className="w-full hover:bg-muted hover:border-accent/40 transition-colors"
             >
               <Link href="/">Continue Shopping</Link>
             </Button>

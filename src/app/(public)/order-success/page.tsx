@@ -35,11 +35,11 @@ export default function OrderSuccessPage() {
 
   if (!orderId) {
     return (
-      <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
+      <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-background to-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-          <div className="flex flex-col items-center justify-center space-y-6 rounded-2xl border border-pink-200/50 bg-white dark:bg-gray-900/50 dark:border-pink-800/50 p-12 backdrop-blur-sm shadow-sm">
+          <div className="flex flex-col items-center justify-center space-y-6 rounded-2xl border border-border bg-card/90 p-12 backdrop-blur-sm shadow-sm">
             <div className="space-y-2 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-foreground">
                 No order found
               </h2>
               <p className="text-muted-foreground max-w-md">
@@ -49,7 +49,7 @@ export default function OrderSuccessPage() {
             <Button
               asChild
               size="lg"
-              className="mt-4 bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+              className="mt-4 bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
             >
               <Link href="/">
                 <IconShoppingBag className="size-5" />
@@ -63,7 +63,7 @@ export default function OrderSuccessPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-pink-50/30 to-purple-50/30 dark:from-pink-950/5 dark:to-purple-950/5">
+    <div className="min-h-[calc(100vh-10rem)] bg-linear-to-br from-background to-muted/30">
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
         <div className="flex flex-col items-center text-center">
           {/* Success Icon */}
@@ -74,7 +74,7 @@ export default function OrderSuccessPage() {
           </div>
 
           {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
             Order Placed Successfully!
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base max-w-md mb-8">
@@ -83,12 +83,12 @@ export default function OrderSuccessPage() {
           </p>
 
           {/* Order ID Card */}
-          <div className="w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm mb-8">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+          <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm mb-8">
+            <p className="text-sm text-muted-foreground mb-2">
               Your Order ID
             </p>
             <div className="flex items-center justify-center gap-3">
-              <span className="text-2xl font-bold tracking-wide text-gray-900 dark:text-gray-100 font-mono">
+              <span className="text-2xl font-bold tracking-wide text-foreground font-mono">
                 {orderId}
               </span>
               <button
@@ -98,7 +98,7 @@ export default function OrderSuccessPage() {
                   "flex items-center justify-center size-9 rounded-lg border transition-all duration-200",
                   copied
                     ? "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/30 text-green-600 dark:text-green-400"
-                    : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
+                    : "border-border bg-muted text-foreground/80 hover:bg-card hover:border-accent/50",
                 )}
                 aria-label="Copy order ID"
               >
@@ -112,7 +112,7 @@ export default function OrderSuccessPage() {
 
             <Separator className="my-4" />
 
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <IconPhone className="size-4" />
               <span>We&apos;ll call you before delivery</span>
             </div>
@@ -138,7 +138,7 @@ export default function OrderSuccessPage() {
             <Button
               asChild
               size="lg"
-              className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
+              className="w-full bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-md hover:shadow-lg transition-all"
             >
               <Link href="/">
                 <IconShoppingBag className="size-5" />

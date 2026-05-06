@@ -12,7 +12,7 @@ interface CategorySectionProps {
 
 const CategoryCard = ({ category }: { category: Category }) => (
   <Link href={`/category/${category.slug}`} className="group block">
-    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white/90 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/95 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
       <div className="relative aspect-square overflow-hidden bg-muted">
         {category.image_url ? (
           <Image
@@ -23,10 +23,10 @@ const CategoryCard = ({ category }: { category: Category }) => (
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-rose-50 to-fuchsia-50">
-            <div className="rounded-full bg-linear-to-br from-rose-100 to-fuchsia-100 p-4">
+          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-muted to-card">
+            <div className="rounded-full bg-linear-to-br from-card to-muted p-4">
               <svg
-                className="h-12 w-12 text-rose-400"
+                className="h-12 w-12 text-accent"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ const CategoryCard = ({ category }: { category: Category }) => (
         )}
       </div>
 
-      <div className="bg-linear-to-b from-white to-rose-50/60 p-3 text-center lg:p-4">
+      <div className="bg-linear-to-b from-card to-muted/50 p-3 text-center lg:p-4">
         <h3 className="line-clamp-2 text-xs font-semibold text-foreground transition-colors duration-300 group-hover:text-primary sm:text-sm md:text-base">
           {category.name}
         </h3>

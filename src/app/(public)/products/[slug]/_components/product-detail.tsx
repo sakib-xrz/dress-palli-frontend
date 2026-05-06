@@ -225,14 +225,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 product.is_best_selling) && (
                 <div className="flex flex-wrap gap-1.5">
                   {product.is_new && (
-                    <Badge className="bg-linear-to-r from-pink-500 to-purple-500 border-0 text-white text-[10px] sm:text-xs px-2 py-0.5 shadow-sm">
+                    <Badge className="bg-linear-to-r from-primary to-accent border-0 text-primary-foreground text-[10px] sm:text-xs px-2 py-0.5 shadow-sm">
                       New Arrival
                     </Badge>
                   )}
                   {product.is_featured && (
                     <Badge
                       variant="outline"
-                      className="border-pink-300 text-pink-600 text-[10px] sm:text-xs px-2 py-0.5"
+                      className="border-primary/40 text-accent text-[10px] sm:text-xs px-2 py-0.5"
                     >
                       Featured
                     </Badge>
@@ -240,7 +240,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   {product.is_best_selling && (
                     <Badge
                       variant="outline"
-                      className="border-purple-300 text-purple-600 text-[10px] sm:text-xs px-2 py-0.5"
+                      className="border-accent/40 text-accent text-[10px] sm:text-xs px-2 py-0.5"
                     >
                       Best Selling
                     </Badge>
@@ -249,7 +249,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               )}
 
               {/* Name */}
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-snug">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-snug">
                 {product.name}
               </h1>
 
@@ -268,15 +268,15 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             {/* Price Block */}
             <div>
               <div className="flex items-baseline gap-2.5 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <span className="text-2xl sm:text-3xl font-bold text-foreground">
                   BDT {product.effective_price.toLocaleString()}
                 </span>
                 {hasDiscount && (
                   <>
-                    <span className="text-base sm:text-lg text-gray-400 line-through">
+                    <span className="text-base sm:text-lg text-muted-foreground line-through">
                       BDT {product.sell_price.toLocaleString()}
                     </span>
-                    <Badge className="bg-red-500 text-white border-0 text-[10px] sm:text-xs px-2 py-0.5">
+                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] sm:text-xs px-2 py-0.5">
                       {product.discount}
                       {product.discount_type === "PERCENTAGE"
                         ? "%"
@@ -287,7 +287,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 )}
               </div>
               {hasDiscount && (
-                <p className="text-xs text-green-600 font-medium mt-1.5">
+                <p className="text-xs text-accent font-medium mt-1.5">
                   You save{" "}
                   {(
                     product.sell_price - product.effective_price
@@ -299,8 +299,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
             {/* Out of Stock */}
             {outOfStock && (
-              <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
-                <p className="text-sm font-medium text-red-700">
+              <div className="rounded-xl bg-destructive/12 border border-destructive/40 px-4 py-3">
+                <p className="text-sm font-medium text-destructive">
                   This product is currently out of stock.
                 </p>
               </div>
@@ -313,7 +313,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 {hasSizeVariant && (
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-gray-800">
+                      <h4 className="text-sm font-semibold text-foreground">
                         Size <span className="text-destructive">*</span>
                       </h4>
                       {selectedVariant && (
@@ -340,18 +340,18 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                             }
                             disabled={isOutOfStock}
                             className={cn(
-                              "relative min-w-[2.75rem] h-10 px-3.5 rounded-lg text-sm font-semibold border-2 transition-all duration-150",
+                              "relative min-w-11 h-10 px-3.5 rounded-lg text-sm font-semibold border-2 transition-all duration-150",
                               isSelected
-                                ? "bg-primary text-white border-primary shadow-sm"
-                                : "bg-white text-gray-700 border-gray-200 hover:border-gray-400",
+                                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                : "bg-card text-foreground border-border hover:border-accent",
                               isOutOfStock &&
-                                "opacity-40 cursor-not-allowed bg-gray-50 text-gray-400 border-gray-200",
+                                "opacity-40 cursor-not-allowed bg-muted text-muted-foreground border-border",
                             )}
                           >
                             {variant.size_name}
                             {isOutOfStock && (
                               <span className="absolute inset-0 flex items-center justify-center">
-                                <span className="block w-[120%] h-px bg-gray-400 rotate-[-20deg]" />
+                                <span className="block w-[120%] h-px bg-muted-foreground rotate-[-20deg]" />
                               </span>
                             )}
                           </button>
@@ -363,16 +363,16 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
                 {/* Quantity */}
                 <div className="space-y-2.5">
-                  <h4 className="text-sm font-semibold text-gray-800">
+                  <h4 className="text-sm font-semibold text-foreground">
                     Quantity
                   </h4>
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                    <div className="inline-flex items-center border border-border rounded-lg overflow-hidden bg-card">
                       <button
                         type="button"
                         onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                         disabled={!canDecrement}
-                        className="h-10 w-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 transition-colors text-lg font-medium"
+                        className="h-10 w-10 flex items-center justify-center bg-muted hover:bg-muted/80 active:bg-muted/70 disabled:opacity-40 disabled:cursor-not-allowed text-foreground transition-colors text-lg font-medium"
                       >
                         −
                       </button>
@@ -382,7 +382,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                         min={1}
                         max={maxQuantity}
                         value={quantity}
-                        className="w-12 h-10 text-center border-0 border-x border-gray-200 rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default font-semibold text-sm bg-white"
+                        className="w-12 h-10 text-center border-0 border-x border-border rounded-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-default font-semibold text-sm bg-card"
                       />
                       <button
                         type="button"
@@ -390,7 +390,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                           setQuantity((q) => Math.min(maxQuantity, q + 1))
                         }
                         disabled={!canIncrement}
-                        className="h-10 w-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 transition-colors text-lg font-medium"
+                        className="h-10 w-10 flex items-center justify-center bg-muted hover:bg-muted/80 active:bg-muted/70 disabled:opacity-40 disabled:cursor-not-allowed text-foreground transition-colors text-lg font-medium"
                       >
                         +
                       </button>
@@ -417,7 +417,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   <Button
                     size="lg"
                     onClick={handleBuyNow}
-                    className="flex-1 h-12 text-sm sm:text-base font-semibold bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-sm"
+                    className="flex-1 h-12 text-sm sm:text-base font-semibold bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-sm"
                   >
                     <IconShoppingBag className="size-[18px]" />
                     Buy Now
@@ -433,7 +433,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
               <a
                 href={`tel:${phone}`}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-green-600 px-4 py-3 text-white shadow-sm transition-colors hover:bg-green-700 active:bg-green-800"
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-secondary px-4 py-3 text-secondary-foreground shadow-sm transition-colors hover:bg-secondary/90 active:bg-secondary/85"
               >
                 <IconPhoneCall className="size-[18px] shrink-0" />
                 <span className="text-sm font-bold tracking-wide">
@@ -446,7 +446,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   type="button"
                   variant="outline"
                   onClick={handleWhatsAppMessage}
-                  className="h-10 gap-1.5 text-xs font-semibold border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 active:bg-green-100"
+                  className="h-10 gap-1.5 text-xs font-semibold border-border text-foreground hover:bg-muted hover:text-accent"
                 >
                   <IconBrandWhatsapp className="size-4 shrink-0" />
                   <span className="hidden lg:inline">WhatsApp</span>
@@ -454,7 +454,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 <Button
                   asChild
                   variant="outline"
-                  className="h-10 gap-1.5 text-xs font-semibold border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 active:bg-blue-100"
+                  className="h-10 gap-1.5 text-xs font-semibold border-border text-foreground hover:bg-muted hover:text-accent"
                 >
                   <a
                     href={facebookMessageUrl}
@@ -483,23 +483,23 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 <>
                   <Separator />
                   <div className="space-y-2.5">
-                    <h4 className="text-sm font-semibold text-gray-800">
+                    <h4 className="text-sm font-semibold text-foreground">
                       Product Details
                     </h4>
-                    <div className="rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="rounded-xl border border-border overflow-hidden">
                       {Object.entries(product.attributes).map(
                         ([key, value], index) => (
                           <div
                             key={key}
                             className={cn(
                               "grid grid-cols-[110px_1fr] sm:grid-cols-[150px_1fr] text-sm",
-                              index > 0 && "border-t border-gray-100",
+                              index > 0 && "border-t border-border/70",
                             )}
                           >
-                            <span className="px-3.5 py-2.5 bg-gray-50/80 font-medium text-gray-600 capitalize text-xs sm:text-sm">
+                            <span className="px-3.5 py-2.5 bg-muted/70 font-medium text-muted-foreground capitalize text-xs sm:text-sm">
                               {key.replace(/_/g, " ")}
                             </span>
-                            <span className="px-3.5 py-2.5 text-gray-800 text-xs sm:text-sm">
+                            <span className="px-3.5 py-2.5 text-foreground text-xs sm:text-sm">
                               {value}
                             </span>
                           </div>
@@ -515,13 +515,13 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         {/* Description */}
         {product.description && (
           <div className="mt-8 sm:mt-12 lg:mt-16">
-            <div className="border-b border-gray-200 pb-3 mb-6">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+            <div className="border-b border-border pb-3 mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">
                 Description
               </h2>
             </div>
             <div
-              className="product-description max-w-4xl text-gray-900!"
+              className="product-description max-w-4xl"
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           </div>
@@ -544,7 +544,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               <Button
                 size="lg"
                 onClick={handleMobileBuyNow}
-                className="flex-1 h-11 text-sm font-semibold bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+                className="flex-1 h-11 text-sm font-semibold bg-linear-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
               >
                 <IconShoppingBag className="size-[18px]" />
                 Buy Now

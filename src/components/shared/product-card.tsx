@@ -128,17 +128,17 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     <div className="flex flex-col gap-4 justify-between h-full">
       <div>
         {/* Product name */}
-        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg font-bold text-foreground">
           {product.name}
         </h2>
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mt-2">
-          <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <span className="text-3xl font-bold text-foreground">
             BDT {product.effective_price.toLocaleString()}
           </span>
           {hasDiscount && (
-            <span className="text-lg text-gray-500 line-through">
+            <span className="text-lg text-muted-foreground line-through">
               BDT {product.sell_price.toLocaleString()}
             </span>
           )}
@@ -149,7 +149,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         {/* Size variant selection */}
         {hasSizeVariant && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <h4 className="text-sm font-medium text-foreground/85">
               Select Size <span className="text-destructive">*</span>
             </h4>
             {showSizeValidationError && (
@@ -186,7 +186,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
         {/* Quantity & Stock row */}
         <div className="flex items-start gap-2 flex-col">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <h4 className="text-sm font-medium text-foreground/85">
             Select Quantity <span className="text-destructive">*</span>
           </h4>
           <div className="flex items-center gap-2">
@@ -195,7 +195,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 disabled={!canDecrement}
-                className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                className="h-9 w-9 flex items-center justify-center bg-muted hover:bg-accent/25 disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
               >
                 −
               </button>
@@ -216,13 +216,13 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 type="button"
                 onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
                 disabled={!canIncrement}
-                className="h-9 w-9 flex items-center justify-center bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
+                className="h-9 w-9 flex items-center justify-center bg-muted hover:bg-accent/25 disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
               >
                 +
               </button>
             </div>
             {selectedVariant && (
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-muted-foreground">
                 {availableStock} available
               </span>
             )}
@@ -266,10 +266,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           className,
         )}
       >
-        <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-white/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card/95 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
             {hasDiscount && (
-              <span className="inline-flex items-center rounded-md bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white shadow-md">
+              <span className="inline-flex items-center rounded-md bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground shadow-md">
                 {product.discount}
                 {}
                 {product.discount_type === "PERCENTAGE" ? "%" : " BDT"} OFF
@@ -354,7 +354,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                     e.preventDefault();
                     handleOpenDialogOrModal("cart");
                   }}
-                  className="flex-1 rounded-lg border-border/80 bg-white hover:bg-rose-50"
+                  className="flex-1 rounded-lg border-border/80 bg-card hover:bg-muted"
                   size="sm"
                 >
                   <IconShoppingCart className="w-3.5 h-3.5 block sm:hidden xl:block" />
