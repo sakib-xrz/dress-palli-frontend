@@ -290,7 +290,7 @@ export default function Carousel<T>({
             }}
             disabled={!loop && currentSlide === 0}
             className={cn(
-              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
+              "absolute lg:left-4 left-2 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-card text-foreground rounded-full border border-border/70 lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
               !loop && currentSlide === 0 && "hidden",
             )}
             aria-label={ariaLabelPrevious}
@@ -317,7 +317,7 @@ export default function Carousel<T>({
             }}
             disabled={!loop && currentSlide >= totalSlides - 1}
             className={cn(
-              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-pink-100 dark:bg-gray-800/80 dark:hover:bg-pink-900/20 text-foreground rounded-full lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
+              "absolute lg:right-4 right-2 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-card text-foreground rounded-full border border-border/70 lg:p-2 p-1.5 shadow-lg transition-all duration-200 z-30 disabled:opacity-50 disabled:cursor-not-allowed hidden lg:block",
               !loop && currentSlide >= totalSlides - 1 && "hidden",
             )}
             aria-label={ariaLabelNext}
@@ -349,8 +349,8 @@ export default function Carousel<T>({
               className={cn(
                 "h-2 rounded-full transition-all duration-200",
                 index === realSlideIndex
-                  ? "bg-pink-600 dark:bg-pink-500 lg:w-8 w-5"
-                  : "bg-gray-300 dark:bg-gray-700 lg:w-3 w-2 hover:bg-pink-400 dark:hover:bg-pink-600",
+                  ? "bg-primary lg:w-8 w-5"
+                  : "bg-border lg:w-3 w-2 hover:bg-accent",
               )}
               aria-label={ariaLabelDot(index)}
             />

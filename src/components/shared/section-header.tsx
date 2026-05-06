@@ -46,7 +46,7 @@ export default function SectionHeader({
             titleClassName,
           )}
         >
-          <span className="bg-linear-to-r from-fuchsia-700 via-rose-500 to-fuchsia-700 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
             {title}
           </span>
 
