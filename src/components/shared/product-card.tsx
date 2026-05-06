@@ -266,11 +266,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           className,
         )}
       >
-        <article className="relative h-full flex flex-col bg-background border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-gray-300 dark:hover:border-gray-700">
-          {/* Badges */}
+        <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-white/90 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
             {hasDiscount && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-500 text-white shadow-md">
+              <span className="inline-flex items-center rounded-md bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white shadow-md">
                 {product.discount}
                 {}
                 {product.discount_type === "PERCENTAGE" ? "%" : " BDT"} OFF
@@ -278,11 +277,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             )}
           </div>
 
-          {/* Out of Stock Overlay - covers entire card */}
           {outOfStock && (
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center z-30">
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/15 backdrop-blur-[2px]">
               <div className="text-center w-full">
-                <div className="bg-black/50 px-4 py-2 w-full">
+                <div className="w-full bg-black/55 px-4 py-2">
                   <p className="text-sm font-semibold text-white">
                     Out of Stock
                   </p>
@@ -291,11 +289,9 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </div>
           )}
 
-          {/* Image Container */}
-          <div className="relative aspect-3/4 overflow-hidden bg-gray-50 dark:bg-gray-900">
+          <div className="relative aspect-3/4 overflow-hidden bg-muted">
             {primaryImage ? (
               <>
-                {/* Primary Image */}
                 <Image
                   src={primaryImage}
                   alt={product.primary_image?.alt_text || product.name}
@@ -311,9 +307,9 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 />
               </>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+              <div className="absolute inset-0 flex items-center justify-center bg-muted">
                 <svg
-                  className="w-12 h-12 text-gray-300 dark:text-gray-600"
+                  className="h-12 w-12 text-muted-foreground/60"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -328,28 +324,24 @@ export default function ProductCard({ product, className }: ProductCardProps) {
               </div>
             )}
 
-            {/* Subtle Gradient Overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
 
-          {/* Product Details */}
-          <div className="flex-1 flex flex-col lg:p-3.5 p-2">
-            {/* Name */}
+          <div className="flex flex-1 flex-col p-2.5 lg:p-3.5">
             <h3
               title={product.name}
-              className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1 leading-snug group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors"
+              className="line-clamp-1 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-primary"
             >
               {product.name}
             </h3>
 
-            {/* Price & Stock */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-baseline mb-2 flex-col sm:flex-row sm:gap-2">
-                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                <span className="whitespace-nowrap text-lg font-semibold text-foreground">
                   BDT {product.effective_price.toLocaleString()}
                 </span>
                 {hasDiscount && (
-                  <span className="text-sm font-medium text-gray-400 dark:text-gray-500 line-through hidden sm:block">
+                  <span className="hidden text-sm font-medium text-muted-foreground/80 line-through sm:block">
                     BDT {product.sell_price.toLocaleString()}
                   </span>
                 )}
@@ -362,19 +354,19 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                     e.preventDefault();
                     handleOpenDialogOrModal("cart");
                   }}
-                  className="flex-1"
+                  className="flex-1 rounded-lg border-border/80 bg-white hover:bg-rose-50"
                   size="sm"
                 >
                   <IconShoppingCart className="w-3.5 h-3.5 block sm:hidden xl:block" />
                   <span className="hidden sm:block">Add to Cart</span>
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="default"
                   onClick={(e) => {
                     e.preventDefault();
                     handleOpenDialogOrModal("buy");
                   }}
-                  className="flex-1"
+                  className="flex-1 rounded-lg"
                   size="sm"
                 >
                   <IconShoppingBag className="w-3.5 h-3.5 block sm:hidden xl:block" />
@@ -386,15 +378,13 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         </article>
       </Link>
 
-      {/* Dialog for desktop (md and up) - two-column layout */}
       {isDesktop ? (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-          <DialogContent className="sm:max-w-[600px] p-0 gap-0 overflow-hidden">
+          <DialogContent className="gap-0 overflow-hidden border-border/80 p-0 sm:max-w-[620px]">
             <DialogTitle className="sr-only">{product.name}</DialogTitle>
             <div className="flex flex-col sm:flex-row">
-              {/* Single product image - no gallery */}
               {primaryImage ? (
-                <div className="relative w-full sm:w-56 aspect-square sm:aspect-auto sm:min-h-[340px] bg-gray-50 dark:bg-gray-900 shrink-0">
+                <div className="relative aspect-square w-full shrink-0 bg-muted sm:min-h-[340px] sm:w-56 sm:aspect-auto">
                   <Image
                     src={primaryImage}
                     alt={product.name}
@@ -403,10 +393,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                   />
                 </div>
               ) : (
-                <div className="relative w-full sm:w-56 aspect-square sm:aspect-auto sm:min-h-[340px] bg-gray-50 dark:bg-gray-900 shrink-0">
+                <div className="relative aspect-square w-full shrink-0 bg-muted sm:min-h-[340px] sm:w-56 sm:aspect-auto">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <svg
-                      className="w-12 h-12 text-gray-300 dark:text-gray-600"
+                      className="h-12 w-12 text-muted-foreground/60"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -421,7 +411,6 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                   </div>
                 </div>
               )}
-              {/* Product details */}
               <div className="flex-1 p-4 sm:p-5 flex flex-col">
                 {renderDialogContent()}
               </div>
@@ -429,7 +418,6 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           </DialogContent>
         </Dialog>
       ) : (
-        /* Sheet for mobile - stacked layout */
         <Sheet open={isOpen} onOpenChange={handleOpenChange}>
           <SheetContent
             side="bottom"

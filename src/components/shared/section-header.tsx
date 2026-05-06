@@ -33,43 +33,40 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "mb-4 md:mb-8 flex flex-col relative overflow-hidden",
+        "relative mb-6 flex flex-col overflow-hidden md:mb-9",
         alignmentClasses[align],
         animated && "animate-in fade-in-0 slide-in-from-bottom-4 duration-500",
         className,
       )}
     >
       <div className="relative">
-        {/* Title with Gradient */}
         <h2
           className={cn(
-            "text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 relative inline-block",
+            "relative mb-3 inline-block text-2xl font-semibold tracking-tight md:mb-4 md:text-3xl lg:text-4xl",
             titleClassName,
           )}
         >
-          <span className="bg-linear-to-r from-pink-600 via-purple-600 to-pink-600 bg-clip-text text-transparent bg-size-[200%_auto] animate-gradient">
+          <span className="bg-linear-to-r from-fuchsia-700 via-rose-500 to-fuchsia-700 bg-clip-text text-transparent">
             {title}
           </span>
 
-          {/* Decorative underline */}
           {showDecorator && (
             <span
               className={cn(
-                "absolute -bottom-[35%] left-0 right-0 h-1 bg-linear-to-r from-transparent via-pink-500 to-transparent rounded-full opacity-60",
-                align === "center" && "left-1/4 right-1/4",
-                align === "right" && "left-1/2",
+                "absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-linear-to-r from-transparent via-primary/70 to-transparent",
+                align === "center" && "left-1/5 right-1/5",
+                align === "right" && "left-2/5",
               )}
             />
           )}
         </h2>
       </div>
 
-      {/* Description */}
       {description && (
         <p
           className={cn(
-            "text-muted-foreground text-sm md:text-base lg:text-lg leading-relaxed pt-1",
-            align === "center" && "max-w-2xl mx-auto",
+            "pt-1 text-sm leading-relaxed text-muted-foreground md:text-base",
+            align === "center" && "mx-auto max-w-2xl",
             align === "right" && "max-w-2xl ml-auto",
             align === "left" && "max-w-2xl",
             descriptionClassName,
@@ -79,7 +76,6 @@ export default function SectionHeader({
         </p>
       )}
 
-      {/* Optional children for custom content */}
       {children && <div className="mt-2">{children}</div>}
     </div>
   );

@@ -7,7 +7,6 @@ import {
   IconPhoneCall,
   IconBrandFacebook,
   IconBrandInstagram,
-  IconHeart,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { useGlobalSettings } from "@/contexts/settings-context";
@@ -44,16 +43,14 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t border-border">
-      {/* Main Footer Content */}
-      <div className="bg-muted/30">
+    <footer className="border-t border-border/80">
+      <div className="bg-linear-to-b from-transparent via-white/65 to-white/90">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8">
-          {/* Brand Section */}
           <div className="grid content-start gap-4">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="text-foreground grid w-fit auto-cols-max grid-flow-col items-center gap-3 group"
+                className="group grid w-fit auto-cols-max grid-flow-col items-center gap-3 text-foreground"
               >
                 {logo ? (
                   <Image
@@ -64,22 +61,21 @@ export default function Footer() {
                     className="aspect-square size-14 rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="bg-linear-to-br from-pink-500 to-purple-600 text-white grid size-14 place-items-center rounded-xl text-lg font-bold shadow-lg transition-transform duration-300 group-hover:scale-105">
+                  <div className="grid size-14 place-items-center rounded-xl bg-linear-to-br from-rose-500 to-fuchsia-600 text-lg font-bold text-white shadow-lg transition-transform duration-300 group-hover:scale-105">
                     {brandName.charAt(0)}
                   </div>
                 )}
               </Link>
-              <div className="text-2xl font-bold tracking-tight bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              <div className="bg-linear-to-r from-rose-600 to-fuchsia-700 bg-clip-text text-2xl font-bold tracking-tight text-transparent">
                 {brandName}
               </div>
             </div>
             <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-              Your trusted destination for fashionable and quality outfits.
-              Explore elegant collections for every season and occasion.
+              Curated fashion for everyday elegance. Discover modern silhouettes,
+              festive styles, and signature looks delivered with care.
             </p>
           </div>
 
-          {/* Quick Links */}
           <div className="grid content-start gap-4">
             <h3 className="text-foreground text-sm font-bold tracking-wide uppercase">
               Quick Links
@@ -89,7 +85,7 @@ export default function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-muted-foreground hover:text-pink-600 dark:hover:text-pink-400 w-fit text-sm transition-colors duration-200 hover:translate-x-1 inline-block"
+                  className="inline-block w-fit text-sm text-muted-foreground transition-all duration-200 hover:translate-x-1 hover:text-primary"
                 >
                   {link.label}
                 </Link>
@@ -97,25 +93,6 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* About */}
-          {/* <div className="grid content-start gap-4">
-            <h3 className="text-foreground text-sm font-bold tracking-wide uppercase">
-              About
-            </h3>
-            <nav className="grid gap-2.5 mb-4" aria-label="About links">
-              {aboutLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-pink-600 dark:hover:text-pink-400 w-fit text-sm transition-colors duration-200 hover:translate-x-1 inline-block"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div> */}
-
-          {/* Contact */}
           <div>
             <h4 className="text-foreground text-sm font-bold mb-3">
               Contact Us
@@ -126,7 +103,7 @@ export default function Footer() {
                   variant="outline"
                   size="icon-sm"
                   asChild
-                  className="hover:bg-pink-100 dark:hover:bg-pink-900/20 transition-colors"
+                  className="transition-colors hover:bg-rose-100"
                 >
                   <a
                     href={`tel:${phone.replace(/\s+/g, "")}`}
@@ -137,7 +114,7 @@ export default function Footer() {
                 </Button>
                 <a
                   href={`tel:${phone.replace(/\s+/g, "")}`}
-                  className="text-sm hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
+                  className="text-sm transition-colors hover:text-primary"
                 >
                   {phone}
                 </a>
@@ -147,7 +124,7 @@ export default function Footer() {
                   variant="outline"
                   size="icon-sm"
                   asChild
-                  className="hover:bg-pink-100 dark:hover:bg-pink-900/20 transition-colors"
+                  className="transition-colors hover:bg-rose-100"
                 >
                   <a href={`mailto:${email}`} aria-label="Email us">
                     <IconMail className="size-4" />
@@ -155,7 +132,7 @@ export default function Footer() {
                 </Button>
                 <a
                   href={`mailto:${email}`}
-                  className="text-sm hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
+                  className="text-sm transition-colors hover:text-primary"
                 >
                   {email}
                 </a>
@@ -163,7 +140,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Social Links */}
           <div className="space-y-3">
             <p className="text-sm font-semibold text-foreground">Follow Us</p>
             <div className="flex flex-wrap gap-2">
@@ -175,7 +151,7 @@ export default function Footer() {
                     variant="outline"
                     size="icon"
                     asChild
-                    className={`transition-all duration-200 ${social.color}`}
+                    className={`rounded-xl transition-all duration-200 ${social.color}`}
                   >
                     <a
                       href={social.href}
@@ -193,42 +169,14 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-border bg-background">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-center sm:flex-row sm:text-left">
-          <p className="text-muted-foreground text-xs flex items-center gap-1.5">
-            <span>
-              © {currentYear} {brandName}.
-            </span>
-            <span className="hidden sm:inline">All rights reserved.</span>
-            <span className="inline sm:hidden">Made with</span>
-            <IconHeart className="size-3 text-pink-500 fill-pink-500 inline sm:hidden" />
+      <div className="border-t border-border/80 bg-white/85">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-center sm:flex-row sm:text-left">
+          <p className="text-xs text-muted-foreground">
+            © {currentYear} {brandName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-xs">
-            <p className="text-muted-foreground hidden sm:block">
-              Crafted with{" "}
-              <IconHeart className="size-3 text-pink-500 fill-pink-500 inline" />{" "}
-              by{" "}
-              <Link
-                href="https://sakib-info.vercel.app"
-                className="text-pink-600 dark:text-pink-400 hover:underline font-medium transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                MD Sakibul Islam
-              </Link>
-            </p>
-            <p className="text-muted-foreground sm:hidden">
-              <Link
-                href="https://sakib-info.vercel.app"
-                className="text-pink-600 dark:text-pink-400 hover:underline font-medium"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                MD Sakibul Islam
-              </Link>
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Secure payments • Quality guaranteed • Customer-first support
+          </p>
         </div>
       </div>
     </footer>

@@ -58,10 +58,9 @@ export default function FeaturedCategorySection({
     : null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 lg:space-y-20 space-y-8">
-      {/* Banner */}
+    <div className="mx-auto w-full max-w-7xl space-y-10 px-4 md:space-y-14 lg:space-y-16">
       {banner_url && (
-        <div className="relative w-full aspect-21/8 rounded-lg overflow-hidden shadow-lg">
+        <div className="relative aspect-21/8 w-full overflow-hidden rounded-2xl border border-border/70 shadow-lg">
           <Image
             src={banner_url}
             alt={title}
@@ -69,10 +68,10 @@ export default function FeaturedCategorySection({
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1280px"
           />
+          <div className="absolute inset-0 bg-linear-to-r from-black/10 via-transparent to-transparent" />
         </div>
       )}
 
-      {/* Section Header + Products */}
       {products.length > 0 && (
         <section>
           <SectionHeader
@@ -86,6 +85,7 @@ export default function FeaturedCategorySection({
             items={products}
             renderItem={(product) => <ProductCard product={product} />}
             itemKey={(product) => product.id}
+            slideClassName="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-5"
             ariaLabelPrevious={`Previous ${title} products`}
             ariaLabelNext={`Next ${title} products`}
             ariaLabelDot={(index) =>
@@ -93,9 +93,8 @@ export default function FeaturedCategorySection({
             }
           />
 
-          {/* View More Button */}
           <div className="flex justify-center mt-6">
-            <Button variant="secondary" asChild>
+            <Button variant="default" asChild className="px-7">
               <Link
                 href={`/category/${category.slug}`}
                 className="flex items-center gap-2"
@@ -107,9 +106,8 @@ export default function FeaturedCategorySection({
         </section>
       )}
 
-      {/* YouTube Video Embed */}
       {embedUrl && (
-        <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border/70 shadow-lg">
           <iframe
             src={embedUrl}
             title={`${title} video`}

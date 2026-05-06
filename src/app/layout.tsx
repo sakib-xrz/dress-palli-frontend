@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Lato, Playfair_Display } from "next/font/google";
+import { IBM_Plex_Mono, Lora, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { getServerPublicSettings } from "@/lib/server/settings";
@@ -11,16 +11,22 @@ import {
 } from "@/components/shared/json-ld-schema";
 import { AnalyticsProvider } from "@/components/shared/analytics";
 
-const lato = Lato({
-  variable: "--font-lato",
+const fontSans = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
-  weight: ["300", "400", "700", "900"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
+const fontSerif = Lora({
+  variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const fontMono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 const SITE_URL = "https://www.dresspalli.com";
@@ -105,13 +111,13 @@ export default async function RootLayout({
   const settings = await getServerPublicSettings();
 
   return (
-    <html lang="en" className="light">
+    <html lang="en">
       <head>
         <OrganizationSchema />
         <WebSiteSchema />
       </head>
       <body
-        className={`${lato.variable} ${playfairDisplay.variable} font-sans antialiased`}
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} font-sans antialiased`}
       >
         <Providers initialSettings={settings}>
           <AnalyticsProvider />

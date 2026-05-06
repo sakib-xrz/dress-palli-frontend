@@ -12,22 +12,21 @@ interface CategorySectionProps {
 
 const CategoryCard = ({ category }: { category: Category }) => (
   <Link href={`/category/${category.slug}`} className="group block">
-    <div className="relative overflow-hidden border border-border bg-background shadow-sm hover:shadow-xl hover:border-pink-200 dark:hover:border-pink-800 transition-all duration-300 transform">
-      {/* Category Image */}
-      <div className="relative aspect-square overflow-hidden bg-muted aspect-square">
+    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-white/90 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+      <div className="relative aspect-square overflow-hidden bg-muted">
         {category.image_url ? (
           <Image
             src={category.image_url}
             alt={category.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out aspect-square"
+            className="aspect-square object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 aspect-square">
-            <div className="bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 p-4 rounded-full aspect-square">
+          <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-rose-50 to-fuchsia-50">
+            <div className="rounded-full bg-linear-to-br from-rose-100 to-fuchsia-100 p-4">
               <svg
-                className="w-12 h-12 text-pink-400 dark:text-pink-600"
+                className="h-12 w-12 text-rose-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -44,9 +43,8 @@ const CategoryCard = ({ category }: { category: Category }) => (
         )}
       </div>
 
-      {/* Category Name */}
-      <div className="p-2 py-3 lg:p-4 text-center bg-linear-to-br from-pink-50/50 to-purple-50/50 transition-all duration-300">
-        <h3 className="font-semibold text-pink-600 transition-colors duration-300 line-clamp-2 text-xs sm:text-sm md:text-base line-clam-1">
+      <div className="bg-linear-to-b from-white to-rose-50/60 p-3 text-center lg:p-4">
+        <h3 className="line-clamp-2 text-xs font-semibold text-foreground transition-colors duration-300 group-hover:text-primary sm:text-sm md:text-base">
           {category.name}
         </h3>
       </div>
@@ -60,22 +58,20 @@ export default function CategorySection({ categories }: CategorySectionProps) {
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <section>
-        {/* Section Header */}
         <SectionHeader
-          title="Category"
+          title="Shop by Category"
           description="Discover our carefully curated collection of premium fashion for every style and occasion"
           align="center"
           showDecorator={true}
           animated={true}
         />
 
-        {/* Categories Carousel */}
         <Carousel
           items={categories}
           renderItem={(category) => <CategoryCard category={category} />}
           itemKey={(category) => category.id}
           itemsPerSlide={{ mobile: 2, tablet: 4, desktop: 4 }}
-          slideClassName="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-2 lg:gap-4"
+          slideClassName="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-3 lg:gap-5"
           ariaLabelPrevious="Previous categories"
           ariaLabelNext="Next categories"
           ariaLabelDot={(index) => `Go to slide ${index + 1}`}

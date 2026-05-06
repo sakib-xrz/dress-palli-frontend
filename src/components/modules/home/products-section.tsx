@@ -21,7 +21,6 @@ export default function ProductsSection({
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
       <section>
-        {/* Section Header */}
         <SectionHeader
           title={title}
           description={description}
@@ -30,11 +29,11 @@ export default function ProductsSection({
           animated={true}
         />
 
-        {/* Products Display - Grid or Carousel */}
         <Carousel<PublicProduct>
           items={products}
           renderItem={(product) => <ProductCard product={product} />}
           itemKey={(product) => product.id}
+          slideClassName="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-5"
           ariaLabelPrevious="Previous products"
           ariaLabelNext="Next products"
           ariaLabelDot={(index) => `Go to product slide ${index + 1}`}

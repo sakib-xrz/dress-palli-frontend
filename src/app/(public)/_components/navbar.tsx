@@ -157,7 +157,7 @@ export default function Navbar({ categories }: NavbarProps) {
           <SheetClose asChild key={node.id}>
             <Link
               href={href}
-              className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/20 dark:hover:to-purple-900/20 grid min-h-9 items-center rounded-md px-3 py-2 text-sm font-medium transition-all duration-200"
+                className="grid min-h-9 items-center rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-all duration-200 hover:bg-rose-50 hover:text-primary"
               style={{ paddingInlineStart: `${depth * 12 + 12}px` }}
             >
               {node.name}
@@ -175,7 +175,7 @@ export default function Navbar({ categories }: NavbarProps) {
             <SheetClose asChild>
               <Link
                 href={href}
-                className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/20 dark:hover:to-purple-900/20 grid min-h-9 items-center rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200"
+                className="grid min-h-9 items-center rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-rose-50 hover:text-primary"
               >
                 {node.name}
               </Link>
@@ -185,7 +185,7 @@ export default function Navbar({ categories }: NavbarProps) {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="size-8 hover:bg-pink-100 dark:hover:bg-pink-900/20 [&[data-state=open]>svg]:rotate-180 transition-all duration-200"
+                className="size-8 transition-all duration-200 hover:bg-rose-100 [&[data-state=open]>svg]:rotate-180"
                 aria-label={`Toggle ${node.name} subcategories`}
               >
                 <IconChevronDown className="size-4 transition-transform duration-300" />
@@ -193,7 +193,7 @@ export default function Navbar({ categories }: NavbarProps) {
             </CollapsibleTrigger>
           </div>
 
-          <CollapsibleContent className="border-pink-200 dark:border-pink-800 ml-3 grid gap-1 border-l-2">
+          <CollapsibleContent className="ml-3 grid gap-1 border-l-2 border-rose-200">
             {renderCategoryNodes(childNodes, currentSlugs, depth + 1)}
           </CollapsibleContent>
         </Collapsible>
@@ -203,16 +203,15 @@ export default function Navbar({ categories }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Main Navbar */}
-      <div className="border-border border-b bg-white">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3.5 md:gap-4 lg:h-[5rem]">
+      <div className="border-b border-border/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 md:gap-4 lg:h-[5rem]">
           <div className="grid grid-flow-col auto-cols-max items-center justify-self-start gap-2">
             <Sheet>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="grid shadow-xs"
+                  className="grid rounded-xl border-border/80 bg-white shadow-xs hover:bg-rose-50"
                   aria-label="Open menu"
                 >
                   <IconMenu2 className="size-4" />
@@ -220,7 +219,7 @@ export default function Navbar({ categories }: NavbarProps) {
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="grid grid-rows-[auto_1fr] gap-0 p-0 w-[85vw] sm:w-[400px]"
+                  className="grid w-[85vw] grid-rows-[auto_1fr] gap-0 p-0 sm:w-[400px]"
               >
                 <SheetHeader className="border-border border-b px-5 py-4.5 lg:py-5">
                   <SheetTitle className="grid grid-cols-[auto_1fr] items-center gap-3">
@@ -233,11 +232,11 @@ export default function Navbar({ categories }: NavbarProps) {
                         className="aspect-square lg:size-10 size-8 object-contain rounded-lg"
                       />
                     ) : (
-                      <div className="bg-linear-to-br from-pink-500 to-purple-500 text-white grid lg:size-10 size-8 place-items-center rounded-lg text-base font-bold shadow-md">
+                      <div className="grid size-8 place-items-center rounded-lg bg-linear-to-br from-rose-500 to-fuchsia-600 text-base font-bold text-white shadow-md lg:size-10">
                         {brandName.charAt(0)}
                       </div>
                     )}
-                    <span className="text-lg lg:text-xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    <span className="bg-linear-to-r from-rose-600 to-fuchsia-700 bg-clip-text text-lg font-bold text-transparent lg:text-xl">
                       {brandName}
                     </span>
                   </SheetTitle>
@@ -248,7 +247,7 @@ export default function Navbar({ categories }: NavbarProps) {
                     <SheetClose asChild>
                       <Link
                         href="/"
-                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                        className="grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-rose-50 hover:text-primary hover:shadow-sm"
                       >
                         <IconHome2 className="size-5" />
                         <span>Home</span>
@@ -257,7 +256,7 @@ export default function Navbar({ categories }: NavbarProps) {
                     <SheetClose asChild>
                       <Link
                         href="/products"
-                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                        className="grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-rose-50 hover:text-primary hover:shadow-sm"
                       >
                         <IconBuildingStore className="size-5" />
                         <span>Shop</span>
@@ -266,7 +265,7 @@ export default function Navbar({ categories }: NavbarProps) {
                     <SheetClose asChild>
                       <Link
                         href="/track-order"
-                        className="text-foreground hover:bg-linear-to-r hover:from-pink-100 hover:to-purple-100 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-sm"
+                        className="grid min-h-10 grid-cols-[auto_1fr] items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-foreground transition-all duration-200 hover:bg-rose-50 hover:text-primary hover:shadow-sm"
                       >
                         <IconPackage className="size-5" />
                         <span>Track Order</span>
@@ -277,11 +276,11 @@ export default function Navbar({ categories }: NavbarProps) {
                   <Separator className="my-1" />
 
                   <div className="space-y-2">
-                    <p className="text-muted-foreground px-2 text-xs font-semibold uppercase tracking-wider">
+                    <p className="px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Shop by Category
                     </p>
                     <nav
-                      className="border-border bg-linear-to-br from-pink-50/50 to-purple-50/50 dark:from-pink-950/10 dark:to-purple-950/10 grid gap-2 rounded-lg border p-3"
+                      className="grid gap-2 rounded-xl border border-border/80 bg-linear-to-br from-rose-50/70 to-fuchsia-50/60 p-3"
                       aria-label="Category menu"
                     >
                       {renderCategoryNodes(categoryTree)}
@@ -300,7 +299,7 @@ export default function Navbar({ categories }: NavbarProps) {
 
           <Link
             href="/"
-            className="text-foreground grid auto-cols-max grid-flow-col items-center justify-self-center gap-2 group"
+            className="group grid auto-cols-max grid-flow-col items-center justify-self-center gap-2 text-foreground"
           >
             {logo ? (
               <div className="relative">
@@ -314,10 +313,10 @@ export default function Navbar({ categories }: NavbarProps) {
               </div>
             ) : (
               <div className="grid items-center gap-1">
-                <div className="bg-linear-to-br from-pink-500 to-purple-600 text-white grid lg:size-12 size-10 place-items-center rounded-xl text-lg lg:text-xl font-bold shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <div className="grid size-10 place-items-center rounded-xl bg-linear-to-br from-rose-500 to-fuchsia-600 text-lg font-bold text-white shadow-lg transition-transform duration-300 group-hover:scale-105 lg:size-12 lg:text-xl">
                   {brandName.charAt(0)}
                 </div>
-                <p className="text-xs font-semibold text-center bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent hidden lg:block">
+                <p className="hidden bg-linear-to-r from-rose-600 to-fuchsia-700 bg-clip-text text-center text-xs font-semibold text-transparent lg:block">
                   Fashion
                 </p>
               </div>
@@ -330,7 +329,7 @@ export default function Navbar({ categories }: NavbarProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative hover:bg-pink-100 dark:hover:bg-pink-900/20 transition-colors duration-200"
+                  className="relative rounded-full transition-colors duration-200 hover:bg-rose-100"
                   aria-label="Open global search"
                 >
                   <IconSearch className="size-5" />
@@ -338,14 +337,14 @@ export default function Navbar({ categories }: NavbarProps) {
               </PopoverTrigger>
               <PopoverContent
                 align="end"
-                className="w-screen sm:w-96 p-4 shadow-xl"
+                className="w-screen border-border/80 bg-white p-4 shadow-xl sm:w-96"
                 sideOffset={12}
                 side="bottom"
               >
                 <div className="grid gap-4">
                   <div className="grid grid-cols-[auto_1fr] items-center gap-3">
-                    <div className="bg-linear-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 p-2 rounded-lg">
-                      <IconSearch className="size-5 text-pink-600 dark:text-pink-400" />
+                    <div className="rounded-lg bg-linear-to-br from-rose-100 to-fuchsia-100 p-2">
+                      <IconSearch className="size-5 text-rose-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Global Search</p>
@@ -358,7 +357,7 @@ export default function Navbar({ categories }: NavbarProps) {
                     placeholder="Search for dresses, sarees..."
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
-                    className="h-11 border-pink-200 dark:border-pink-800 focus-visible:ring-pink-400"
+                    className="h-11 border-border/80 bg-white focus-visible:ring-rose-300"
                     autoFocus
                   />
                   {!trimmedSearchTerm && (
@@ -372,7 +371,7 @@ export default function Navbar({ categories }: NavbarProps) {
                             key={item}
                             variant="secondary"
                             size="sm"
-                            className="justify-start hover:bg-linear-to-r"
+                            className="justify-start hover:bg-rose-50"
                             onClick={() => setSearchTerm(item)}
                           >
                             {item}
@@ -470,7 +469,7 @@ export default function Navbar({ categories }: NavbarProps) {
                                     </p>
                                   </div>
                                   {product.discount > 0 && (
-                                    <span className="bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 rounded px-1.5 py-0.5 text-[10px] font-semibold">
+                                    <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700">
                                       {product.discount}
                                       {product.discount_type === "PERCENTAGE"
                                         ? "%"
@@ -492,13 +491,13 @@ export default function Navbar({ categories }: NavbarProps) {
               asChild
               variant="ghost"
               size="icon"
-              className="relative hover:bg-pink-100 dark:hover:bg-pink-900/20 transition-colors duration-200"
+              className="relative rounded-full transition-colors duration-200 hover:bg-rose-100"
               aria-label="View shopping cart"
             >
               <Link href="/cart">
                 <IconShoppingCart className="size-5" />
                 {cartCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 bg-linear-to-r from-pink-500 to-purple-500 border-0 grid min-w-5 h-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-md">
+                  <Badge className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full border-0 bg-linear-to-r from-rose-500 to-fuchsia-600 px-1 text-[10px] font-bold shadow-md">
                     {cartCount}
                   </Badge>
                 )}

@@ -10,10 +10,10 @@ export default async function PublicLayout({
   const categories = await getServerPublicCategories();
 
   return (
-    <>
+    <div className="relative min-h-screen">
       <Navbar categories={categories} />
-      {children}
+      <main className="relative pb-12 pt-6 md:pt-8">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }
