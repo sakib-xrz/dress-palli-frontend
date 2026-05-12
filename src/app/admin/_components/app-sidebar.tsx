@@ -150,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <div className="p-2">
               <Link href="/">
-                <span className="text-base font-semibold">Dress Palli</span>
+                <span className="text-base font-semibold">Dress Point</span>
               </Link>
             </div>
           </SidebarMenuItem>

@@ -29,18 +29,18 @@ const fontMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
-const SITE_URL = "https://www.dresspalli.com";
+const SITE_URL = "https://www.demo.dresspalli.com";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getServerPublicSettings();
 
-  const title = settings?.title || "Dress Palli";
+  const title = settings?.title || "Dress Point";
   const description =
     settings?.description ||
-    "Dress Palli is an online platform for buying and selling dresses for all occasions. Explore elegant collections for every season.";
+    "Dress Point is an online platform for buying and selling dresses for all occasions. Explore elegant collections for every season.";
   const keywords =
     settings?.keywords ||
-    "dress, palli, fashion, online shopping, women clothing, saree, three piece, bangladeshi fashion";
+    "dress, point, fashion, online shopping, women clothing, saree, three piece, bangladeshi fashion";
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -79,7 +79,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       images: ["/twitter-image"],
-      creator: "@dresspalli",
+      creator: "@dresspoint",
     },
     robots: {
       index: true,

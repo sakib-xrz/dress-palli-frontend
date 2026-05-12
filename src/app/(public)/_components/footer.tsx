@@ -19,9 +19,9 @@ const quickLinks = [
 
 export default function Footer() {
   const { settings } = useGlobalSettings();
-  const brandName = settings?.title ?? "Dress Palli";
+  const brandName = settings?.title ?? "Dress Point";
   const logo = settings?.logo ?? "";
-  const email = settings?.email ?? "support@dresspalli.com";
+  const email = settings?.email ?? "support@dresspoint.com";
   const phone = settings?.phone ?? "+880 1000-000000";
   const currentYear = new Date().getFullYear();
   const facebookUrl = settings?.facebook ?? null;

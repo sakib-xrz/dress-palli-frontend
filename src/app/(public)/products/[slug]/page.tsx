@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getServerProductBySlug } from "@/lib/server/products";
 import ProductDetail from "./_components/product-detail";
 
-const SITE_URL = "https://www.dresspalli.com";
+const SITE_URL = "https://www.demo.dresspalli.com";
 
 function stripHtml(html: string): string {
   return html
@@ -48,7 +48,7 @@ export default async function ProductDetailPage({
     },
     brand: {
       "@type": "Brand",
-      name: "Dress Palli",
+      name: "Dress Point",
     },
   };
 

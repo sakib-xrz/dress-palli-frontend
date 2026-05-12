@@ -71,8 +71,8 @@ type CategoryTreeNode = {
 
 export default function Navbar({ categories }: NavbarProps) {
   const { settings } = useGlobalSettings();
-  const brandName = settings?.title ?? "Dress Palli";
-  const logo = settings?.logo ?? "";
+  const brandName = settings?.title ?? "Dress Point";
+  const logo = settings?.logo ?? "/logo.png";
   const cartCount = useCartCount();
   const categoryTree = categories as CategoryTreeNode[];
   const [isSearchOpen, setIsSearchOpen] = useState(false);

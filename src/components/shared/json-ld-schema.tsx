@@ -1,6 +1,6 @@
 import { getServerPublicSettings } from "@/lib/server/settings";
 
-const SITE_URL = "https://www.dresspalli.com";
+const SITE_URL = "https://www.demo.dresspalli.com";
 
 export async function OrganizationSchema() {
   const settings = await getServerPublicSettings();
@@ -39,10 +39,10 @@ export async function WebSiteSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: settings?.title || "Dress Palli",
+    name: settings?.title || "Dress Point",
     description:
       settings?.description ||
-      "Dress Palli is an online platform for buying and selling dresses for all occasions",
+      "Dress Point is an online platform for buying and selling dresses for all occasions",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",

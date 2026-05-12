@@ -26,7 +26,7 @@ export async function generateMetadata({
 
   const plainDescription = product.description
     ? stripHtml(product.description).slice(0, 160)
-    : `Buy ${product.name} at the best price from Dress Palli.`;
+    : `Buy ${product.name} at the best price from Dress Point.`;
 
   const ogImages = product.images.map((img) => ({
     url: img.url,
@@ -41,7 +41,7 @@ export async function generateMetadata({
     keywords: [
       product.name,
       product.category.name,
-      "Dress Palli",
+      "Dress Point",
       "buy online",
       "fashion",
       "clothing",
@@ -51,7 +51,7 @@ export async function generateMetadata({
       description: plainDescription,
       type: "website",
       images: ogImages,
-      siteName: "Dress Palli",
+      siteName: "Dress Point",
       url: `/products/${product.slug}`,
     },
     twitter: {

@@ -5,7 +5,7 @@ import { getServerPublicCategories } from "@/lib/server/categories";
 import type { PaginatedResponse, PublicProduct } from "@/lib/type";
 import ProductsListing from "./_components/products-listing";
 
-const SITE_URL = "https://www.dresspalli.com";
+const SITE_URL = "https://www.demo.dresspalli.com";
 
 // ── Constants ───────────────────────────────────────────────
 
@@ -85,8 +85,8 @@ export async function generateMetadata({
   const title = search ? `Search: "${search}"` : "Shop All Products";
 
   const description = search
-    ? `Browse products matching "${search}" at Dress Palli. Find the best deals on dresses, kurtis, three-pieces, and more.`
-    : "Explore our complete collection of dresses, kurtis, three-pieces, lehengas, and more at Dress Palli. Quality fashion at the best prices.";
+    ? `Browse products matching "${search}" at Dress Point. Find the best deals on dresses, kurtis, three-pieces, and more.`
+    : "Explore our complete collection of dresses, kurtis, three-pieces, lehengas, and more at Dress Point. Quality fashion at the best prices.";
 
   return {
     title,
@@ -133,7 +133,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: params.search ? `Search: "${params.search}"` : "All Products",
-    description: "Browse our complete product collection at Dress Palli.",
+    description: "Browse our complete product collection at Dress Point.",
     url: `${SITE_URL}/products`,
     mainEntity: {
       "@type": "ItemList",

@@ -8,4 +8,4 @@
  * For server-only constants (backend URL, cookie config), see lib/auth.ts.
  */
 
-export const APP_NAME = "Dress Palli";
+export const APP_NAME = "Dress Point";

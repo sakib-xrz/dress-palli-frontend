@@ -6,7 +6,7 @@ import { getServerPublicCategories } from "@/lib/server/categories";
 import type { Category, PaginatedResponse, PublicProduct } from "@/lib/type";
 import ProductsListing from "../../products/_components/products-listing";
 
-const SITE_URL = "https://www.dresspalli.com";
+const SITE_URL = "https://www.demo.dresspalli.com";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -109,8 +109,8 @@ export async function generateMetadata({
     : `${category?.name || "Category"}`;
 
   const description = search
-    ? `Browse products matching "${search}" in ${category?.name || "this category"} at Dress Palli.`
-    : `Explore products in ${category?.name || "this category"} at Dress Palli.`;
+    ? `Browse products matching "${search}" in ${category?.name || "this category"} at Dress Point.`
+    : `Explore products in ${category?.name || "this category"} at Dress Point.`;
 
   return {
     title,
@@ -188,7 +188,7 @@ export default async function CategoryWithProducts({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: matchedCategory.name,
-    description: `Explore products in ${matchedCategory.name} at Dress Palli.`,
+    description: `Explore products in ${matchedCategory.name} at Dress Point.`,
     url: `${SITE_URL}/category/${slug.join("/")}`,
     mainEntity: {
       "@type": "ItemList",
