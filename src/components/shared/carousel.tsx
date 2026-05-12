@@ -101,21 +101,32 @@ export default function Carousel<T>({
   const showCarousel = items.length > itemsPerSlideCount;
   const transitionDuration = 500; // must match Tailwind's duration-500
 
+  const getSlideItems = (slideIndex: number, shouldWrap: boolean): T[] => {
+    const start = slideIndex * itemsPerSlideCount;
+
+    if (!shouldWrap) {
+      return items.slice(start, start + itemsPerSlideCount);
+    }
+
+    return Array.from({ length: itemsPerSlideCount }, (_, offset) => {
+      const itemIndex = (start + offset) % items.length;
+      return items[itemIndex];
+    });
+  };
+
   const buildSlides = (): T[][] => {
     const result: T[][] = [];
 
     if (loop) {
-      const lastStart = (totalSlides - 1) * itemsPerSlideCount;
-      result.push(items.slice(lastStart, lastStart + itemsPerSlideCount));
+      result.push(getSlideItems(totalSlides - 1, true));
     }
 
     for (let i = 0; i < totalSlides; i++) {
-      const start = i * itemsPerSlideCount;
-      result.push(items.slice(start, start + itemsPerSlideCount));
+      result.push(getSlideItems(i, loop));
     }
 
     if (loop) {
-      result.push(items.slice(0, itemsPerSlideCount));
+      result.push(getSlideItems(0, true));
     }
 
     return result;
