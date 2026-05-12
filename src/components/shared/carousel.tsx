@@ -266,7 +266,7 @@ export default function Carousel<T>({
       onMouseLeave={() => (isHovered.current = false)}
     >
       <div
-        className="overflow-hidden"
+        className="overflow-hidden pt-2 -mt-2"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
