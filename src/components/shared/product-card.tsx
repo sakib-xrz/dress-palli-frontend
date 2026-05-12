@@ -28,6 +28,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1);
   const [showSizeValidationError, setShowSizeValidationError] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isSmUp = useMediaQuery("(min-width: 640px)");
   const { addToCart, setBuyNowItem } = useCartStore();
 
   const selectedVariantData = product.variants?.find(
@@ -169,8 +170,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                       key={variant.id}
                       onClick={() => !isOutOfStock && selectVariant(variant.id)}
                       disabled={isOutOfStock}
-                      // size="icon"
-                      className={cn(isSelected && "bg-primary text-white max-w-full")}
+                      className={cn(isSelected && "bg-primary! text-white max-w-full")}
                     >
                       <div className="text-center">
                         <div className="font-semibold text-sm">
@@ -231,25 +231,48 @@ export default function ProductCard({ product, className }: ProductCardProps) {
 
         {/* Action buttons */}
         <div>
-          {modalType === "cart" && (
-            <Button
-              variant="default"
-              onClick={handleAddToCartConfirm}
-              className="w-full"
-            >
-              <IconShoppingCart className="size-4" />
-              Add to Cart
-            </Button>
-          )}
-          {modalType === "buy" && (
-            <Button
-              variant="secondary"
-              onClick={handleBuyNowConfirm}
-              className="w-full"
-            >
-              <IconShoppingBag className="size-4" />
-              Buy Now
-            </Button>
+          {isDesktop || isSmUp ? (
+            <>
+              {modalType === "cart" && (
+                <Button
+                  variant="default"
+                  onClick={handleAddToCartConfirm}
+                  className="w-full"
+                >
+                  <IconShoppingCart className="size-4" />
+                  Add to Cart
+                </Button>
+              )}
+              {modalType === "buy" && (
+                <Button
+                  variant="secondary"
+                  onClick={handleBuyNowConfirm}
+                  className="w-full"
+                >
+                  <IconShoppingBag className="size-4" />
+                  Buy Now
+                </Button>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleAddToCartConfirm}
+                className="flex-1"
+              >
+                <IconShoppingCart className="size-4" />
+                Add to Cart
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleBuyNowConfirm}
+                className="flex-1"
+              >
+                <IconShoppingBag className="size-4" />
+                Buy Now
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -346,30 +369,44 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 mt-auto">
-                <Button
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleOpenDialogOrModal("cart");
-                  }}
-                  className="flex-1 rounded-lg border-border/80 bg-card hover:bg-muted"
-                  size="sm"
-                >
-                  <IconShoppingCart className="w-3.5 h-3.5 block sm:hidden xl:block" />
-                  <span className="hidden sm:block">Add to Cart</span>
-                </Button>
+              <div className="mt-auto">
+                <div className="hidden sm:flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenDialogOrModal("cart");
+                    }}
+                    className="flex-1 rounded-lg border-border/80 bg-card hover:bg-muted"
+                    size="sm"
+                  >
+                    <IconShoppingCart className="w-3.5 h-3.5 block sm:hidden xl:block" />
+                    <span className="hidden sm:block">Add to Cart</span>
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenDialogOrModal("buy");
+                    }}
+                    className="flex-1 rounded-lg"
+                    size="sm"
+                  >
+                    <IconShoppingBag className="w-3.5 h-3.5 block sm:hidden xl:block" />
+                    <span className="hidden sm:block">Buy Now</span>
+                  </Button>
+                </div>
                 <Button
                   variant="default"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleOpenDialogOrModal("buy");
+                    handleOpenDialogOrModal("cart");
                   }}
-                  className="flex-1 rounded-lg"
+                  className="sm:hidden w-full rounded-lg"
                   size="sm"
                 >
-                  <IconShoppingBag className="w-3.5 h-3.5 block sm:hidden xl:block" />
-                  <span className="hidden sm:block">Buy Now</span>
+                  <IconShoppingBag className="w-3.5 h-3.5" />
+                  Get Now
                 </Button>
               </div>
             </div>
