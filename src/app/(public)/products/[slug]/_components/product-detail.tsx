@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -49,6 +49,25 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   });
   const [quantity, setQuantity] = useState(1);
   const [showSizeValidationError, setShowSizeValidationError] = useState(false);
+  const [hideMobileActionBar, setHideMobileActionBar] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const footerEl = document.querySelector("footer");
+    if (!footerEl) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setHideMobileActionBar(entry.isIntersecting);
+      },
+      { threshold: 0.05 },
+    );
+
+    observer.observe(footerEl);
+
+    return () => observer.disconnect();
+  }, []);
 
   const selectedVariantData = product.variants.find(
     (v) => v.id === selectedVariant,
@@ -529,7 +548,13 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       </div>
 
       {!outOfStock && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden">
+        <div
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 transition-transform duration-200 md:hidden",
+            hideMobileActionBar &&
+              "translate-y-full pointer-events-none opacity-0",
+          )}
+        >
           <div className="mx-auto max-w-7xl px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
             <div className="flex items-center gap-2.5">
               <Button

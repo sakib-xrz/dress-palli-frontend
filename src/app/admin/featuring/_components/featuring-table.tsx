@@ -111,7 +111,6 @@ function DraggableFeaturingRow({
 
       {/* Image */}
       <TableCell>
-        <div className="rounded-md overflow-hidden">
           {featuring.banner_url ? (
             <Image
               src={featuring.banner_url}
@@ -125,7 +124,6 @@ function DraggableFeaturingRow({
               No image
             </div>
           )}
-        </div>
       </TableCell>
 
       {/* Category */}

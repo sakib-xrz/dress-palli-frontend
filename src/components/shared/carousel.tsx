@@ -358,10 +358,10 @@ export default function Carousel<T>({
               key={index}
               onClick={() => goToSlide(index)}
               className={cn(
-                "h-2 rounded-full transition-all duration-200",
+                "h-1.5 sm:h-2 rounded-full transition-all duration-200",
                 index === realSlideIndex
-                  ? "bg-primary lg:w-8 w-5"
-                  : "bg-border lg:w-3 w-2 hover:bg-accent",
+                  ? "bg-primary lg:w-8 w-4"
+                  : "bg-border lg:w-3 w-1.5 hover:bg-accent",
               )}
               aria-label={ariaLabelDot(index)}
             />

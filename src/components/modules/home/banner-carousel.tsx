@@ -50,7 +50,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
         className="rounded-2xl"
         showArrows={true}
         showDots={true}
-        dotsClassName="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-full border border-white/25 bg-black/20 px-3 py-2 backdrop-blur"
+        dotsClassName="absolute sm:bottom-4 bottom-2 left-1/2 flex -translate-x-1/2 gap-1 sm:gap-2 rounded-full border border-white/25 bg-black/20 px-1.5 py-1 sm:px-3 sm:py-2 backdrop-blur"
         autoplay={true}
         autoplayInterval={5000}
         loop={true}
