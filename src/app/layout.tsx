@@ -111,7 +111,7 @@ export default async function RootLayout({
   const settings = await getServerPublicSettings();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <OrganizationSchema />
         <WebSiteSchema />

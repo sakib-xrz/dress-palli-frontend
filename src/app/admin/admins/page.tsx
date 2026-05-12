@@ -165,7 +165,7 @@ function AdminsPageContent() {
       <div className="rounded-lg border bg-card p-3 shadow-sm sm:p-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <form onSubmit={handleSearch} className="relative flex-1 bg-background">
+            <form onSubmit={handleSearch} className="relative flex-1">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search by name or email..."

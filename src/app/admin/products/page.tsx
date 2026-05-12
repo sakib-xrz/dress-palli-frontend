@@ -290,7 +290,7 @@ function ProductsPageContent() {
           <div className="flex items-center gap-2">
             <form
               onSubmit={handleSearch}
-              className="relative flex-1 bg-background"
+              className="relative flex-1"
             >
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
               <Input

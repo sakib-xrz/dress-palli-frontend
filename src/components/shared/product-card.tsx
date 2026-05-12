@@ -169,8 +169,8 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                       key={variant.id}
                       onClick={() => !isOutOfStock && selectVariant(variant.id)}
                       disabled={isOutOfStock}
-                      size="icon"
-                      className={cn(isSelected && "bg-primary text-white")}
+                      // size="icon"
+                      className={cn(isSelected && "bg-primary text-white max-w-full")}
                     >
                       <div className="text-center">
                         <div className="font-semibold text-sm">
@@ -298,8 +298,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                   fill
                   className={cn(
                     "object-cover transition-all duration-700 ease-out",
-                    imageLoaded ? "opacity-100 blur-0" : "opacity-0 blur-sm",
-                    "group-hover:scale-105",
+                    imageLoaded ? "opacity-100 blur-0" : "opacity-0 blur-sm",                   
                   )}
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   onLoad={() => setImageLoaded(true)}
