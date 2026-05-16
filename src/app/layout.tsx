@@ -29,10 +29,14 @@ const fontMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
-const SITE_URL = "https://www.demo.dresspalli.com";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.demo.dresspalli.com";
+const OPEN_GRAPH_IMAGE_PATH = "/open-graph.jpg";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getServerPublicSettings();
+  const baseUrl = new URL(SITE_URL);
+  const openGraphImageUrl = new URL(OPEN_GRAPH_IMAGE_PATH, baseUrl).toString();
 
   const title = settings?.title || "Dress Point";
   const description =
@@ -43,12 +47,15 @@ export async function generateMetadata(): Promise<Metadata> {
     "dress, point, fashion, online shopping, women clothing, saree, three piece, bangladeshi fashion";
 
   return {
-    metadataBase: new URL(SITE_URL),
+    metadataBase: baseUrl,
     title: {
       default: title,
       template: `%s | ${title}`,
     },
     description,
+    alternates: {
+      canonical: "/",
+    },
     keywords: keywords.split(",").map((k) => k.trim()),
     authors: [{ name: title }],
     creator: title,
@@ -61,13 +68,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: SITE_URL,
+      url: baseUrl.toString(),
       siteName: title,
       title,
       description,
       images: [
         {
-          url: "/opengraph-image",
+          url: openGraphImageUrl,
           width: 1200,
           height: 630,
           alt: title,
@@ -78,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: ["/twitter-image"],
+      images: [openGraphImageUrl],
       creator: "@dresspoint",
     },
     robots: {
