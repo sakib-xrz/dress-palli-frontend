@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Mono, Lora, Montserrat } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { getServerPublicSettings } from "@/lib/server/settings";
@@ -29,13 +30,36 @@ const fontMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.demo.dresspalli.com";
+const SITE_URL_FALLBACK = "https://demo.dresspalli.com";
 const OPEN_GRAPH_IMAGE_PATH = "/open-graph.jpg";
+
+async function resolveSiteUrl(): Promise<string> {
+  const envSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (envSiteUrl) {
+    return envSiteUrl;
+  }
+
+  try {
+    const requestHeaders = await headers();
+    const forwardedHost =
+      requestHeaders.get("x-forwarded-host") || requestHeaders.get("host");
+    const forwardedProto = requestHeaders.get("x-forwarded-proto");
+
+    if (forwardedHost) {
+      const protocol =
+        forwardedProto || (forwardedHost.includes("localhost") ? "http" : "https");
+      return `${protocol}://${forwardedHost}`;
+    }
+  } catch {
+    // Ignore and use fallback
+  }
+
+  return SITE_URL_FALLBACK;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getServerPublicSettings();
-  const baseUrl = new URL(SITE_URL);
+  const baseUrl = new URL(await resolveSiteUrl());
   const openGraphImageUrl = new URL(OPEN_GRAPH_IMAGE_PATH, baseUrl).toString();
 
   const title = settings?.title || "Dress Point";
