@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +13,63 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { IconLoader2, IconLock, IconMail } from "@tabler/icons-react";
+import { useAuthUser } from "@/hooks/use-auth";
+
+function isLoginPath(path: string) {
+  return path === "/login" || path.startsWith("/login?");
+}
+
+function getSafeCallbackPath(callbackUrl: string | null) {
+  if (!callbackUrl || !callbackUrl.startsWith("/") || isLoginPath(callbackUrl)) {
+    return null;
+  }
+
+  return callbackUrl;
+}
+
+function getSafeReferrerPath() {
+  if (typeof window === "undefined" || !document.referrer) return null;
+
+  try {
+    const referrerUrl = new URL(document.referrer);
+    if (referrerUrl.origin !== window.location.origin) return null;
+
+    const referrerPath = `${referrerUrl.pathname}${referrerUrl.search}${referrerUrl.hash}`;
+    return isLoginPath(referrerPath) ? null : referrerPath;
+  } catch {
+    return null;
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
+  const { data: user, isLoading: isCheckingAuth } = useAuthUser();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isCheckingAuth || !user) return;
+
+    const returnPath =
+      getSafeCallbackPath(callbackUrl) ?? getSafeReferrerPath();
+
+    if (returnPath) {
+      router.replace(returnPath);
+      return;
+    }
+
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.replace("/");
+  }, [callbackUrl, isCheckingAuth, router, user]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,14 +90,31 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect to the callback URL or dashboard
-      router.push(callbackUrl);
+      const returnPath =
+        getSafeCallbackPath(callbackUrl) ?? getSafeReferrerPath();
+
+      if (returnPath) {
+        router.push(returnPath);
+      } else if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+      } else {
+        router.push("/");
+      }
+
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (isCheckingAuth || user) {
+    return (
+      <div className="bg-muted/40 flex min-h-screen items-center justify-center p-4">
+        <IconLoader2 className="text-muted-foreground size-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
