@@ -34,11 +34,6 @@ const SITE_URL_FALLBACK = "https://demo.dresspalli.com";
 const OPEN_GRAPH_IMAGE_PATH = "/open-graph.jpg";
 
 async function resolveSiteUrl(): Promise<string> {
-  const envSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (envSiteUrl) {
-    return envSiteUrl;
-  }
-
   try {
     const requestHeaders = await headers();
     const forwardedHost =
@@ -52,6 +47,11 @@ async function resolveSiteUrl(): Promise<string> {
     }
   } catch {
     // Ignore and use fallback
+  }
+
+  const envSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (envSiteUrl) {
+    return envSiteUrl;
   }
 
   return SITE_URL_FALLBACK;
